@@ -1,4 +1,4 @@
-const CACHE = 'gymtony-pro-v3';
+const CACHE = 'gymtony-pro-v3.1';
 const CORE = [
   './',
   './index.html',
@@ -23,15 +23,35 @@ self.addEventListener('activate', e => {
 });
 
 self.addEventListener('fetch', e => {
-  e.respondWith(
-    caches.match(e.request).then(cached => {
-      return cached || fetch(e.request).then(res => {
-        if (e.request.method === 'GET' && res.status === 200) {
+  if (e.request.method !== 'GET') return;
+  const url = new URL(e.request.url);
+  const isAppShell = e.request.mode === 'navigate' ||
+    url.pathname.endsWith('/') ||
+    url.pathname.endsWith('.html') ||
+    url.pathname.endsWith('.json') ||
+    url.pathname.endsWith('.js');
+
+  if (isAppShell) {
+    e.respondWith(
+      fetch(e.request, { cache: 'no-store' }).then(res => {
+        if (res.status === 200) {
           const clone = res.clone();
           caches.open(CACHE).then(c => c.put(e.request, clone));
         }
         return res;
-      }).catch(() => cached);
-    })
-  );
+      }).catch(() => caches.match(e.request))
+    );
+  } else {
+    e.respondWith(
+      caches.match(e.request).then(cached => {
+        return cached || fetch(e.request).then(res => {
+          if (res.status === 200) {
+            const clone = res.clone();
+            caches.open(CACHE).then(c => c.put(e.request, clone));
+          }
+          return res;
+        }).catch(() => cached);
+      })
+    );
+  }
 });

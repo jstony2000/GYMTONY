@@ -315,6 +315,16 @@ body{padding:calc(10px + env(safe-area-inset-top)) 14px calc(135px + env(safe-ar
 <!-- VISTA 5: AJUSTES Y COPIA DE SEGURIDAD -->
 <div id="view-settings" class="hidden">
   <div class="cfg-card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+      <h3 style="margin:0">Versión instalada</h3>
+      <span id="app-version-badge" style="background:rgba(59,130,246,.2);color:#60a5fa;border:1px solid #3b82f6;padding:4px 10px;border-radius:10px;font-size:.82rem;font-weight:900">v3.1</span>
+    </div>
+    <p>Si subes cambios a GitHub y no aparecen, pulsa este botón. Tus entrenamientos, pesos y GIFs NO se borran.</p>
+    <div class="cfg-btns">
+      <button class="btn-full btn-add" onclick="forceAppUpdate()">Forzar actualización (Limpiar caché)</button>
+    </div>
+  </div>
+  <div class="cfg-card">
     <h3>Copia de seguridad completa</h3>
     <p>Incluye todo: tus pesos, repeticiones, ejercicios nuevos, cambios de grupo y los GIF/fotos que hayas subido desde el móvil.</p>
     <div class="cfg-btns">
@@ -400,6 +410,7 @@ body{padding:calc(10px + env(safe-area-inset-top)) 14px calc(135px + env(safe-ar
 </nav>
 
 <script>
+const APP_VERSION = 'v3.1';
 const DB_KEY = 'gymtony_pro_v2';
 const EX_KEY = 'gymtony_exercises_v3';
 const CFG_KEY = 'gymtony_cfg_v2';
@@ -1026,13 +1037,39 @@ function importBackup(ev){
   reader.readAsText(file);
 }
 
+
+async function forceAppUpdate(){
+  showToast('Actualizando...');
+  try{
+    if('serviceWorker' in navigator){
+      const regs = await navigator.serviceWorker.getRegistrations();
+      for(const r of regs) await r.unregister();
+    }
+    if('caches' in window){
+      const keys = await caches.keys();
+      for(const k of keys) await caches.delete(k);
+    }
+  }catch(e){}
+  window.location.href = window.location.pathname + '?v=' + Date.now();
+}
+
 (async function boot(){
   document.getElementById('today-label').textContent = new Date().toLocaleDateString('es-ES',{weekday:'short',day:'numeric',month:'short'}).toUpperCase();
   await initMediaDB();
   await hydrateMediaCache();
   stopTimer();
   updateBadges();
-  if('serviceWorker' in navigator){ navigator.serviceWorker.register('./sw.js').catch(()=>{}); }
+  const vb = document.getElementById('app-version-badge');
+  if(vb) vb.textContent = APP_VERSION;
+  if('serviceWorker' in navigator){
+    navigator.serviceWorker.register('./sw.js').then(reg => {
+      reg.update().catch(()=>{});
+    }).catch(()=>{});
+    let refreshing = false;
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      if(!refreshing){ refreshing = true; window.location.reload(); }
+    });
+  }
 })();
 </script>
 </body>
