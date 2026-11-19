@@ -1,4 +1,4 @@
-const CACHE = 'gymtony-pro-v3.1';
+const CACHE = 'gymtony-pro-v3.2';
 const CORE = [
   './',
   './index.html',
@@ -24,6 +24,7 @@ self.addEventListener('activate', e => {
 
 self.addEventListener('fetch', e => {
   if (e.request.method !== 'GET') return;
+  if (e.request.url.includes('api.github.com') || e.request.url.includes('raw.githubusercontent.com')) return;
   const url = new URL(e.request.url);
   const isAppShell = e.request.mode === 'navigate' ||
     url.pathname.endsWith('/') ||

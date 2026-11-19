@@ -222,7 +222,10 @@ body{padding:calc(10px + env(safe-area-inset-top)) 14px calc(135px + env(safe-ar
 
 <div class="topbar">
   <div class="brand"><img src="./icons/logo-red-192x192.png" alt="">GYM<span>TONY</span></div>
-  <div class="top-pill" id="today-label"></div>
+  <div style="display:flex;align-items:center;gap:6px">
+    <button class="top-pill" id="sync-pill" onclick="manualQuickSync()" style="cursor:pointer;display:none">☁</button>
+    <div class="top-pill" id="today-label"></div>
+  </div>
 </div>
 
 <!-- VISTA 1: INICIO (3 BLOQUES) -->
@@ -317,11 +320,44 @@ body{padding:calc(10px + env(safe-area-inset-top)) 14px calc(135px + env(safe-ar
   <div class="cfg-card">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
       <h3 style="margin:0">Versión instalada</h3>
-      <span id="app-version-badge" style="background:rgba(59,130,246,.2);color:#60a5fa;border:1px solid #3b82f6;padding:4px 10px;border-radius:10px;font-size:.82rem;font-weight:900">v3.1</span>
+      <span id="app-version-badge" style="background:rgba(59,130,246,.2);color:#60a5fa;border:1px solid #3b82f6;padding:4px 10px;border-radius:10px;font-size:.82rem;font-weight:900">v3.2</span>
     </div>
     <p>Si subes cambios a GitHub y no aparecen, pulsa este botón. Tus entrenamientos, pesos y GIFs NO se borran.</p>
     <div class="cfg-btns">
       <button class="btn-full btn-add" onclick="forceAppUpdate()">Forzar actualización (Limpiar caché)</button>
+    </div>
+  </div>
+  <div class="cfg-card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+      <h3 style="margin:0">Sincronización GitHub (Nube)</h3>
+      <span id="gh-status-badge" style="font-size:.72rem;font-weight:800;color:var(--muted)">Sin configurar</span>
+    </div>
+    <p>Guarda automáticamente tus entrenamientos, ejercicios nuevos y GIFs en tu repositorio para tener lo mismo en móvil y PC.</p>
+    <label class="field-lbl">Usuario GitHub</label>
+    <input type="text" id="gh-owner" class="field-inp" placeholder="jstony2000">
+    <div style="display:grid;grid-template-columns:2fr 1fr;gap:8px">
+      <div>
+        <label class="field-lbl">Repositorio</label>
+        <input type="text" id="gh-repo" class="field-inp" placeholder="GYMTONY">
+      </div>
+      <div>
+        <label class="field-lbl">Rama</label>
+        <input type="text" id="gh-branch" class="field-inp" placeholder="main">
+      </div>
+    </div>
+    <label class="field-lbl">Token personal de GitHub (Fine-grained o Classic)</label>
+    <input type="password" id="gh-token" class="field-inp" placeholder="github_pat_... o ghp_...">
+    <label style="display:flex;align-items:center;gap:8px;margin-top:10px;font-size:.82rem;font-weight:700;cursor:pointer">
+      <input type="checkbox" id="gh-auto" style="width:18px;height:18px;accent-color:var(--ok)">
+      Sincronizar automáticamente al abrir y guardar
+    </label>
+    <div id="gh-last-sync" style="font-size:.74rem;color:var(--muted);margin-top:8px"></div>
+    <div class="cfg-btns" style="margin-top:12px">
+      <button class="btn-full btn-save" onclick="saveGhConfig()">Guardar Config</button>
+    </div>
+    <div class="cfg-btns" style="margin-top:8px">
+      <button class="btn-full btn-add" onclick="pushToGitHub(true)">↑ Subir a GitHub</button>
+      <button class="btn-full btn-add" onclick="pullFromGitHub(true)">↓ Bajar de GitHub</button>
     </div>
   </div>
   <div class="cfg-card">
@@ -410,10 +446,12 @@ body{padding:calc(10px + env(safe-area-inset-top)) 14px calc(135px + env(safe-ar
 </nav>
 
 <script>
-const APP_VERSION = 'v3.1';
+const APP_VERSION = 'v3.2';
 const DB_KEY = 'gymtony_pro_v2';
 const EX_KEY = 'gymtony_exercises_v3';
 const CFG_KEY = 'gymtony_cfg_v2';
+const GH_KEY = 'gymtony_gh_v32';
+const TS_KEY = 'gymtony_ts_v32';
 
 const DEFAULT_EXERCISES = [
   // PECHO + TRICEPS (incluye Patada de Tríceps con Polea ya movida a Tríceps)
@@ -468,6 +506,9 @@ const SUB_MAP = {
 let exercises = JSON.parse(localStorage.getItem(EX_KEY) || 'null') || DEFAULT_EXERCISES;
 let logs = JSON.parse(localStorage.getItem(DB_KEY) || '{}');
 let cfg = JSON.parse(localStorage.getItem(CFG_KEY) || '{"rest":90}');
+let ghCfg = JSON.parse(localStorage.getItem(GH_KEY) || '{"owner":"jstony2000","repo":"GYMTONY","branch":"main","token":"","auto":true}');
+let localUpdatedAt = parseInt(localStorage.getItem(TS_KEY) || '0', 10);
+let isSyncing = false;
 
 let currentCat = 'pecho';
 let currentSub = 'Todos';
@@ -533,9 +574,17 @@ function getAllCustomMedia(){
 }
 
 function getExImgSrc(ex){
-  if(ex.customMedia) return mediaUrlCache[ex.id] || './icons/logo-red-192x192.png';
+  if(ex.customMedia && mediaUrlCache[ex.id]) return mediaUrlCache[ex.id];
   if(ex.file) return './ejercicios/' + encodeURIComponent(ex.file);
   return './icons/logo-red-192x192.png';
+}
+function imgFallback(el, encodedFile){
+  if(!encodedFile || el.dataset.triedRaw){ el.src='./icons/logo-red-192x192.png'; return; }
+  el.dataset.triedRaw = '1';
+  const owner = ghCfg.owner || 'jstony2000';
+  const repo = ghCfg.repo || 'GYMTONY';
+  const branch = ghCfg.branch || 'main';
+  el.src = `https://raw.githubusercontent.com/${owner}/${repo}/${branch}/ejercicios/${encodedFile}`;
 }
 
 async function hydrateMediaCache(){
@@ -580,6 +629,7 @@ function switchTab(tab){
   }else if(tab==='settings'){
     document.getElementById('view-settings').classList.remove('hidden');
     document.getElementById('nav-settings').classList.add('active');
+    loadGhForm();
   }
   window.scrollTo(0,0);
 }
@@ -646,7 +696,7 @@ function renderExList(){
     const pr = hist.reduce((m,h)=>Math.max(m,...h.sets.map(s=>Number(s.w)||0)),0);
     const lastTxt = last ? `${last.date.slice(5)} · ${last.sets.map(s=>`${s.w}kg×${s.r}`).join(' | ')}` : 'Sin registros previos';
     return `<div class="ex-card ${doneToday?'done-today':''}" onclick="openExercise('${ex.id}')">
-      <img class="ex-thumb" src="${getExImgSrc(ex)}" loading="lazy" alt="">
+      <img class="ex-thumb" src="${getExImgSrc(ex)}" onerror="imgFallback(this,'${ex.file?encodeURIComponent(ex.file):''}')" loading="lazy" alt="">
       <div class="ex-meta">
         <div class="ex-name">${ex.name}</div>
         <div class="ex-last">${lastTxt}</div>
@@ -668,7 +718,10 @@ async function openExercise(id){
   hideAllViews();
   document.getElementById('view-detail').classList.remove('hidden');
   document.getElementById('det-title').textContent = currentEx.name;
-  document.getElementById('det-img').src = getExImgSrc(currentEx);
+  const detImg = document.getElementById('det-img');
+  delete detImg.dataset.triedRaw;
+  detImg.onerror = () => imgFallback(detImg, currentEx.file ? encodeURIComponent(currentEx.file) : '');
+  detImg.src = getExImgSrc(currentEx);
 
   const hist = logs[id] || [];
   const t = todayStr();
@@ -763,9 +816,11 @@ async function saveExModal(){
       exercises[idx].sub = sub;
       if(pendingMediaData){
         exercises[idx].customMedia = true;
+        exercises[idx].dirtyMedia = true;
         await saveCustomMedia(editingExId, pendingMediaData);
       }
       saveExercises();
+      touchLocalAndSync();
       closeExModal();
       showToast('Ejercicio actualizado ✓');
       if(!document.getElementById('view-detail').classList.contains('hidden')){
@@ -783,13 +838,15 @@ async function saveExModal(){
       sub,
       name,
       file: '',
-      customMedia: !!pendingMediaData
+      customMedia: !!pendingMediaData,
+      dirtyMedia: !!pendingMediaData
     };
     if(pendingMediaData){
       await saveCustomMedia(newId, pendingMediaData);
     }
     exercises.unshift(newEx);
     saveExercises();
+    touchLocalAndSync();
     closeExModal();
     showToast('Ejercicio añadido ✓');
     currentCat = cat;
@@ -803,6 +860,7 @@ function deleteCurrentExercise(){
   if(!confirm('¿Eliminar este ejercicio de la lista?')) return;
   exercises = exercises.filter(e=>e.id!==editingExId);
   saveExercises();
+  touchLocalAndSync();
   closeExModal();
   showToast('Ejercicio eliminado');
   backToList();
@@ -895,6 +953,7 @@ function saveWorkout(){
   else logs[currentEx.id].unshift(entry);
 
   localStorage.setItem(DB_KEY, JSON.stringify(logs));
+  touchLocalAndSync();
   showToast('Sesión guardada ✓');
   openExercise(currentEx.id);
 }
@@ -1038,6 +1097,197 @@ function importBackup(ev){
 }
 
 
+
+/* SINCRONIZACION GITHUB REST API */
+function utf8ToBase64(str){
+  const bytes = new TextEncoder().encode(str);
+  let bin = '';
+  for(let i=0;i<bytes.length;i++) bin += String.fromCharCode(bytes[i]);
+  return btoa(bin);
+}
+function base64ToUtf8(b64){
+  const bin = atob(b64.replace(/\s/g,''));
+  const bytes = new Uint8Array(bin.length);
+  for(let i=0;i<bin.length;i++) bytes[i] = bin.charCodeAt(i);
+  return new TextDecoder().decode(bytes);
+}
+
+function setSyncStatus(state, text){
+  const pill = document.getElementById('sync-pill');
+  const badge = document.getElementById('gh-status-badge');
+  const lastEl = document.getElementById('gh-last-sync');
+  if(pill){
+    pill.style.display = ghCfg.token ? 'inline-block' : 'none';
+    pill.textContent = state==='syncing' ? '☁ ...' : (state==='ok' ? '☁ OK' : (state==='err' ? '☁ !' : '☁'));
+    pill.style.color = state==='ok' ? '#4ade80' : (state==='err' ? '#fca5a5' : '#60a5fa');
+    pill.style.borderColor = state==='ok' ? '#22c55e' : (state==='err' ? '#ef4444' : 'var(--border)');
+  }
+  if(badge){
+    badge.textContent = text || (ghCfg.token ? 'Conectado' : 'Sin configurar');
+    badge.style.color = state==='ok' ? '#4ade80' : (state==='err' ? '#fca5a5' : '#60a5fa');
+  }
+  if(lastEl && state==='ok'){
+    lastEl.textContent = 'Última sincronización: ' + new Date().toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  }
+}
+
+function loadGhForm(){
+  document.getElementById('gh-owner').value = ghCfg.owner || 'jstony2000';
+  document.getElementById('gh-repo').value = ghCfg.repo || 'GYMTONY';
+  document.getElementById('gh-branch').value = ghCfg.branch || 'main';
+  document.getElementById('gh-token').value = ghCfg.token || '';
+  document.getElementById('gh-auto').checked = ghCfg.auto !== false;
+  setSyncStatus(ghCfg.token ? 'ok' : 'idle', ghCfg.token ? 'Configurado' : 'Sin configurar');
+}
+
+function saveGhConfig(){
+  ghCfg = {
+    owner: document.getElementById('gh-owner').value.trim() || 'jstony2000',
+    repo: document.getElementById('gh-repo').value.trim() || 'GYMTONY',
+    branch: document.getElementById('gh-branch').value.trim() || 'main',
+    token: document.getElementById('gh-token').value.trim(),
+    auto: document.getElementById('gh-auto').checked
+  };
+  localStorage.setItem(GH_KEY, JSON.stringify(ghCfg));
+  setSyncStatus(ghCfg.token ? 'ok' : 'idle', ghCfg.token ? 'Guardado' : 'Sin configurar');
+  showToast('Configuración GitHub guardada ✓');
+  if(ghCfg.token && ghCfg.auto) autoSyncOnBoot();
+}
+
+function ghHeaders(){
+  const h = { 'Accept': 'application/vnd.github+json' };
+  if(ghCfg.token) h['Authorization'] = 'Bearer ' + ghCfg.token;
+  return h;
+}
+
+async function ghGetFile(path){
+  const url = `https://api.github.com/repos/${ghCfg.owner}/${ghCfg.repo}/contents/${path}?ref=${encodeURIComponent(ghCfg.branch)}&t=${Date.now()}`;
+  const res = await fetch(url, { headers: ghHeaders(), cache: 'no-store' });
+  if(res.status === 404) return null;
+  if(!res.ok) throw new Error('HTTP ' + res.status);
+  return await res.json();
+}
+
+async function ghPutFile(path, base64Content, message){
+  const existing = await ghGetFile(path);
+  const url = `https://api.github.com/repos/${ghCfg.owner}/${ghCfg.repo}/contents/${path}`;
+  const body = { message, content: base64Content, branch: ghCfg.branch };
+  if(existing && existing.sha) body.sha = existing.sha;
+  const res = await fetch(url, {
+    method: 'PUT',
+    headers: { ...ghHeaders(), 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  });
+  if(!res.ok){
+    const errTxt = await res.text().catch(()=>res.status);
+    throw new Error('Error ' + res.status + ': ' + String(errTxt).slice(0,80));
+  }
+  return await res.json();
+}
+
+function touchLocalAndSync(){
+  localUpdatedAt = Date.now();
+  localStorage.setItem(TS_KEY, String(localUpdatedAt));
+  if(ghCfg.token && ghCfg.auto){
+    pushToGitHub(false);
+  }
+}
+
+async function pushToGitHub(manual){
+  if(!ghCfg.token){
+    if(manual) showToast('Configura tu Token de GitHub primero');
+    return;
+  }
+  if(isSyncing) return;
+  isSyncing = true;
+  setSyncStatus('syncing', 'Subiendo...');
+  try{
+    // 1. Subir GIFs/fotos personalizados nuevos a ejercicios/
+    for(const ex of exercises){
+      if(ex.dirtyMedia && ex.customMedia){
+        const dataUrl = await getCustomMedia(ex.id);
+        if(dataUrl && dataUrl.includes('base64,')){
+          const mimeMatch = dataUrl.match(/^data:image\/([a-zA-Z0-9+]+);base64,/);
+          let ext = mimeMatch ? mimeMatch[1].toLowerCase() : 'gif';
+          if(ext === 'jpeg') ext = 'jpg';
+          const rawB64 = dataUrl.split('base64,')[1];
+          const fname = `custom_${ex.id}.${ext}`;
+          await ghPutFile('ejercicios/' + fname, rawB64, 'GymTony media: ' + ex.name);
+          ex.file = fname;
+          ex.dirtyMedia = false;
+          saveExercises();
+        }
+      }
+    }
+    // 2. Subir gymtony_data.json
+    if(!localUpdatedAt){
+      localUpdatedAt = Date.now();
+      localStorage.setItem(TS_KEY, String(localUpdatedAt));
+    }
+    const payload = { version: APP_VERSION, updatedAt: localUpdatedAt, logs, exercises, cfg };
+    await ghPutFile('gymtony_data.json', utf8ToBase64(JSON.stringify(payload)), 'GymTony sync ' + todayStr());
+    setSyncStatus('ok', 'Sincronizado');
+    if(manual) showToast('Subido a GitHub ✓');
+  }catch(err){
+    console.error(err);
+    setSyncStatus('err', 'Error sync');
+    if(manual) showToast('Error al subir: ' + err.message);
+  }finally{
+    isSyncing = false;
+  }
+}
+
+async function pullFromGitHub(manual){
+  if(!ghCfg.owner || !ghCfg.repo) return;
+  if(isSyncing) return;
+  isSyncing = true;
+  setSyncStatus('syncing', 'Bajando...');
+  try{
+    const file = await ghGetFile('gymtony_data.json');
+    if(!file || !file.content){
+      setSyncStatus('ok', 'Sin datos nube');
+      if(manual) showToast('No hay archivo en GitHub aún. Pulsa Subir primero.');
+      return;
+    }
+    const remote = JSON.parse(base64ToUtf8(file.content));
+    const remoteTs = remote.updatedAt || 0;
+    if(manual || remoteTs > localUpdatedAt){
+      if(remote.logs){ logs = remote.logs; localStorage.setItem(DB_KEY, JSON.stringify(logs)); }
+      if(remote.exercises){ exercises = remote.exercises; saveExercises(); }
+      if(remote.cfg){ cfg = remote.cfg; localStorage.setItem(CFG_KEY, JSON.stringify(cfg)); }
+      localUpdatedAt = remoteTs || Date.now();
+      localStorage.setItem(TS_KEY, String(localUpdatedAt));
+      updateBadges();
+      if(!document.getElementById('view-list').classList.contains('hidden')) renderExList();
+      if(!document.getElementById('view-progress').classList.contains('hidden')) renderGlobalProgress();
+      setSyncStatus('ok', 'Sincronizado');
+      showToast('Datos descargados de GitHub ✓');
+    } else if(localUpdatedAt > remoteTs && ghCfg.token && ghCfg.auto){
+      isSyncing = false;
+      await pushToGitHub(false);
+      return;
+    } else {
+      setSyncStatus('ok', 'Al día');
+    }
+  }catch(err){
+    console.error(err);
+    setSyncStatus('err', 'Error sync');
+    if(manual) showToast('Error al bajar: ' + err.message);
+  }finally{
+    isSyncing = false;
+  }
+}
+
+async function autoSyncOnBoot(){
+  if(!ghCfg.token || !ghCfg.auto) return;
+  await pullFromGitHub(false);
+}
+
+function manualQuickSync(){
+  if(!ghCfg.token) return switchTab('settings');
+  pullFromGitHub(true);
+}
+
 async function forceAppUpdate(){
   showToast('Actualizando...');
   try{
@@ -1059,6 +1309,8 @@ async function forceAppUpdate(){
   await hydrateMediaCache();
   stopTimer();
   updateBadges();
+  setSyncStatus(ghCfg.token ? 'ok' : 'idle', ghCfg.token ? 'Conectado' : 'Sin configurar');
+  if(ghCfg.token && ghCfg.auto) autoSyncOnBoot();
   const vb = document.getElementById('app-version-badge');
   if(vb) vb.textContent = APP_VERSION;
   if('serviceWorker' in navigator){
