@@ -503,7 +503,7 @@ body{padding:calc(10px + env(safe-area-inset-top)) 14px calc(135px + env(safe-ar
 </nav>
 
 <script>
-const APP_VERSION = 'v3.3';
+const APP_VERSION = 'v3.3.6';
 const DB_KEY = 'gymtony_pro_v2';
 const EX_KEY = 'gymtony_exercises_v3';
 const CFG_KEY = 'gymtony_cfg_v2';
@@ -666,7 +666,18 @@ function showToast(msg){
   setTimeout(()=>t.classList.remove('show'),1900);
 }
 
-let navDepth = 0;
+let hIdx = 0;
+
+function setNavState(stateObj, level){
+  hIdx = level;
+  const payload = Object.assign({}, stateObj, { hIdx: level });
+  const curLevel = (history.state && typeof history.state.hIdx === 'number') ? history.state.hIdx : 0;
+  if(level > curLevel){
+    history.pushState(payload, '');
+  } else {
+    history.replaceState(payload, '');
+  }
+}
 
 function hideAllViews(){
   ['view-home','view-list','view-detail','view-progress','view-settings'].forEach(id=>{
@@ -698,21 +709,15 @@ function renderTabDirect(tab){
 function switchTab(tab, fromPop){
   if(!fromPop){
     if(tab === 'home'){
-      if(navDepth > 0){
-        const steps = navDepth;
-        navDepth = 0;
+      if(hIdx > 0){
+        const steps = hIdx;
+        hIdx = 0;
         history.go(-steps);
         return;
       }
-      history.replaceState({gymView:'home', depth:0}, '');
+      history.replaceState({gymView:'home', hIdx:0}, '');
     } else {
-      if(navDepth === 0){
-        navDepth = 1;
-        history.pushState({gymView:tab, depth:1}, '');
-      } else {
-        navDepth = 1;
-        history.replaceState({gymView:tab, depth:1}, '');
-      }
+      setNavState({gymView:tab}, 1);
     }
   }
   renderTabDirect(tab);
@@ -751,8 +756,7 @@ function renderCategoryDirect(cat, keepSub){
 
 function openCategory(cat, fromPop){
   if(!fromPop){
-    navDepth = 1;
-    history.pushState({gymView:'list', cat:cat, sub:'Todos', depth:1}, '');
+    setNavState({gymView:'list', cat:cat, sub:'Todos'}, 1);
   }
   renderCategoryDirect(cat, false);
 }
@@ -812,12 +816,7 @@ async function openExercise(id, fromPop){
   if(currentEx.customMedia) await getCustomMedia(currentEx.id);
 
   if(!fromPop){
-    if(history.state && history.state.gymView === 'detail'){
-      history.replaceState({gymView:'detail', cat:currentCat, sub:currentSub, exId:id, depth:navDepth}, '');
-    } else {
-      navDepth = Math.max(1, navDepth) + 1;
-      history.pushState({gymView:'detail', cat:currentCat, sub:currentSub, exId:id, depth:navDepth}, '');
-    }
+    setNavState({gymView:'detail', cat:currentCat, sub:currentSub, exId:id}, 2);
   }
 
   document.getElementById('ex-modal').classList.add('hidden');
@@ -850,7 +849,7 @@ async function openExercise(id, fromPop){
 }
 
 function backToList(fromPop){
-  if(!fromPop && history.state && history.state.gymView === 'detail' && navDepth > 1){
+  if(!fromPop && history.state && history.state.gymView === 'detail' && hIdx >= 2){
     history.back();
     return;
   }
@@ -893,8 +892,7 @@ async function openExModal(exId, fromPop){
     document.getElementById('m-del-wrap').classList.add('hidden');
   }
   if(!fromPop){
-    navDepth += 1;
-    history.pushState({gymView:'modal', prev:history.state, exId:exId, depth:navDepth}, '');
+    setNavState({gymView:'modal', exId:exId}, 3);
   }
   document.getElementById('ex-modal').classList.remove('hidden');
 }
@@ -945,8 +943,7 @@ function openFullscreenMedia(fromPop){
   fsZoomIdx = 0;
   applyFsVisualState();
   if(!fromPop){
-    navDepth += 1;
-    history.pushState({gymView:'fsmedia', exId:currentEx.id, depth:navDepth}, '');
+    setNavState({gymView:'fsmedia', exId:currentEx.id}, 3);
   }
   fsModal.classList.remove('hidden');
 }
@@ -1542,12 +1539,12 @@ async function forceAppUpdate(){
 
 window.addEventListener('popstate', async (e) => {
   const st = e.state;
-  if(!st || !st.gymView || st.gymView === 'home'){
-    navDepth = 0;
+  if(!st || !st.gymView || st.gymView === 'home' || st.hIdx === 0){
+    hIdx = 0;
     renderTabDirect('home');
     return;
   }
-  navDepth = typeof st.depth === 'number' ? st.depth : Math.max(0, navDepth - 1);
+  hIdx = typeof st.hIdx === 'number' ? st.hIdx : Math.max(0, hIdx - 1);
   if(st.gymView === 'progress' || st.gymView === 'settings'){
     renderTabDirect(st.gymView);
   } else if(st.gymView === 'list'){
@@ -1565,8 +1562,8 @@ window.addEventListener('popstate', async (e) => {
 });
 
 (async function boot(){
-  navDepth = 0;
-  history.replaceState({gymView:'home', depth:0}, '');
+  hIdx = 0;
+  history.replaceState({gymView:'home', hIdx:0}, '');
   document.getElementById('today-label').textContent = new Date().toLocaleDateString('es-ES',{weekday:'short',day:'numeric',month:'short'}).toUpperCase();
   await initMediaDB();
   await hydrateMediaCache();
