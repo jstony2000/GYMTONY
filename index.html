@@ -225,6 +225,62 @@ body{padding:calc(10px + env(safe-area-inset-top)) 14px calc(135px + env(safe-ar
 .toast{position:fixed;top:16px;left:50%;transform:translateX(-50%);background:#22c55e;color:#052e16;font-weight:900;font-size:.85rem;padding:10px 18px;border-radius:20px;z-index:200;box-shadow:0 6px 20px rgba(0,0,0,.5);opacity:0;pointer-events:none;transition:.2s}
 .toast.show{opacity:1}
 .hidden{display:none!important}
+/* RUTINA / SESION DE HOY */
+.today-plan-card{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:18px;
+  padding:14px;
+  margin-bottom:14px;
+  box-shadow:0 8px 20px rgba(0,0,0,.28);
+}
+.today-plan-head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:8px}
+.today-plan-title{font-size:.92rem;font-weight:900;text-transform:uppercase;letter-spacing:.4px;color:#fff}
+.today-plan-sub{font-size:.76rem;color:var(--muted);margin-bottom:10px}
+.plan-chips-list{display:flex;flex-direction:column;gap:7px;margin-bottom:10px}
+.plan-item{
+  display:flex;align-items:center;justify-content:space-between;gap:8px;
+  background:#090d16;border:1px solid var(--border);border-radius:12px;padding:8px 10px;
+}
+.plan-item.done-item{border-color:rgba(34,197,94,.45);background:rgba(34,197,94,.08)}
+.plan-item-main{flex:1;min-width:0;cursor:pointer}
+.plan-item-num{font-weight:900;color:#60a5fa;margin-right:6px;font-size:.84rem}
+.plan-item-name{font-weight:800;font-size:.86rem;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.plan-item-meta{font-size:.7rem;color:var(--muted)}
+.plan-item-actions{display:flex;gap:4px;flex-shrink:0}
+.plan-mini-btn{
+  background:var(--surface2);border:1px solid var(--border);color:#fff;
+  width:30px;height:30px;border-radius:8px;font-weight:900;font-size:.8rem;cursor:pointer;
+}
+.plan-mini-btn:active{transform:scale(.94)}
+.plan-mini-btn.rm{color:#fca5a5;border-color:rgba(239,68,68,.35)}
+
+/* PROGRESO POR GRUPO Y GRAFICA */
+.prog-group-tabs{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;margin-bottom:12px}
+.prog-gtab{
+  flex:1;min-width:92px;padding:9px 8px;border-radius:12px;
+  background:var(--surface);border:1px solid var(--border);
+  color:var(--muted);font-weight:800;font-size:.76rem;text-align:center;cursor:pointer;
+}
+.prog-gtab.active[data-grp="pecho"]{background:rgba(220,38,38,.22);border-color:#ef4444;color:#fca5a5}
+.prog-gtab.active[data-grp="pierna"]{background:rgba(37,99,235,.22);border-color:#3b82f6;color:#93c5fd}
+.prog-gtab.active[data-grp="espalda"]{background:rgba(22,163,74,.22);border-color:#22c55e;color:#86efac}
+.prog-metric-row{display:flex;gap:6px;margin-bottom:10px}
+.prog-mbtn{
+  flex:1;padding:8px 10px;border-radius:10px;background:#090d16;border:1px solid var(--border);
+  color:var(--muted);font-size:.76rem;font-weight:800;cursor:pointer;
+}
+.prog-mbtn.active{background:var(--surface2);border-color:var(--accent);color:#fff}
+.chart-card{
+  background:var(--surface);border:1px solid var(--border);border-radius:18px;
+  padding:12px;margin-bottom:14px;
+}
+.chart-head{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:8px}
+.chart-title{font-size:.86rem;font-weight:900;text-transform:uppercase}
+.chart-sub{font-size:.72rem;color:var(--muted)}
+.chart-canvas-wrap{background:#090d16;border:1px solid var(--border);border-radius:12px;padding:6px}
+.chart-canvas-wrap canvas{width:100%;height:190px;display:block}
+
 </style>
 </head>
 <body>
@@ -241,6 +297,19 @@ body{padding:calc(10px + env(safe-area-inset-top)) 14px calc(135px + env(safe-ar
 
 <!-- VISTA 1: INICIO (3 BLOQUES) -->
 <div id="view-home">
+  <div class="today-plan-card" id="today-plan-card">
+    <div class="today-plan-head">
+      <div class="today-plan-title" id="plan-card-title">Sesión de hoy</div>
+      <div style="display:flex;gap:6px">
+        <button class="t-btn" style="padding:6px 10px;font-size:.74rem" onclick="openPlanModal()">+ Elegir / Ordenar</button>
+        <button id="plan-clear-btn" class="t-btn hidden" style="padding:6px 9px;font-size:.74rem" onclick="clearTodayPlan()">Limpiar</button>
+      </div>
+    </div>
+    <div class="today-plan-sub" id="plan-card-sub">Sin ejercicios fijados hoy. Elige los que harás y su orden.</div>
+    <div class="plan-chips-list" id="plan-list-box"></div>
+    <button id="plan-start-btn" class="btn-full btn-save hidden" style="padding:10px" onclick="startNextPlannedExercise()">▶ Ir al siguiente ejercicio</button>
+  </div>
+
   <div class="blocks-grid">
     <div class="block-card block-red" onclick="openCategory('pecho')">
       <div class="block-badge" id="badge-pecho">0 hoy</div>
@@ -317,12 +386,33 @@ body{padding:calc(10px + env(safe-area-inset-top)) 14px calc(135px + env(safe-ar
 
 <!-- VISTA 4: PROGRESO / REGISTRO GLOBAL -->
 <div id="view-progress" class="hidden">
-  <div class="summary-cards">
-    <div class="sum-card"><small>Días entrenados</small><div id="stat-days">0</div></div>
-    <div class="sum-card"><small>Series totales</small><div id="stat-sets">0</div></div>
+  <div class="prog-group-tabs" id="prog-group-tabs">
+    <button class="prog-gtab active" data-grp="pecho" onclick="setProgressGroup('pecho')">Pecho + Tríceps</button>
+    <button class="prog-gtab" data-grp="pierna" onclick="setProgressGroup('pierna')">Pierna + Abd.</button>
+    <button class="prog-gtab" data-grp="espalda" onclick="setProgressGroup('espalda')">Espalda + Bíceps</button>
   </div>
+
+  <div class="summary-cards">
+    <div class="sum-card"><small>Días del grupo</small><div id="stat-days">0</div></div>
+    <div class="sum-card"><small>Series del grupo</small><div id="stat-sets">0</div></div>
+  </div>
+
+  <div class="chart-card">
+    <div class="chart-head">
+      <div class="chart-title" id="prog-chart-title">Evolución · Pecho + Tríceps</div>
+      <div class="chart-sub" id="prog-chart-latest">Sin datos</div>
+    </div>
+    <div class="prog-metric-row">
+      <button id="pm-vol" class="prog-mbtn active" onclick="setProgressMetric('vol')">Volumen sesión (kg)</button>
+      <button id="pm-max" class="prog-mbtn" onclick="setProgressMetric('max')">Peso máx (kg)</button>
+    </div>
+    <div class="chart-canvas-wrap">
+      <canvas id="prog-chart-canvas" width="520" height="190"></canvas>
+    </div>
+  </div>
+
   <div class="hist-box">
-    <div class="hist-title">Últimos entrenamientos</div>
+    <div class="hist-title"><span id="prog-hist-title">Historial · Pecho + Tríceps</span><span id="prog-hist-count"></span></div>
     <div id="global-history"></div>
   </div>
 </div>
@@ -459,6 +549,35 @@ body{padding:calc(10px + env(safe-area-inset-top)) 14px calc(135px + env(safe-ar
   </defs>
 </svg>
 
+
+<!-- MODAL PLANIFICAR / ORDENAR SESION DE HOY -->
+<div id="plan-modal" class="modal-backdrop hidden" onclick="closePlanModal()">
+  <div class="modal-card" onclick="event.stopPropagation()">
+    <h3>Sesión de hoy (orden)</h3>
+    <div style="font-size:.76rem;color:var(--muted);margin-bottom:8px">Elige ejercicios de uno o varios grupos y ordénalos con ↑ y ↓.</div>
+
+    <div class="field-lbl" style="margin-top:4px">Orden actual hoy (<span id="plan-sel-count">0</span>)</div>
+    <div id="plan-modal-selected" class="plan-chips-list"></div>
+
+    <label class="field-lbl">Añadir ejercicios (cualquier grupo)</label>
+    <div style="display:flex;gap:6px;margin-bottom:8px">
+      <select id="plan-cat-filter" class="field-sel" style="width:auto;flex:1;padding:8px 10px;font-size:.82rem" onchange="renderPlanPicker()">
+        <option value="all">Todos los grupos</option>
+        <option value="pecho">Pecho + Tríceps</option>
+        <option value="pierna">Pierna + Abdomen</option>
+        <option value="espalda">Espalda + Bíceps</option>
+      </select>
+      <input type="search" id="plan-search-inp" class="field-inp" style="flex:1.2;margin:0;padding:8px 10px;font-size:.82rem" placeholder="Buscar..." oninput="renderPlanPicker()">
+    </div>
+    <div id="plan-picker-list" style="max-height:220px;overflow-y:auto;display:flex;flex-direction:column;gap:6px;background:#090d16;border:1px solid var(--border);border-radius:12px;padding:8px"></div>
+
+    <div class="action-row" style="margin-top:14px">
+      <button class="btn-full btn-add" onclick="closePlanModal()">Cerrar</button>
+      <button class="btn-full btn-save" onclick="saveAndClosePlanModal()">Listo</button>
+    </div>
+  </div>
+</div>
+
 <!-- VISOR PANTALLA COMPLETA AL TOCAR GIF -->
 <div id="fs-media-modal" class="fs-media-overlay hidden" onclick="closeFullscreenMedia()">
   <div class="fs-media-top" onclick="event.stopPropagation()">
@@ -503,7 +622,7 @@ body{padding:calc(10px + env(safe-area-inset-top)) 14px calc(135px + env(safe-ar
 </nav>
 
 <script>
-const APP_VERSION = 'v3.3.6';
+const APP_VERSION = 'v3.4.0';
 const DB_KEY = 'gymtony_pro_v2';
 const EX_KEY = 'gymtony_exercises_v3';
 const CFG_KEY = 'gymtony_cfg_v2';
@@ -560,9 +679,11 @@ const SUB_MAP = {
   espalda: ['Espalda', 'Bíceps']
 };
 
+const PLAN_KEY = 'gymtony_today_plan_v1';
 let exercises = JSON.parse(localStorage.getItem(EX_KEY) || 'null') || DEFAULT_EXERCISES;
 let logs = JSON.parse(localStorage.getItem(DB_KEY) || '{}');
 let cfg = JSON.parse(localStorage.getItem(CFG_KEY) || '{"rest":90}');
+let todayPlan = JSON.parse(localStorage.getItem(PLAN_KEY) || '{"date":"","ids":[]}');
 let ghCfg = JSON.parse(localStorage.getItem(GH_KEY) || '{"owner":"jstony2000","repo":"GYMTONY","branch":"main","token":"","auto":true}');
 let localUpdatedAt = parseInt(localStorage.getItem(TS_KEY) || '0', 10);
 let isSyncing = false;
@@ -694,6 +815,8 @@ function renderTabDirect(tab){
     document.getElementById('view-home').classList.remove('hidden');
     document.getElementById('nav-home').classList.add('active');
     updateBadges();
+  renderTodayPlanCard();
+    renderTodayPlanCard();
   }else if(tab==='progress'){
     document.getElementById('view-progress').classList.remove('hidden');
     document.getElementById('nav-progress').classList.add('active');
@@ -1154,26 +1277,363 @@ function renderHistory(hist){
   `).join('');
 }
 
-function renderGlobalProgress(){
-  const daysSet = new Set();
-  let totalSets = 0;
-  const flat = [];
-  exercises.forEach(ex=>{
-    (logs[ex.id]||[]).forEach(h=>{
-      daysSet.add(h.date);
-      totalSets += h.sets.length;
-      flat.push({date:h.date, name:ex.name, sets:h.sets});
-    });
-  });
-  document.getElementById('stat-days').textContent = daysSet.size;
-  document.getElementById('stat-sets').textContent = totalSets;
-  flat.sort((a,b)=>b.date.localeCompare(a.date));
-  const box = document.getElementById('global-history');
-  if(!flat.length){
-    box.innerHTML = '<div style="color:var(--muted);font-size:.82rem">Sin entrenamientos registrados todavía.</div>';
+/* SESION DE HOY ORDENADA */
+function saveTodayPlan(){
+  todayPlan.date = todayStr();
+  localStorage.setItem(PLAN_KEY, JSON.stringify(todayPlan));
+  touchLocalAndSync();
+  renderTodayPlanCard();
+}
+
+function getActivePlanIds(){
+  const t = todayStr();
+  if(!todayPlan || todayPlan.date !== t){
+    todayPlan = { date: t, ids: [] };
+    return [];
+  }
+  const validSet = new Set(exercises.map(e=>e.id));
+  todayPlan.ids = (todayPlan.ids || []).filter(id => validSet.has(id));
+  return todayPlan.ids;
+}
+
+function renderTodayPlanCard(){
+  const ids = getActivePlanIds();
+  const listBox = document.getElementById('plan-list-box');
+  const subEl = document.getElementById('plan-card-sub');
+  const titleEl = document.getElementById('plan-card-title');
+  const startBtn = document.getElementById('plan-start-btn');
+  const clearBtn = document.getElementById('plan-clear-btn');
+  if(!listBox) return;
+
+  const t = todayStr();
+  const doneCount = ids.filter(id => (logs[id]||[]).some(h=>h.date===t)).length;
+  titleEl.textContent = ids.length ? `Sesión de hoy (${doneCount}/${ids.length})` : 'Sesión de hoy';
+
+  if(!ids.length){
+    subEl.textContent = 'Sin ejercicios fijados hoy. Elige los que harás y su orden.';
+    listBox.innerHTML = '';
+    startBtn.classList.add('hidden');
+    clearBtn.classList.add('hidden');
     return;
   }
-  box.innerHTML = flat.slice(0,25).map(item=>`
+
+  subEl.textContent = 'Orden de hoy · Toca un ejercicio para registrar series';
+  clearBtn.classList.remove('hidden');
+  startBtn.classList.remove('hidden');
+
+  listBox.innerHTML = ids.map((id, idx) => {
+    const ex = exercises.find(e=>e.id===id);
+    if(!ex) return '';
+    const done = (logs[id]||[]).some(h=>h.date===t);
+    return `<div class="plan-item ${done?'done-item':''}">
+      <div class="plan-item-main" onclick="openExercise('${ex.id}')">
+        <div><span class="plan-item-num">${idx+1}.</span><span class="plan-item-name">${ex.name}</span></div>
+        <div class="plan-item-meta">${ex.sub}${done?' · Completado hoy ✓':''}</div>
+      </div>
+      <div class="plan-item-actions">
+        <button class="plan-mini-btn" title="Subir" onclick="movePlanItem(${idx},-1)">↑</button>
+        <button class="plan-mini-btn" title="Bajar" onclick="movePlanItem(${idx},1)">↓</button>
+        <button class="plan-mini-btn rm" title="Quitar" onclick="removePlanItem(${idx})">✕</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function movePlanItem(idx, delta){
+  const ids = getActivePlanIds();
+  const target = idx + delta;
+  if(target < 0 || target >= ids.length) return;
+  const tmp = ids[idx];
+  ids[idx] = ids[target];
+  ids[target] = tmp;
+  saveTodayPlan();
+}
+
+function removePlanItem(idx){
+  const ids = getActivePlanIds();
+  ids.splice(idx, 1);
+  saveTodayPlan();
+}
+
+function clearTodayPlan(){
+  if(!confirm('¿Quitar todos los ejercicios de la sesión de hoy?')) return;
+  todayPlan = { date: todayStr(), ids: [] };
+  saveTodayPlan();
+}
+
+function startNextPlannedExercise(){
+  const ids = getActivePlanIds();
+  if(!ids.length) return openPlanModal();
+  const t = todayStr();
+  const pendingId = ids.find(id => !(logs[id]||[]).some(h=>h.date===t)) || ids[0];
+  openExercise(pendingId);
+}
+
+function openPlanModal(fromPop){
+  getActivePlanIds();
+  renderPlanSelectedList();
+  renderPlanPicker();
+  if(!fromPop){
+    navDepth += 1;
+    history.pushState({gymView:'planmodal', depth:navDepth}, '');
+  }
+  document.getElementById('plan-modal').classList.remove('hidden');
+}
+
+function closePlanModal(fromPop){
+  document.getElementById('plan-modal').classList.add('hidden');
+  if(!fromPop && history.state && history.state.gymView === 'planmodal'){
+    history.back();
+  }
+}
+
+function saveAndClosePlanModal(){
+  saveTodayPlan();
+  closePlanModal();
+  showToast('Sesión de hoy guardada ✓');
+}
+
+function addExToTodayPlan(exId){
+  const ids = getActivePlanIds();
+  if(!ids.includes(exId)){
+    ids.push(exId);
+    todayPlan.date = todayStr();
+    localStorage.setItem(PLAN_KEY, JSON.stringify(todayPlan));
+    renderPlanSelectedList();
+    renderPlanPicker();
+  }
+}
+
+function renderPlanSelectedList(){
+  const ids = getActivePlanIds();
+  const box = document.getElementById('plan-modal-selected');
+  const cnt = document.getElementById('plan-sel-count');
+  if(cnt) cnt.textContent = ids.length;
+  if(!box) return;
+  if(!ids.length){
+    box.innerHTML = '<div style="color:var(--muted);font-size:.78rem">Aún no has añadido ejercicios a hoy.</div>';
+    return;
+  }
+  box.innerHTML = ids.map((id, idx) => {
+    const ex = exercises.find(e=>e.id===id);
+    if(!ex) return '';
+    return `<div class="plan-item">
+      <div class="plan-item-main">
+        <span class="plan-item-num">${idx+1}.</span>
+        <span class="plan-item-name">${ex.name}</span>
+      </div>
+      <div class="plan-item-actions">
+        <button class="plan-mini-btn" onclick="movePlanItem(${idx},-1);renderPlanSelectedList()">↑</button>
+        <button class="plan-mini-btn" onclick="movePlanItem(${idx},1);renderPlanSelectedList()">↓</button>
+        <button class="plan-mini-btn rm" onclick="removePlanItem(${idx});renderPlanSelectedList();renderPlanPicker()">✕</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderPlanPicker(){
+  const catFilter = document.getElementById('plan-cat-filter')?.value || 'all';
+  const q = (document.getElementById('plan-search-inp')?.value || '').trim().toLowerCase();
+  const ids = getActivePlanIds();
+  const box = document.getElementById('plan-picker-list');
+  if(!box) return;
+  const list = exercises.filter(ex =>
+    (catFilter === 'all' || ex.cat === catFilter) &&
+    (!q || ex.name.toLowerCase().includes(q) || ex.sub.toLowerCase().includes(q))
+  );
+  if(!list.length){
+    box.innerHTML = '<div style="color:var(--muted);font-size:.78rem">Sin resultados.</div>';
+    return;
+  }
+  box.innerHTML = list.map(ex => {
+    const added = ids.includes(ex.id);
+    return `<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;padding:6px 4px;border-bottom:1px solid rgba(255,255,255,.06)">
+      <div style="min-width:0;flex:1">
+        <div style="font-size:.82rem;font-weight:800;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${ex.name}</div>
+        <div style="font-size:.68rem;color:var(--muted)">${ex.sub}</div>
+      </div>
+      <button class="t-btn ${added?'sel':''}" style="padding:6px 10px;font-size:.74rem;flex-shrink:0" onclick="addExToTodayPlan('${ex.id}')">${added?'En lista ✓':'+ Añadir'}</button>
+    </div>`;
+  }).join('');
+}
+
+/* PROGRESO POR GRUPO MUSCULAR Y GRAFICA */
+let progGroup = 'pecho';
+let progMetric = 'vol';
+
+const PROG_GROUP_META = {
+  pecho:   { label: 'Pecho + Tríceps', color: '#ef4444', fillTop: 'rgba(239,68,68,.35)', fillBot: 'rgba(239,68,68,.02)' },
+  pierna:  { label: 'Pierna + Abdomen', color: '#3b82f6', fillTop: 'rgba(59,130,246,.35)', fillBot: 'rgba(59,130,246,.02)' },
+  espalda: { label: 'Espalda + Bíceps', color: '#22c55e', fillTop: 'rgba(34,197,94,.35)', fillBot: 'rgba(34,197,94,.02)' }
+};
+
+function setProgressGroup(grp){
+  progGroup = grp;
+  document.querySelectorAll('#prog-group-tabs .prog-gtab').forEach(btn=>{
+    btn.classList.toggle('active', btn.dataset.grp === grp);
+  });
+  renderGlobalProgress();
+}
+
+function setProgressMetric(metric){
+  progMetric = metric;
+  document.getElementById('pm-vol')?.classList.toggle('active', metric === 'vol');
+  document.getElementById('pm-max')?.classList.toggle('active', metric === 'max');
+  renderGlobalProgress();
+}
+
+function drawGroupChart(points, meta){
+  const canvas = document.getElementById('prog-chart-canvas');
+  if(!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width;
+  const H = canvas.height;
+  ctx.clearRect(0, 0, W, H);
+
+  ctx.fillStyle = '#090d16';
+  ctx.fillRect(0, 0, W, H);
+
+  if(!points.length){
+    ctx.fillStyle = '#94a3b8';
+    ctx.font = 'bold 13px -apple-system, BlinkMacSystemFont, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('Registra series en este grupo para ver la gráfica', W/2, H/2);
+    return;
+  }
+
+  const padL = 44, padR = 16, padT = 18, padB = 28;
+  const plotW = W - padL - padR;
+  const plotH = H - padT - padB;
+  const vals = points.map(p => p.val);
+  const minV = Math.min(...vals);
+  const maxV = Math.max(...vals);
+  const span = (maxV - minV) > 0 ? (maxV - minV) : Math.max(10, maxV * 0.2 || 10);
+  const yMin = Math.max(0, minV - span * 0.15);
+  const yMax = maxV + span * 0.15;
+
+  // Grid lines & Y labels
+  ctx.strokeStyle = 'rgba(148,163,184,.14)';
+  ctx.lineWidth = 1;
+  ctx.font = 'bold 10px -apple-system, BlinkMacSystemFont, sans-serif';
+  ctx.fillStyle = '#94a3b8';
+  ctx.textAlign = 'right';
+  for(let i = 0; i <= 3; i++){
+    const frac = i / 3;
+    const y = padT + plotH * (1 - frac);
+    ctx.beginPath();
+    ctx.moveTo(padL, y);
+    ctx.lineTo(W - padR, y);
+    ctx.stroke();
+    const labelVal = Math.round(yMin + (yMax - yMin) * frac);
+    ctx.fillText(labelVal + ' kg', padL - 6, y + 3);
+  }
+
+  const coords = points.map((p, idx) => {
+    const x = points.length === 1
+      ? padL + plotW / 2
+      : padL + (idx / (points.length - 1)) * plotW;
+    const y = padT + plotH * (1 - ((p.val - yMin) / (yMax - yMin || 1)));
+    return { x, y, p };
+  });
+
+  // Area gradient
+  if(coords.length > 1){
+    const grad = ctx.createLinearGradient(0, padT, 0, padT + plotH);
+    grad.addColorStop(0, meta.fillTop);
+    grad.addColorStop(1, meta.fillBot);
+    ctx.beginPath();
+    ctx.moveTo(coords[0].x, padT + plotH);
+    coords.forEach(c => ctx.lineTo(c.x, c.y));
+    ctx.lineTo(coords[coords.length - 1].x, padT + plotH);
+    ctx.closePath();
+    ctx.fillStyle = grad;
+    ctx.fill();
+  }
+
+  // Line
+  ctx.beginPath();
+  coords.forEach((c, idx) => {
+    if(idx === 0) ctx.moveTo(c.x, c.y);
+    else ctx.lineTo(c.x, c.y);
+  });
+  ctx.strokeStyle = meta.color;
+  ctx.lineWidth = 3;
+  ctx.stroke();
+
+  // Points & X labels
+  ctx.textAlign = 'center';
+  coords.forEach((c, idx) => {
+    ctx.beginPath();
+    ctx.arc(c.x, c.y, 4.5, 0, Math.PI * 2);
+    ctx.fillStyle = meta.color;
+    ctx.fill();
+    ctx.strokeStyle = '#090d16';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+
+    if(points.length <= 7 || idx === 0 || idx === points.length - 1 || idx % Math.ceil(points.length / 5) === 0){
+      ctx.fillStyle = '#94a3b8';
+      ctx.font = 'bold 10px -apple-system, BlinkMacSystemFont, sans-serif';
+      ctx.fillText(c.p.date.slice(5), c.x, H - 8);
+    }
+  });
+}
+
+function renderGlobalProgress(){
+  const meta = PROG_GROUP_META[progGroup] || PROG_GROUP_META.pecho;
+  document.getElementById('prog-chart-title').textContent = `Evolución · ${meta.label}`;
+  document.getElementById('prog-hist-title').textContent = `Historial · ${meta.label}`;
+
+  const groupExIds = new Set(exercises.filter(e => e.cat === progGroup).map(e => e.id));
+  const daysSet = new Set();
+  let totalSets = 0;
+  const byDate = {};
+  const flat = [];
+
+  exercises.forEach(ex => {
+    if(!groupExIds.has(ex.id)) return;
+    (logs[ex.id] || []).forEach(h => {
+      daysSet.add(h.date);
+      totalSets += (h.sets || []).length;
+      const vol = (h.sets || []).reduce((acc, s) => acc + (Number(s.w) || 0) * (Number(s.r) || 0), 0);
+      const maxW = (h.sets || []).reduce((m, s) => Math.max(m, Number(s.w) || 0), 0);
+      if(!byDate[h.date]) byDate[h.date] = { date: h.date, vol: 0, maxW: 0 };
+      byDate[h.date].vol += vol;
+      byDate[h.date].maxW = Math.max(byDate[h.date].maxW, maxW);
+      flat.push({ date: h.date, name: ex.name, sub: ex.sub, sets: h.sets || [] });
+    });
+  });
+
+  document.getElementById('stat-days').textContent = daysSet.size;
+  document.getElementById('stat-sets').textContent = totalSets;
+
+  const sortedDates = Object.keys(byDate).sort();
+  const points = sortedDates.map(d => ({
+    date: d,
+    val: progMetric === 'max' ? Math.round(byDate[d].maxW * 10) / 10 : Math.round(byDate[d].vol)
+  }));
+
+  drawGroupChart(points, meta);
+  const latestEl = document.getElementById('prog-chart-latest');
+  if(latestEl){
+    if(points.length){
+      const lastPt = points[points.length - 1];
+      latestEl.textContent = `Último (${lastPt.date.slice(5)}): ${lastPt.val} kg`;
+    } else {
+      latestEl.textContent = 'Sin datos';
+    }
+  }
+
+  flat.sort((a,b) => b.date.localeCompare(a.date));
+  const cntEl = document.getElementById('prog-hist-count');
+  if(cntEl) cntEl.textContent = flat.length ? `${flat.length} registros` : '';
+
+  const box = document.getElementById('global-history');
+  if(!flat.length){
+    box.innerHTML = `<div style="color:var(--muted);font-size:.82rem">Sin entrenamientos registrados en ${meta.label}.</div>`;
+    return;
+  }
+  box.innerHTML = flat.slice(0,25).map(item => `
     <div class="hist-item">
       <div class="hist-top">
         <span style="font-weight:800;color:#fff">${item.name}</span>
@@ -1458,7 +1918,7 @@ async function pushToGitHub(manual){
       localUpdatedAt = Date.now();
       localStorage.setItem(TS_KEY, String(localUpdatedAt));
     }
-    const payload = { version: APP_VERSION, updatedAt: localUpdatedAt, logs, exercises, cfg };
+    const payload = { version: APP_VERSION, updatedAt: localUpdatedAt, logs, exercises, cfg, todayPlan };
     await ghPutFile('gymtony_data.json', utf8ToBase64(JSON.stringify(payload)), 'GymTony sync ' + todayStr());
     setSyncStatus('ok', 'Sincronizado');
     if(manual) showToast('Subido a GitHub ✓');
@@ -1489,6 +1949,7 @@ async function pullFromGitHub(manual){
       if(remote.logs){ logs = remote.logs; localStorage.setItem(DB_KEY, JSON.stringify(logs)); }
       if(remote.exercises){ exercises = remote.exercises; saveExercises(); }
       if(remote.cfg){ cfg = remote.cfg; localStorage.setItem(CFG_KEY, JSON.stringify(cfg)); }
+      if(remote.todayPlan){ todayPlan = remote.todayPlan; localStorage.setItem(PLAN_KEY, JSON.stringify(todayPlan)); renderTodayPlanCard(); }
       localUpdatedAt = remoteTs || Date.now();
       localStorage.setItem(TS_KEY, String(localUpdatedAt));
       updateBadges();
@@ -1558,6 +2019,8 @@ window.addEventListener('popstate', async (e) => {
     await openExModal(st.exId, true);
   } else if(st.gymView === 'fsmedia'){
     openFullscreenMedia(true);
+  } else if(st.gymView === 'planmodal'){
+    openPlanModal(true);
   }
 });
 
