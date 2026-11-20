@@ -630,13 +630,16 @@ function showToast(msg){
   setTimeout(()=>t.classList.remove('show'),1900);
 }
 
+let navDepth = 0;
+
 function hideAllViews(){
   ['view-home','view-list','view-detail','view-progress','view-settings'].forEach(id=>{
     document.getElementById(id).classList.add('hidden');
   });
 }
 
-function switchTab(tab){
+function renderTabDirect(tab){
+  document.getElementById('ex-modal').classList.add('hidden');
   hideAllViews();
   ['nav-home','nav-progress','nav-settings'].forEach(id=>document.getElementById(id).classList.remove('active'));
   if(tab==='home'){
@@ -655,6 +658,29 @@ function switchTab(tab){
   window.scrollTo(0,0);
 }
 
+function switchTab(tab, fromPop){
+  if(!fromPop){
+    if(tab === 'home'){
+      if(navDepth > 0){
+        const steps = navDepth;
+        navDepth = 0;
+        history.go(-steps);
+        return;
+      }
+      history.replaceState({gymView:'home', depth:0}, '');
+    } else {
+      if(navDepth === 0){
+        navDepth = 1;
+        history.pushState({gymView:tab, depth:1}, '');
+      } else {
+        navDepth = 1;
+        history.replaceState({gymView:tab, depth:1}, '');
+      }
+    }
+  }
+  renderTabDirect(tab);
+}
+
 function updateBadges(){
   const t = todayStr();
   const labels = {pecho:'Empuje', pierna:'Tren inferior y core', espalda:'Tracción'};
@@ -669,17 +695,28 @@ function updateBadges(){
   });
 }
 
-function openCategory(cat){
+function renderCategoryDirect(cat, keepSub){
   currentCat = cat;
-  currentSub = 'Todos';
-  document.getElementById('search-inp').value = '';
+  if(!keepSub){
+    currentSub = 'Todos';
+    document.getElementById('search-inp').value = '';
+  }
   const titles = {pecho:'Pecho + Tríceps',pierna:'Pierna + Abdomen',espalda:'Espalda + Bíceps'};
   document.getElementById('cat-header').textContent = titles[cat];
+  document.getElementById('ex-modal').classList.add('hidden');
   hideAllViews();
   document.getElementById('view-list').classList.remove('hidden');
   renderTabs();
   renderExList();
   window.scrollTo(0,0);
+}
+
+function openCategory(cat, fromPop){
+  if(!fromPop){
+    navDepth = 1;
+    history.pushState({gymView:'list', cat:cat, sub:'Todos', depth:1}, '');
+  }
+  renderCategoryDirect(cat, false);
 }
 
 function renderTabs(){
@@ -731,11 +768,21 @@ function renderExList(){
   }).join('');
 }
 
-async function openExercise(id){
+async function openExercise(id, fromPop){
   currentEx = exercises.find(e=>e.id===id);
   if(!currentEx) return backToList();
   if(currentEx.customMedia) await getCustomMedia(currentEx.id);
 
+  if(!fromPop){
+    if(history.state && history.state.gymView === 'detail'){
+      history.replaceState({gymView:'detail', cat:currentCat, sub:currentSub, exId:id, depth:navDepth}, '');
+    } else {
+      navDepth = Math.max(1, navDepth) + 1;
+      history.pushState({gymView:'detail', cat:currentCat, sub:currentSub, exId:id, depth:navDepth}, '');
+    }
+  }
+
+  document.getElementById('ex-modal').classList.add('hidden');
   hideAllViews();
   document.getElementById('view-detail').classList.remove('hidden');
   document.getElementById('det-title').textContent = currentEx.name;
@@ -763,7 +810,12 @@ async function openExercise(id){
   window.scrollTo(0,0);
 }
 
-function backToList(){
+function backToList(fromPop){
+  if(!fromPop && history.state && history.state.gymView === 'detail' && navDepth > 1){
+    history.back();
+    return;
+  }
+  document.getElementById('ex-modal').classList.add('hidden');
   hideAllViews();
   document.getElementById('view-list').classList.remove('hidden');
   renderTabs();
@@ -779,7 +831,7 @@ function updateModalSubOptions(selectedSub){
   if(selectedSub && subs.includes(selectedSub)) sel.value = selectedSub;
 }
 
-async function openExModal(exId){
+async function openExModal(exId, fromPop){
   editingExId = exId;
   pendingMediaData = null;
   document.getElementById('m-file').value = '';
@@ -801,11 +853,18 @@ async function openExModal(exId){
     document.getElementById('m-preview').src = './icons/logo-red-192x192.png';
     document.getElementById('m-del-wrap').classList.add('hidden');
   }
+  if(!fromPop){
+    navDepth += 1;
+    history.pushState({gymView:'modal', prev:history.state, exId:exId, depth:navDepth}, '');
+  }
   document.getElementById('ex-modal').classList.remove('hidden');
 }
 
-function closeExModal(){
+function closeExModal(fromPop){
   document.getElementById('ex-modal').classList.add('hidden');
+  if(!fromPop && history.state && history.state.gymView === 'modal'){
+    history.back();
+  }
 }
 
 function handleMediaUpload(ev){
@@ -976,7 +1035,7 @@ function saveWorkout(){
   localStorage.setItem(DB_KEY, JSON.stringify(logs));
   touchLocalAndSync();
   showToast('Sesión guardada ✓');
-  openExercise(currentEx.id);
+  openExercise(currentEx.id, true);
 }
 
 function renderHistory(hist){
@@ -1380,7 +1439,31 @@ async function forceAppUpdate(){
   window.location.href = window.location.pathname + '?v=' + Date.now();
 }
 
+window.addEventListener('popstate', async (e) => {
+  const st = e.state;
+  if(!st || !st.gymView || st.gymView === 'home'){
+    navDepth = 0;
+    renderTabDirect('home');
+    return;
+  }
+  navDepth = typeof st.depth === 'number' ? st.depth : Math.max(0, navDepth - 1);
+  if(st.gymView === 'progress' || st.gymView === 'settings'){
+    renderTabDirect(st.gymView);
+  } else if(st.gymView === 'list'){
+    if(st.sub) currentSub = st.sub;
+    renderCategoryDirect(st.cat || currentCat, true);
+  } else if(st.gymView === 'detail'){
+    if(st.cat) currentCat = st.cat;
+    if(st.sub) currentSub = st.sub;
+    await openExercise(st.exId, true);
+  } else if(st.gymView === 'modal'){
+    await openExModal(st.exId, true);
+  }
+});
+
 (async function boot(){
+  navDepth = 0;
+  history.replaceState({gymView:'home', depth:0}, '');
   document.getElementById('today-label').textContent = new Date().toLocaleDateString('es-ES',{weekday:'short',day:'numeric',month:'short'}).toUpperCase();
   await initMediaDB();
   await hydrateMediaCache();
