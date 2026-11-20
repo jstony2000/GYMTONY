@@ -1,4 +1,4 @@
-const CACHE = 'gymtony-pro-v3.4.1';
+const CACHE = 'gymtony-pro-v3.4.2';
 const CORE = [
   './',
   './index.html',

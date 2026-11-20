@@ -296,6 +296,41 @@ body{padding:calc(10px + env(safe-area-inset-top)) 14px calc(135px + env(safe-ar
 .list-tools-row{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:10px}
 .list-hint{font-size:.72rem;color:var(--muted);font-weight:700}
 
+/* RESALTE EN ROJO PARA EJERCICIOS EN SESION DE HOY + DRAG TACTIL */
+.ex-card.in-today-plan{
+  border:2px solid #ef4444;
+  background:linear-gradient(90deg, rgba(220,38,38,.18) 0%, var(--surface) 55%);
+  box-shadow:0 4px 14px rgba(220,38,38,.22);
+}
+.ex-card.in-today-plan.done-today{
+  border-left:5px solid var(--ok);
+  border-top:2px solid #ef4444;
+  border-right:2px solid #ef4444;
+  border-bottom:2px solid #ef4444;
+}
+.ex-today-btn.in-plan{
+  background:rgba(220,38,38,.28) !important;
+  border-color:#ef4444 !important;
+  color:#fecaca !important;
+}
+.ex-card.dragging-card{
+  opacity:.92;
+  transform:scale(1.03);
+  border:2px solid #60a5fa !important;
+  box-shadow:0 14px 28px rgba(0,0,0,.55);
+  z-index:20;
+  position:relative;
+}
+.ex-card.drag-over-card{
+  border-top:3px solid #f59e0b !important;
+}
+.nav-item{position:relative}
+.nav-badge-dot{
+  position:absolute;top:5px;right:18%;
+  background:#ef4444;color:#fff;font-size:.62rem;font-weight:900;
+  min-width:16px;height:16px;line-height:16px;border-radius:9px;padding:0 4px;
+}
+
 </style>
 </head>
 <body>
@@ -312,19 +347,6 @@ body{padding:calc(10px + env(safe-area-inset-top)) 14px calc(135px + env(safe-ar
 
 <!-- VISTA 1: INICIO (3 BLOQUES) -->
 <div id="view-home">
-  <div class="today-plan-card" id="today-plan-card">
-    <div class="today-plan-head">
-      <div class="today-plan-title" id="plan-card-title">Sesión de hoy</div>
-      <div style="display:flex;gap:6px">
-        <button class="t-btn" style="padding:6px 10px;font-size:.74rem" onclick="openPlanModal()">+ Elegir / Ordenar</button>
-        <button id="plan-clear-btn" class="t-btn hidden" style="padding:6px 9px;font-size:.74rem" onclick="clearTodayPlan()">Limpiar</button>
-      </div>
-    </div>
-    <div class="today-plan-sub" id="plan-card-sub" style="cursor:pointer" onclick="openPlanModal()">Sin ejercicios fijados hoy. Toca aquí o en + Elegir / Ordenar.</div>
-    <div class="plan-chips-list" id="plan-list-box"></div>
-    <button id="plan-start-btn" class="btn-full btn-save hidden" style="padding:10px" onclick="startNextPlannedExercise()">▶ Ir al siguiente ejercicio</button>
-  </div>
-
   <div class="blocks-grid">
     <div class="block-card block-red" onclick="openCategory('pecho')">
       <div class="block-badge" id="badge-pecho">0 hoy</div>
@@ -359,11 +381,8 @@ body{padding:calc(10px + env(safe-area-inset-top)) 14px calc(135px + env(safe-ar
   <input type="search" id="search-inp" class="search-box" placeholder="Buscar ejercicio..." oninput="renderExList()">
   <div class="tabs" id="sub-tabs"></div>
   <div class="list-tools-row">
-    <div class="list-hint" id="list-order-hint">Orden manual (usa ↑ ↓ para mover)</div>
-    <div style="display:flex;gap:6px">
-      <button class="t-btn" id="list-plan-pill" style="padding:5px 9px;font-size:.72rem" onclick="openPlanModal()">Hoy: 0</button>
-      <button class="t-btn" id="list-reorder-btn" style="padding:5px 9px;font-size:.72rem" onclick="toggleGroupReorderMode()">Ordenar: OFF</button>
-    </div>
+    <div class="list-hint" id="list-order-hint">Mantén pulsado un ejercicio para moverlo de orden</div>
+    <button class="t-btn" id="list-plan-pill" style="padding:5px 10px;font-size:.72rem" onclick="switchTab('today')">Ver Hoy: 0</button>
   </div>
   <div class="ex-list" id="ex-container"></div>
 </div>
@@ -404,6 +423,22 @@ body{padding:calc(10px + env(safe-area-inset-top)) 14px calc(135px + env(safe-ar
   <div class="hist-box">
     <div class="hist-title"><span>Progreso anterior</span><span id="det-sessions-count"></span></div>
     <div id="det-history"></div>
+  </div>
+</div>
+
+<!-- VISTA: SESION DE HOY -->
+<div id="view-today" class="hidden">
+  <div class="today-plan-card" id="today-plan-card">
+    <div class="today-plan-head">
+      <div class="today-plan-title" id="plan-card-title">Sesión de hoy</div>
+      <div style="display:flex;gap:6px">
+        <button class="t-btn" style="padding:7px 11px;font-size:.76rem" onclick="openPlanModal()">+ Elegir</button>
+        <button id="plan-clear-btn" class="t-btn hidden" style="padding:7px 10px;font-size:.76rem" onclick="clearTodayPlan()">Limpiar</button>
+      </div>
+    </div>
+    <div class="today-plan-sub" id="plan-card-sub" style="cursor:pointer" onclick="openPlanModal()">Sin ejercicios fijados hoy. Entra en un grupo y pulsa "+ Hoy" o toca "+ Elegir".</div>
+    <div class="plan-chips-list" id="plan-list-box"></div>
+    <button id="plan-start-btn" class="btn-full btn-save hidden" style="padding:11px" onclick="startNextPlannedExercise()">▶ Ir al siguiente ejercicio</button>
   </div>
 </div>
 
@@ -634,6 +669,11 @@ body{padding:calc(10px + env(safe-area-inset-top)) 14px calc(135px + env(safe-ar
     <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
     Inicio
   </button>
+  <button class="nav-item" id="nav-today" onclick="switchTab('today')">
+    <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="3" ry="3"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><polyline points="9 15 11 17 15 13"/></svg>
+    Hoy
+    <span id="nav-today-badge" class="nav-badge-dot hidden">0</span>
+  </button>
   <button class="nav-item" id="nav-progress" onclick="switchTab('progress')">
     <svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
     Progreso
@@ -645,7 +685,7 @@ body{padding:calc(10px + env(safe-area-inset-top)) 14px calc(135px + env(safe-ar
 </nav>
 
 <script>
-const APP_VERSION = 'v3.4.1';
+const APP_VERSION = 'v3.4.2';
 const DB_KEY = 'gymtony_pro_v2';
 const EX_KEY = 'gymtony_exercises_v3';
 const CFG_KEY = 'gymtony_cfg_v2';
@@ -824,7 +864,7 @@ function setNavState(stateObj, level){
 }
 
 function hideAllViews(){
-  ['view-home','view-list','view-detail','view-progress','view-settings'].forEach(id=>{
+  ['view-home','view-today','view-list','view-detail','view-progress','view-settings'].forEach(id=>{
     document.getElementById(id).classList.add('hidden');
   });
 }
@@ -834,12 +874,15 @@ function renderTabDirect(tab){
   document.getElementById('fs-media-modal').classList.add('hidden');
   document.getElementById('plan-modal').classList.add('hidden');
   hideAllViews();
-  ['nav-home','nav-progress','nav-settings'].forEach(id=>document.getElementById(id).classList.remove('active'));
+  ['nav-home','nav-today','nav-progress','nav-settings'].forEach(id=>document.getElementById(id).classList.remove('active'));
   if(tab==='home'){
     document.getElementById('view-home').classList.remove('hidden');
     document.getElementById('nav-home').classList.add('active');
     updateBadges();
-  renderTodayPlanCard();
+    renderTodayPlanCard();
+  }else if(tab==='today'){
+    document.getElementById('view-today').classList.remove('hidden');
+    document.getElementById('nav-today').classList.add('active');
     renderTodayPlanCard();
   }else if(tab==='progress'){
     document.getElementById('view-progress').classList.remove('hidden');
@@ -918,13 +961,6 @@ function renderTabs(){
 
 function setSub(s){ currentSub = s; renderTabs(); renderExList(); }
 
-let groupReorderMode = false;
-
-function toggleGroupReorderMode(){
-  groupReorderMode = !groupReorderMode;
-  renderExList();
-}
-
 function toggleExInTodayPlan(exId){
   const ids = getActivePlanIds();
   const idx = ids.indexOf(exId);
@@ -953,29 +989,111 @@ function updateDetailPlanBtn(){
   btn.classList.toggle('in-plan', inPlan);
 }
 
-function moveExerciseInGroup(exId, delta){
-  const q = document.getElementById('search-inp').value.trim().toLowerCase();
-  const visible = exercises.filter(e =>
-    e.cat === currentCat &&
-    (currentSub === 'Todos' || e.sub === currentSub) &&
-    (!q || e.name.toLowerCase().includes(q))
-  );
-  const visPos = visible.findIndex(e => e.id === exId);
-  const targetPos = visPos + delta;
-  if(visPos < 0 || targetPos < 0 || targetPos >= visible.length) return;
-
-  const swapExId = visible[targetPos].id;
-  const idxA = exercises.findIndex(e => e.id === exId);
-  const idxB = exercises.findIndex(e => e.id === swapExId);
-  if(idxA < 0 || idxB < 0) return;
-
-  const temp = exercises[idxA];
-  exercises[idxA] = exercises[idxB];
-  exercises[idxB] = temp;
-
+function reorderExerciseToPosition(draggedId, targetId){
+  if(!draggedId || !targetId || draggedId === targetId) return;
+  const fromIdx = exercises.findIndex(e => e.id === draggedId);
+  const toIdx = exercises.findIndex(e => e.id === targetId);
+  if(fromIdx < 0 || toIdx < 0) return;
+  const [moved] = exercises.splice(fromIdx, 1);
+  exercises.splice(toIdx, 0, moved);
   saveExercises();
   touchLocalAndSync();
   renderExList();
+  showToast('Orden guardado ✓');
+}
+
+function attachGroupTouchDragHandlers(){
+  const container = document.getElementById('ex-container');
+  if(!container) return;
+  const cards = [...container.querySelectorAll('.ex-card[data-exid]')];
+  let pressTimer = null;
+  let draggingCard = null;
+  let draggedId = null;
+  let overCard = null;
+  let startX = 0, startY = 0;
+  let didDrag = false;
+
+  const clearDragVisuals = () => {
+    cards.forEach(c => c.classList.remove('dragging-card', 'drag-over-card'));
+    draggingCard = null;
+    draggedId = null;
+    overCard = null;
+  };
+
+  cards.forEach(card => {
+    card.addEventListener('touchstart', (e) => {
+      if(e.target.closest('button')) return;
+      if(e.touches.length !== 1) return;
+      didDrag = false;
+      startX = e.touches[0].clientX;
+      startY = e.touches[0].clientY;
+      clearTimeout(pressTimer);
+      pressTimer = setTimeout(() => {
+        draggingCard = card;
+        draggedId = card.dataset.exid;
+        didDrag = true;
+        card.classList.add('dragging-card');
+        if(navigator.vibrate) navigator.vibrate(35);
+      }, 320);
+    }, { passive: true });
+
+    card.addEventListener('touchmove', (e) => {
+      if(!draggingCard){
+        if(pressTimer && e.touches.length === 1){
+          const dx = Math.abs(e.touches[0].clientX - startX);
+          const dy = Math.abs(e.touches[0].clientY - startY);
+          if(dx > 10 || dy > 10){
+            clearTimeout(pressTimer);
+            pressTimer = null;
+          }
+        }
+        return;
+      }
+      e.preventDefault();
+      const touch = e.touches[0];
+      const el = document.elementFromPoint(touch.clientX, touch.clientY);
+      const targetCard = el ? el.closest('.ex-card[data-exid]') : null;
+      if(overCard && overCard !== targetCard){
+        overCard.classList.remove('drag-over-card');
+      }
+      if(targetCard && targetCard !== draggingCard){
+        overCard = targetCard;
+        overCard.classList.add('drag-over-card');
+      } else {
+        overCard = null;
+      }
+    }, { passive: false });
+
+    const finishTouch = () => {
+      clearTimeout(pressTimer);
+      pressTimer = null;
+      if(draggingCard){
+        const srcId = draggedId;
+        const dstId = overCard ? overCard.dataset.exid : null;
+        clearDragVisuals();
+        if(srcId && dstId && srcId !== dstId){
+          reorderExerciseToPosition(srcId, dstId);
+        }
+        setTimeout(() => { didDrag = false; }, 120);
+      }
+    };
+
+    card.addEventListener('touchend', finishTouch);
+    card.addEventListener('touchcancel', () => {
+      clearTimeout(pressTimer);
+      pressTimer = null;
+      clearDragVisuals();
+      didDrag = false;
+    });
+
+    card.addEventListener('click', (e) => {
+      if(didDrag){
+        e.stopImmediatePropagation();
+        e.preventDefault();
+        didDrag = false;
+      }
+    }, true);
+  });
 }
 
 function renderExList(){
@@ -985,17 +1103,8 @@ function renderExList(){
 
   const pill = document.getElementById('list-plan-pill');
   if(pill){
-    pill.textContent = `Hoy: ${planIds.length}`;
+    pill.textContent = `Ver Hoy: ${planIds.length}`;
     pill.classList.toggle('sel', planIds.length > 0);
-  }
-  const ordBtn = document.getElementById('list-reorder-btn');
-  const ordHint = document.getElementById('list-order-hint');
-  if(ordBtn){
-    ordBtn.textContent = groupReorderMode ? 'Ordenar: ON ✓' : 'Ordenar grupo';
-    ordBtn.classList.toggle('sel', groupReorderMode);
-  }
-  if(ordHint){
-    ordHint.textContent = groupReorderMode ? 'Usa ↑ y ↓ para cambiar el orden del grupo' : 'Toca + Hoy para añadir a tu sesión';
   }
 
   const filtered = exercises.filter(e=>
@@ -1011,26 +1120,25 @@ function renderExList(){
     const inPlan = planIds.includes(ex.id);
     const pr = hist.reduce((m,h)=>Math.max(m,...h.sets.map(s=>Number(s.w)||0)),0);
     const lastTxt = last ? `${last.date.slice(5)} · ${last.sets.map(s=>`${s.w}kg×${s.r}`).join(' | ')}` : 'Sin registros previos';
-    return `<div class="ex-card ${doneToday?'done-today':''}" onclick="openExercise('${ex.id}')">
+    return `<div class="ex-card ${doneToday?'done-today':''} ${inPlan?'in-today-plan':''}" data-exid="${ex.id}" onclick="openExercise('${ex.id}')">
       <img class="ex-thumb" src="${getExImgSrc(ex)}" onerror="imgFallback(this,'${ex.file?encodeURIComponent(ex.file):''}')" loading="lazy" alt="">
       <div class="ex-meta">
-        <div class="ex-name">${groupReorderMode ? `<span style="color:#60a5fa">${idx+1}.</span> ` : ''}${ex.name}</div>
+        <div class="ex-name">${ex.name}</div>
         <div class="ex-last">${lastTxt}</div>
         <div class="ex-tags">
           <span class="tag-sub">${ex.sub}</span>
+          ${inPlan?'<span class="tag-sub" style="background:rgba(220,38,38,.28);color:#fecaca">HOY</span>':''}
           ${hist.length>0?`<span class="tag-freq">${hist.length}× hecho</span>`:''}
           ${pr>0?`<span class="tag-pr">PR ${pr} kg</span>`:''}
         </div>
       </div>
       <div class="ex-card-side" onclick="event.stopPropagation()">
         <button class="ex-today-btn ${inPlan?'in-plan':''}" onclick="toggleExInTodayPlan('${ex.id}')">${inPlan?'En hoy ✓':'+ Hoy'}</button>
-        ${groupReorderMode ? `<div class="ex-order-btns">
-          <button class="ex-ord-btn" title="Subir" onclick="moveExerciseInGroup('${ex.id}',-1)">↑</button>
-          <button class="ex-ord-btn" title="Bajar" onclick="moveExerciseInGroup('${ex.id}',1)">↓</button>
-        </div>` : ''}
       </div>
     </div>`;
   }).join('');
+
+  attachGroupTouchDragHandlers();
 }
 
 async function openExercise(id, fromPop){
@@ -1411,6 +1519,11 @@ function renderTodayPlanCard(){
   const t = todayStr();
   const doneCount = ids.filter(id => (logs[id]||[]).some(h=>h.date===t)).length;
   titleEl.textContent = ids.length ? `Sesión de hoy (${doneCount}/${ids.length})` : 'Sesión de hoy';
+  const navBadge = document.getElementById('nav-today-badge');
+  if(navBadge){
+    navBadge.textContent = ids.length;
+    navBadge.classList.toggle('hidden', ids.length === 0);
+  }
 
   if(!ids.length){
     subEl.textContent = 'Sin ejercicios fijados hoy. Elige los que harás y su orden.';
@@ -2108,7 +2221,7 @@ window.addEventListener('popstate', async (e) => {
     return;
   }
   hIdx = typeof st.hIdx === 'number' ? st.hIdx : Math.max(0, hIdx - 1);
-  if(st.gymView === 'progress' || st.gymView === 'settings'){
+  if(st.gymView === 'today' || st.gymView === 'progress' || st.gymView === 'settings'){
     renderTabDirect(st.gymView);
   } else if(st.gymView === 'list'){
     if(st.sub) currentSub = st.sub;
