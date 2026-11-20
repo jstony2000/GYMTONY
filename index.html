@@ -281,6 +281,21 @@ body{padding:calc(10px + env(safe-area-inset-top)) 14px calc(135px + env(safe-ar
 .chart-canvas-wrap{background:#090d16;border:1px solid var(--border);border-radius:12px;padding:6px}
 .chart-canvas-wrap canvas{width:100%;height:190px;display:block}
 
+.ex-card-side{display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0}
+.ex-today-btn{
+  background:var(--surface2);border:1px solid var(--border);color:#cbd5e1;
+  padding:6px 9px;border-radius:10px;font-size:.72rem;font-weight:900;cursor:pointer;white-space:nowrap;
+}
+.ex-today-btn.in-plan{background:rgba(59,130,246,.22);border-color:#3b82f6;color:#93c5fd}
+.ex-order-btns{display:flex;gap:4px}
+.ex-ord-btn{
+  background:#090d16;border:1px solid var(--border);color:#fff;
+  width:28px;height:28px;border-radius:8px;font-size:.78rem;font-weight:900;cursor:pointer;
+}
+.ex-ord-btn:active{transform:scale(.93)}
+.list-tools-row{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:10px}
+.list-hint{font-size:.72rem;color:var(--muted);font-weight:700}
+
 </style>
 </head>
 <body>
@@ -305,7 +320,7 @@ body{padding:calc(10px + env(safe-area-inset-top)) 14px calc(135px + env(safe-ar
         <button id="plan-clear-btn" class="t-btn hidden" style="padding:6px 9px;font-size:.74rem" onclick="clearTodayPlan()">Limpiar</button>
       </div>
     </div>
-    <div class="today-plan-sub" id="plan-card-sub">Sin ejercicios fijados hoy. Elige los que harás y su orden.</div>
+    <div class="today-plan-sub" id="plan-card-sub" style="cursor:pointer" onclick="openPlanModal()">Sin ejercicios fijados hoy. Toca aquí o en + Elegir / Ordenar.</div>
     <div class="plan-chips-list" id="plan-list-box"></div>
     <button id="plan-start-btn" class="btn-full btn-save hidden" style="padding:10px" onclick="startNextPlannedExercise()">▶ Ir al siguiente ejercicio</button>
   </div>
@@ -343,6 +358,13 @@ body{padding:calc(10px + env(safe-area-inset-top)) 14px calc(135px + env(safe-ar
   </div>
   <input type="search" id="search-inp" class="search-box" placeholder="Buscar ejercicio..." oninput="renderExList()">
   <div class="tabs" id="sub-tabs"></div>
+  <div class="list-tools-row">
+    <div class="list-hint" id="list-order-hint">Orden manual (usa ↑ ↓ para mover)</div>
+    <div style="display:flex;gap:6px">
+      <button class="t-btn" id="list-plan-pill" style="padding:5px 9px;font-size:.72rem" onclick="openPlanModal()">Hoy: 0</button>
+      <button class="t-btn" id="list-reorder-btn" style="padding:5px 9px;font-size:.72rem" onclick="toggleGroupReorderMode()">Ordenar: OFF</button>
+    </div>
+  </div>
   <div class="ex-list" id="ex-container"></div>
 </div>
 
@@ -351,7 +373,8 @@ body{padding:calc(10px + env(safe-area-inset-top)) 14px calc(135px + env(safe-ar
   <div class="nav-head">
     <button class="back-btn" onclick="backToList()">← Lista</button>
     <div class="head-title" id="det-title"></div>
-    <button class="edit-ex-btn" onclick="openExModal(currentEx.id)">✎ Editar</button>
+    <button id="det-plan-btn" class="ex-today-btn" onclick="toggleCurrentExInPlan()">+ Hoy</button>
+    <button class="edit-ex-btn" onclick="openExModal(currentEx.id)">✎</button>
   </div>
 
   <div class="media-box" onclick="openFullscreenMedia()">
@@ -622,7 +645,7 @@ body{padding:calc(10px + env(safe-area-inset-top)) 14px calc(135px + env(safe-ar
 </nav>
 
 <script>
-const APP_VERSION = 'v3.4.0';
+const APP_VERSION = 'v3.4.1';
 const DB_KEY = 'gymtony_pro_v2';
 const EX_KEY = 'gymtony_exercises_v3';
 const CFG_KEY = 'gymtony_cfg_v2';
@@ -809,6 +832,7 @@ function hideAllViews(){
 function renderTabDirect(tab){
   document.getElementById('ex-modal').classList.add('hidden');
   document.getElementById('fs-media-modal').classList.add('hidden');
+  document.getElementById('plan-modal').classList.add('hidden');
   hideAllViews();
   ['nav-home','nav-progress','nav-settings'].forEach(id=>document.getElementById(id).classList.remove('active'));
   if(tab==='home'){
@@ -870,6 +894,7 @@ function renderCategoryDirect(cat, keepSub){
   document.getElementById('cat-header').textContent = titles[cat];
   document.getElementById('ex-modal').classList.add('hidden');
   document.getElementById('fs-media-modal').classList.add('hidden');
+  document.getElementById('plan-modal').classList.add('hidden');
   hideAllViews();
   document.getElementById('view-list').classList.remove('hidden');
   renderTabs();
@@ -893,41 +918,116 @@ function renderTabs(){
 
 function setSub(s){ currentSub = s; renderTabs(); renderExList(); }
 
+let groupReorderMode = false;
+
+function toggleGroupReorderMode(){
+  groupReorderMode = !groupReorderMode;
+  renderExList();
+}
+
+function toggleExInTodayPlan(exId){
+  const ids = getActivePlanIds();
+  const idx = ids.indexOf(exId);
+  if(idx >= 0){
+    ids.splice(idx, 1);
+    showToast('Quitado de Sesión de hoy');
+  } else {
+    ids.push(exId);
+    showToast('Añadido a Sesión de hoy ✓');
+  }
+  saveTodayPlan();
+  renderExList();
+  updateDetailPlanBtn();
+}
+
+function toggleCurrentExInPlan(){
+  if(!currentEx) return;
+  toggleExInTodayPlan(currentEx.id);
+}
+
+function updateDetailPlanBtn(){
+  const btn = document.getElementById('det-plan-btn');
+  if(!btn || !currentEx) return;
+  const inPlan = getActivePlanIds().includes(currentEx.id);
+  btn.textContent = inPlan ? 'En hoy ✓' : '+ Hoy';
+  btn.classList.toggle('in-plan', inPlan);
+}
+
+function moveExerciseInGroup(exId, delta){
+  const q = document.getElementById('search-inp').value.trim().toLowerCase();
+  const visible = exercises.filter(e =>
+    e.cat === currentCat &&
+    (currentSub === 'Todos' || e.sub === currentSub) &&
+    (!q || e.name.toLowerCase().includes(q))
+  );
+  const visPos = visible.findIndex(e => e.id === exId);
+  const targetPos = visPos + delta;
+  if(visPos < 0 || targetPos < 0 || targetPos >= visible.length) return;
+
+  const swapExId = visible[targetPos].id;
+  const idxA = exercises.findIndex(e => e.id === exId);
+  const idxB = exercises.findIndex(e => e.id === swapExId);
+  if(idxA < 0 || idxB < 0) return;
+
+  const temp = exercises[idxA];
+  exercises[idxA] = exercises[idxB];
+  exercises[idxB] = temp;
+
+  saveExercises();
+  touchLocalAndSync();
+  renderExList();
+}
+
 function renderExList(){
   const t = todayStr();
   const q = document.getElementById('search-inp').value.trim().toLowerCase();
+  const planIds = getActivePlanIds();
+
+  const pill = document.getElementById('list-plan-pill');
+  if(pill){
+    pill.textContent = `Hoy: ${planIds.length}`;
+    pill.classList.toggle('sel', planIds.length > 0);
+  }
+  const ordBtn = document.getElementById('list-reorder-btn');
+  const ordHint = document.getElementById('list-order-hint');
+  if(ordBtn){
+    ordBtn.textContent = groupReorderMode ? 'Ordenar: ON ✓' : 'Ordenar grupo';
+    ordBtn.classList.toggle('sel', groupReorderMode);
+  }
+  if(ordHint){
+    ordHint.textContent = groupReorderMode ? 'Usa ↑ y ↓ para cambiar el orden del grupo' : 'Toca + Hoy para añadir a tu sesión';
+  }
+
   const filtered = exercises.filter(e=>
     e.cat===currentCat &&
     (currentSub==='Todos'||e.sub===currentSub) &&
     (!q || e.name.toLowerCase().includes(q))
   );
 
-  // ORDENAR POR LOS MAS REALIZADOS ARRIBA
-  filtered.sort((a,b)=>{
-    const histA = logs[a.id] || [];
-    const histB = logs[b.id] || [];
-    if(histB.length !== histA.length) return histB.length - histA.length;
-    const lastA = histA[0]?.date || '';
-    const lastB = histB[0]?.date || '';
-    return lastB.localeCompare(lastA);
-  });
-
-  document.getElementById('ex-container').innerHTML = filtered.map(ex=>{
+  document.getElementById('ex-container').innerHTML = filtered.map((ex, idx)=>{
     const hist = logs[ex.id] || [];
     const last = hist[0];
     const doneToday = hist.some(h=>h.date===t);
+    const inPlan = planIds.includes(ex.id);
     const pr = hist.reduce((m,h)=>Math.max(m,...h.sets.map(s=>Number(s.w)||0)),0);
     const lastTxt = last ? `${last.date.slice(5)} · ${last.sets.map(s=>`${s.w}kg×${s.r}`).join(' | ')}` : 'Sin registros previos';
     return `<div class="ex-card ${doneToday?'done-today':''}" onclick="openExercise('${ex.id}')">
       <img class="ex-thumb" src="${getExImgSrc(ex)}" onerror="imgFallback(this,'${ex.file?encodeURIComponent(ex.file):''}')" loading="lazy" alt="">
       <div class="ex-meta">
-        <div class="ex-name">${ex.name}</div>
+        <div class="ex-name">${groupReorderMode ? `<span style="color:#60a5fa">${idx+1}.</span> ` : ''}${ex.name}</div>
         <div class="ex-last">${lastTxt}</div>
         <div class="ex-tags">
           <span class="tag-sub">${ex.sub}</span>
           ${hist.length>0?`<span class="tag-freq">${hist.length}× hecho</span>`:''}
           ${pr>0?`<span class="tag-pr">PR ${pr} kg</span>`:''}
         </div>
+      </div>
+      <div class="ex-card-side" onclick="event.stopPropagation()">
+        <button class="ex-today-btn ${inPlan?'in-plan':''}" onclick="toggleExInTodayPlan('${ex.id}')">${inPlan?'En hoy ✓':'+ Hoy'}</button>
+        ${groupReorderMode ? `<div class="ex-order-btns">
+          <button class="ex-ord-btn" title="Subir" onclick="moveExerciseInGroup('${ex.id}',-1)">↑</button>
+          <button class="ex-ord-btn" title="Bajar" onclick="moveExerciseInGroup('${ex.id}',1)">↓</button>
+        </div>` : ''}
       </div>
     </div>`;
   }).join('');
@@ -944,9 +1044,11 @@ async function openExercise(id, fromPop){
 
   document.getElementById('ex-modal').classList.add('hidden');
   document.getElementById('fs-media-modal').classList.add('hidden');
+  document.getElementById('plan-modal').classList.add('hidden');
   hideAllViews();
   document.getElementById('view-detail').classList.remove('hidden');
   document.getElementById('det-title').textContent = currentEx.name;
+  updateDetailPlanBtn();
   const detImg = document.getElementById('det-img');
   delete detImg.dataset.triedRaw;
   detImg.onerror = () => imgFallback(detImg, currentEx.file ? encodeURIComponent(currentEx.file) : '');
@@ -1073,6 +1175,7 @@ function openFullscreenMedia(fromPop){
 
 function closeFullscreenMedia(fromPop){
   document.getElementById('fs-media-modal').classList.add('hidden');
+  document.getElementById('plan-modal').classList.add('hidden');
   if(!fromPop && history.state && history.state.gymView === 'fsmedia'){
     history.back();
   }
@@ -1374,8 +1477,7 @@ function openPlanModal(fromPop){
   renderPlanSelectedList();
   renderPlanPicker();
   if(!fromPop){
-    navDepth += 1;
-    history.pushState({gymView:'planmodal', depth:navDepth}, '');
+    setNavState({gymView:'planmodal'}, 3);
   }
   document.getElementById('plan-modal').classList.remove('hidden');
 }
