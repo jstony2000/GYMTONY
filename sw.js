@@ -1,10 +1,12 @@
-const CACHE = 'gymtony-pro-v3.3.1';
+const CACHE = 'gymtony-pro-v3.3.2';
 const CORE = [
   './',
   './index.html',
   './manifest.json',
   './icons/logo-red-192x192.png',
   './icons/logo-red-512x512.png',
+  './icons/logo-maskable-192x192.png',
+  './icons/logo-maskable-512x512.png',
   './logos/PECHO.png',
   './logos/PIERNA.png',
   './logos/BRAZO_transparente.png'
