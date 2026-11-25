@@ -750,12 +750,13 @@ body{padding:calc(10px + env(safe-area-inset-top)) 14px calc(135px + env(safe-ar
     <label class="field-lbl">Subgrupo muscular</label>
     <select id="m-sub" class="field-sel"></select>
 
-    <label class="field-lbl">Imagen o GIF animado</label>
+    <label class="field-lbl">Vídeo, GIF o Imagen</label>
     <div class="preview-box">
       <img id="m-preview" src="" alt="Vista previa"><br>
+      <video id="m-preview-video" class="hidden" style="max-height:150px;max-width:100%;object-fit:contain;border-radius:8px;margin-bottom:8px;background:#000" autoplay loop muted playsinline></video>
       <label class="file-label">
-        Elegir GIF / Foto del móvil o PC
-        <input type="file" id="m-file" accept="image/*" class="hidden" onchange="handleMediaUpload(event)">
+        Elegir Vídeo / GIF / Foto
+        <input type="file" id="m-file" accept="image/*,video/*" class="hidden" onchange="handleMediaUpload(event)">
       </label>
     </div>
 
@@ -865,7 +866,7 @@ body{padding:calc(10px + env(safe-area-inset-top)) 14px calc(135px + env(safe-ar
 </nav>
 
 <script>
-const APP_VERSION = 'v3.5.5';
+const APP_VERSION = 'v3.5.6';
 const DB_KEY = 'gymtony_pro_v2';
 const EX_KEY = 'gymtony_exercises_v3';
 const CFG_KEY = 'gymtony_cfg_v2';
@@ -1257,18 +1258,24 @@ function renderVideosLibrary(){
 
 function assignVideoToGroup(relPath, name, subFolder, targetGrp){
   const meta = VIDEO_SUBFOLDER_META[subFolder] || { cat: targetGrp === 'cardio' ? 'cardio' : targetGrp, sub: GROUP_LABELS[targetGrp] || 'General' };
+  const resolvedCat = targetGrp === 'cardio' ? 'cardio' : targetGrp;
+  const resolvedSub = targetGrp === 'cardio' ? 'Aeróbico' : (meta.cat === targetGrp ? meta.sub : (SUB_MAP[targetGrp]?.[0] || 'General'));
   let ex = exercises.find(e => e.file === relPath);
   if(!ex){
     ex = {
       id: 'vid_' + Date.now() + '_' + Math.random().toString(36).slice(2,6),
-      cat: targetGrp === 'cardio' ? 'cardio' : targetGrp,
-      sub: targetGrp === 'cardio' ? 'Aeróbico' : (meta.cat === targetGrp ? meta.sub : (SUB_MAP[targetGrp]?.[0] || 'General')),
+      cat: resolvedCat,
+      sub: resolvedSub,
       name: name,
       file: relPath,
       customMedia: false,
       dirtyMedia: false
     };
     exercises.unshift(ex);
+    saveExercises();
+  } else if(ex.cat !== resolvedCat){
+    ex.cat = resolvedCat;
+    ex.sub = resolvedSub;
     saveExercises();
   }
 
@@ -1280,9 +1287,10 @@ function assignVideoToGroup(relPath, name, subFolder, targetGrp){
     showToast(`Quitado de ${GROUP_LABELS[targetGrp]}`);
   } else {
     ids.push(ex.id);
-    showToast(`Añadido a ${GROUP_LABELS[targetGrp]} ✓`);
+    showToast(`Añadido a ${GROUP_LABELS[targetGrp]} (Inicio y Hoy) ✓`);
   }
   saveGroupRoutines();
+  updateBadges();
   renderVideosLibrary();
 }
 
@@ -1727,6 +1735,8 @@ async function openExModal(exId, fromPop){
   pendingMediaData = null;
   document.getElementById('m-file').value = '';
 
+  const mImg = document.getElementById('m-preview');
+  const mVid = document.getElementById('m-preview-video');
   if(exId){
     const ex = exercises.find(e=>e.id===exId);
     if(ex.customMedia) await getCustomMedia(ex.id);
@@ -1734,14 +1744,14 @@ async function openExModal(exId, fromPop){
     document.getElementById('m-name').value = ex.name;
     document.getElementById('m-cat').value = ex.cat;
     updateModalSubOptions(ex.sub);
-    document.getElementById('m-preview').src = getExImgSrc(ex);
+    setMediaElement(mImg, mVid, getExImgSrc(ex), ex.file || '');
     document.getElementById('m-del-wrap').classList.remove('hidden');
   } else {
     document.getElementById('modal-title').textContent = 'Añadir nuevo ejercicio';
     document.getElementById('m-name').value = '';
     document.getElementById('m-cat').value = currentCat;
     updateModalSubOptions(currentSub !== 'Todos' ? currentSub : null);
-    document.getElementById('m-preview').src = './icons/logo-red-192x192.png';
+    setMediaElement(mImg, mVid, './icons/logo-red-192x192.png', '');
     document.getElementById('m-del-wrap').classList.add('hidden');
   }
   if(!fromPop){
@@ -1848,7 +1858,12 @@ function handleMediaUpload(ev){
   const reader = new FileReader();
   reader.onload = e => {
     pendingMediaData = e.target.result;
-    document.getElementById('m-preview').src = pendingMediaData;
+    setMediaElement(
+      document.getElementById('m-preview'),
+      document.getElementById('m-preview-video'),
+      pendingMediaData,
+      file.name || ''
+    );
   };
   reader.readAsDataURL(file);
 }
