@@ -1,0 +1,2908 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#0f172a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="./manifest.json">
+<link rel="icon" href="./icons/logo-red-192x192.png" type="image/png">
+<link rel="apple-touch-icon" href="./icons/logo-red-192x192.png">
+<title>GYM TONY PRO</title>
+<style>
+:root{
+  --bg:#0f172a;
+  --surface:#1e293b;
+  --surface2:#263349;
+  --border:#334155;
+  --text:#f8fafc;
+  --muted:#94a3b8;
+  --red1:#dc2626;--red2:#991b1b;
+  --blue1:#2563eb;--blue2:#1d4ed8;
+  --green1:#16a34a;--green2:#15803d;
+  --accent:#3b82f6;
+  --ok:#22c55e;
+  --amber:#f59e0b;
+  --danger:#ef4444;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+html,body{background:var(--bg);color:var(--text);min-height:100%;overflow-x:hidden;user-select:none}
+body{padding:calc(10px + env(safe-area-inset-top)) 14px calc(135px + env(safe-area-inset-bottom)) 14px;max-width:600px;margin:0 auto}
+
+/* HEADER */
+.topbar{display:flex;justify-content:space-between;align-items:center;padding:8px 2px 14px 2px}
+.brand{display:flex;align-items:center;gap:10px;font-size:1.25rem;font-weight:900;letter-spacing:.5px}
+.brand img{width:34px;height:34px;border-radius:10px;box-shadow:0 2px 8px rgba(220,38,38,.4)}
+.brand span{color:#ef4444}
+.top-pill{background:var(--surface);border:1px solid var(--border);color:var(--muted);padding:6px 11px;border-radius:20px;font-size:.76rem;font-weight:700}
+
+/* 3 BLOQUES */
+.blocks-grid{display:flex;flex-direction:column;gap:16px}
+.block-card{
+  border-radius:20px;
+  padding:20px 18px 18px 18px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  cursor:pointer;
+  position:relative;
+  box-shadow:0 10px 25px rgba(0,0,0,.35);
+  transition:transform .14s ease, filter .14s ease;
+  border:1px solid rgba(255,255,255,.14);
+}
+.block-card:active{transform:scale(.97);filter:brightness(1.06)}
+.block-red{background:linear-gradient(180deg,var(--red1) 0%,var(--red2) 100%)}
+.block-blue{background:linear-gradient(180deg,var(--blue1) 0%,var(--blue2) 100%)}
+.block-green{background:linear-gradient(180deg,var(--green1) 0%,var(--green2) 100%)}
+
+.block-card img{
+  width:118px;
+  height:118px;
+  object-fit:contain;
+  margin-bottom:10px;
+  filter:drop-shadow(0 6px 12px rgba(0,0,0,.4));
+}
+.block-title{font-size:1.18rem;font-weight:900;letter-spacing:.6px;text-transform:uppercase;color:#fff;text-shadow:0 2px 4px rgba(0,0,0,.3)}
+.block-sub{font-size:.78rem;color:rgba(255,255,255,.85);margin-top:3px;font-weight:600}
+.block-badge{
+  position:absolute;top:12px;right:12px;
+  background:rgba(15,23,42,.55);
+  backdrop-filter:blur(4px);
+  color:#fff;
+  font-size:.72rem;font-weight:800;
+  padding:4px 10px;border-radius:20px;
+  border:1px solid rgba(255,255,255,.2);
+}
+.block-badge.done{background:#22c55e;color:#052e16;border-color:#86efac}
+
+/* LISTA EJERCICIOS */
+.nav-head{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.back-btn{background:var(--surface);border:1px solid var(--border);color:#fff;padding:9px 13px;border-radius:12px;font-weight:800;font-size:.84rem;cursor:pointer;flex-shrink:0}
+.back-btn:active{transform:scale(.96)}
+.add-ex-btn{background:var(--accent);border:none;color:#fff;padding:9px 13px;border-radius:12px;font-weight:800;font-size:.82rem;cursor:pointer;flex-shrink:0}
+.edit-ex-btn{background:var(--surface2);border:1px solid var(--border);color:#fbbf24;padding:9px 12px;border-radius:12px;font-weight:800;font-size:.82rem;cursor:pointer;flex-shrink:0}
+.head-title{font-size:1rem;font-weight:900;text-transform:uppercase;flex:1;line-height:1.2;min-width:0}
+
+.search-box{width:100%;background:var(--surface);border:1px solid var(--border);color:#fff;padding:11px 14px;border-radius:12px;font-size:.9rem;margin-bottom:10px}
+.search-box:focus{outline:none;border-color:var(--accent)}
+
+.tabs{display:flex;gap:8px;margin-bottom:12px;overflow-x:auto}
+.tab{flex:1;background:var(--surface);border:1px solid var(--border);color:var(--muted);padding:10px 8px;border-radius:12px;font-weight:800;font-size:.82rem;text-align:center;cursor:pointer;white-space:nowrap}
+.tab.active{background:var(--accent);border-color:var(--accent);color:#fff}
+
+.ex-list{display:grid;gap:10px}
+.ex-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:10px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:.12s}
+.ex-card:active{transform:scale(.985);border-color:var(--accent)}
+.ex-card.done-today{border-left:5px solid var(--ok)}
+.ex-thumb{width:68px;height:68px;border-radius:12px;object-fit:cover;background:#090d16;flex-shrink:0;border:1px solid var(--border)}
+.ex-meta{flex:1;min-width:0}
+.ex-name{font-size:.92rem;font-weight:800;line-height:1.25;margin-bottom:4px;color:#fff}
+.ex-last{font-size:.76rem;color:#60a5fa;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ex-tags{display:flex;gap:6px;margin-top:4px;align-items:center;flex-wrap:wrap}
+.tag-pr{font-size:.7rem;color:var(--amber);font-weight:800}
+.tag-sub{font-size:.68rem;background:var(--surface2);color:var(--muted);padding:2px 7px;border-radius:6px;font-weight:700}
+.tag-freq{font-size:.68rem;background:rgba(34,197,94,.15);color:#4ade80;padding:2px 7px;border-radius:6px;font-weight:800}
+
+/* DETALLE Y REGISTRO RAPIDO */
+.media-box{background:#090d16;border-radius:18px;overflow:hidden;border:1px solid var(--border);margin-bottom:12px;text-align:center;max-height:220px;display:flex;align-items:center;justify-content:center;position:relative;cursor:zoom-in}
+.media-box img{max-height:220px;width:auto;max-width:100%;object-fit:contain}
+.media-zoom-pill{position:absolute;bottom:8px;left:8px;background:rgba(15,23,42,.85);border:1px solid rgba(255,255,255,.2);color:#93c5fd;font-size:.7rem;font-weight:800;padding:5px 9px;border-radius:10px;pointer-events:none}
+.media-change-pill{position:absolute;bottom:8px;right:8px;background:rgba(15,23,42,.85);border:1px solid rgba(255,255,255,.25);color:#fff;font-size:.72rem;font-weight:800;padding:5px 10px;border-radius:10px;cursor:pointer;z-index:2}
+.fs-media-overlay{position:fixed;inset:0;background:#030712;z-index:220;display:flex;flex-direction:column;justify-content:space-between;padding:14px}
+.fs-media-top{display:flex;justify-content:space-between;align-items:center;gap:8px;z-index:2}
+.fs-media-title{font-size:1rem;font-weight:900;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fs-media-stage{flex:1;display:flex;align-items:center;justify-content:center;overflow:auto;padding:4px 0;position:relative}
+.fs-media-stage img{width:100%;height:auto;max-width:100vw;max-height:76vh;object-fit:contain;border-radius:14px;transition:transform .2s ease,filter .2s ease;transform-origin:center center}
+.fs-media-stage img.perfil-presbicia{filter:url(#gymSharpFilter) contrast(1.28) brightness(1.08) saturate(1.14)}
+.fs-media-stage img.perfil-contraste{filter:contrast(1.38) brightness(1.10) saturate(1.05)}
+.fs-media-stage img.perfil-original{filter:none}
+.fs-media-bar{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;align-items:center}
+
+.stats-strip{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px}
+.stat-pill{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:8px 9px;text-align:center}
+.stat-pill small{display:block;font-size:.65rem;color:var(--muted);text-transform:uppercase;font-weight:700;margin-bottom:2px}
+.stat-pill strong{font-size:.86rem;color:#fff;font-weight:900}
+
+.sets-header{display:grid;grid-template-columns:30px 1fr 1fr 48px 34px;gap:6px;padding:0 8px 6px 8px;font-size:.7rem;color:var(--muted);font-weight:800;text-align:center;text-transform:uppercase}
+.set-row{display:grid;grid-template-columns:30px 1fr 1fr 48px 34px;gap:6px;align-items:center;background:var(--surface);border:1px solid var(--border);padding:8px;border-radius:14px;margin-bottom:8px}
+.set-row.completed{border-color:var(--ok);background:rgba(34,197,94,.1)}
+.set-num{font-weight:900;color:var(--muted);text-align:center;font-size:.92rem}
+.set-row.completed .set-num{color:var(--ok)}
+
+.stepper{display:flex;align-items:center;background:#090d16;border:1px solid var(--border);border-radius:10px;overflow:hidden;height:44px}
+.step-btn{width:28px;height:100%;background:var(--surface2);border:none;color:#fff;font-size:1.1rem;font-weight:900;cursor:pointer;flex-shrink:0}
+.step-btn:active{background:var(--accent)}
+.stepper input{width:100%;min-width:0;background:transparent;border:none;color:#fff;font-size:1.05rem;font-weight:900;text-align:center;padding:0 2px}
+.stepper input:focus{outline:none}
+
+.check-btn{height:44px;border-radius:10px;border:1px solid var(--border);background:var(--surface2);color:var(--muted);font-size:1.2rem;font-weight:900;cursor:pointer}
+.check-btn.active{background:var(--ok);color:#052e16;border-color:var(--ok)}
+.del-btn{height:44px;border-radius:10px;border:none;background:transparent;color:var(--muted);font-size:1rem;font-weight:800;cursor:pointer}
+
+.action-row{display:flex;gap:8px;margin-top:10px}
+.btn-full{flex:1;padding:14px;border-radius:14px;border:none;font-weight:900;font-size:.9rem;cursor:pointer;text-transform:uppercase;letter-spacing:.3px}
+.btn-add{background:var(--surface);color:#fff;border:1px solid var(--border)}
+.btn-save{background:linear-gradient(135deg,#22c55e,#16a34a);color:#052e16;box-shadow:0 4px 14px rgba(34,197,94,.35)}
+.btn-danger{background:rgba(239,68,68,.18);color:#fca5a5;border:1px solid var(--danger)}
+
+.notes-inp{width:100%;background:var(--surface);border:1px solid var(--border);color:#fff;padding:10px 12px;border-radius:12px;font-size:.84rem;margin-top:10px}
+.notes-inp:focus{outline:none;border-color:var(--accent)}
+
+.hist-box{margin-top:14px;background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:12px}
+.hist-title{font-size:.76rem;font-weight:800;color:var(--muted);margin-bottom:8px;text-transform:uppercase;display:flex;justify-content:space-between}
+.hist-item{padding:8px 0;border-bottom:1px solid var(--border);font-size:.82rem}
+.hist-item:last-child{border-bottom:none}
+.hist-top{display:flex;justify-content:space-between;margin-bottom:3px}
+.hist-note{font-size:.74rem;color:var(--muted);font-style:italic}
+
+/* MODAL EDITOR DE EJERCICIO */
+.modal-backdrop{position:fixed;inset:0;background:rgba(2,6,23,.85);backdrop-filter:blur(4px);z-index:150;display:flex;align-items:center;justify-content:center;padding:14px}
+.modal-card{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:18px;width:100%;max-width:460px;max-height:90vh;overflow-y:auto}
+.modal-card h3{font-size:1.05rem;font-weight:900;margin-bottom:12px;text-transform:uppercase}
+.field-lbl{display:block;font-size:.74rem;font-weight:800;color:var(--muted);margin:10px 0 5px 0;text-transform:uppercase}
+.field-inp,.field-sel{width:100%;background:#090d16;border:1px solid var(--border);color:#fff;padding:11px 12px;border-radius:12px;font-size:.92rem;font-weight:700}
+.field-inp:focus,.field-sel:focus{outline:none;border-color:var(--accent)}
+.preview-box{margin-top:10px;background:#090d16;border:1px dashed var(--border);border-radius:14px;padding:10px;text-align:center}
+.preview-box img{max-height:140px;max-width:100%;object-fit:contain;border-radius:8px;margin-bottom:8px}
+.file-label{display:inline-block;background:var(--accent);color:#fff;padding:9px 14px;border-radius:10px;font-size:.82rem;font-weight:800;cursor:pointer}
+
+/* HISTORIAL GLOBAL & AJUSTES */
+.summary-cards{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.sum-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:14px}
+.sum-card small{color:var(--muted);font-size:.72rem;font-weight:800;text-transform:uppercase}
+.sum-card div{font-size:1.45rem;font-weight:900;margin-top:4px;color:#fff}
+
+.cfg-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:14px;margin-bottom:12px}
+.cfg-card h3{font-size:.9rem;margin-bottom:8px;font-weight:800}
+.cfg-card p{font-size:.8rem;color:var(--muted);margin-bottom:12px;line-height:1.4}
+.cfg-btns{display:flex;gap:8px;flex-wrap:wrap}
+
+/* TEMPORIZADOR FLOTANTE */
+.timer-bar{
+  position:fixed;
+  bottom:calc(64px + env(safe-area-inset-bottom));
+  left:10px;right:10px;
+  max-width:580px;margin:0 auto;
+  background:rgba(15,23,42,.95);
+  backdrop-filter:blur(8px);
+  border:1px solid var(--border);
+  border-radius:16px;
+  padding:8px 12px;
+  display:flex;align-items:center;justify-content:space-between;gap:8px;
+  z-index:90;
+  box-shadow:0 8px 24px rgba(0,0,0,.5);
+}
+.timer-bar.running{border-color:var(--ok)}
+.timer-clock{font-size:1.35rem;font-weight:900;font-variant-numeric:tabular-nums;color:var(--muted);min-width:68px}
+.timer-bar.running .timer-clock{color:var(--ok)}
+.timer-presets{display:flex;gap:5px}
+.t-btn{background:var(--surface);border:1px solid var(--border);color:#fff;padding:7px 9px;border-radius:9px;font-size:.75rem;font-weight:800;cursor:pointer}
+.t-btn.sel{border-color:var(--accent);color:#60a5fa}
+.t-btn.stop{background:rgba(239,68,68,.18);border-color:#ef4444;color:#fca5a5}
+
+/* BARRA NAVEGACION INFERIOR */
+.bottom-nav{
+  position:fixed;bottom:0;left:0;right:0;
+  height:calc(60px + env(safe-area-inset-bottom));
+  padding-bottom:env(safe-area-inset-bottom);
+  background:#111827;
+  border-top:1px solid var(--border);
+  display:flex;justify-content:space-around;align-items:center;
+  z-index:100;
+}
+.nav-item{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:3px;padding:6px 18px;border-radius:12px;
+  color:var(--muted);font-size:.7rem;font-weight:800;cursor:pointer;border:none;background:transparent;
+}
+.nav-item.active{background:var(--blue1);color:#fff}
+.nav-item svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+
+.toast{position:fixed;top:16px;left:50%;transform:translateX(-50%);background:#22c55e;color:#052e16;font-weight:900;font-size:.85rem;padding:10px 18px;border-radius:20px;z-index:200;box-shadow:0 6px 20px rgba(0,0,0,.5);opacity:0;pointer-events:none;transition:.2s}
+.toast.show{opacity:1}
+.hidden{display:none!important}
+/* RUTINA / SESION DE HOY */
+.today-plan-card{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:18px;
+  padding:14px;
+  margin-bottom:14px;
+  box-shadow:0 8px 20px rgba(0,0,0,.28);
+}
+.today-plan-head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:8px}
+.today-plan-title{font-size:.92rem;font-weight:900;text-transform:uppercase;letter-spacing:.4px;color:#fff}
+.today-plan-sub{font-size:.76rem;color:var(--muted);margin-bottom:10px}
+.plan-chips-list{display:flex;flex-direction:column;gap:7px;margin-bottom:10px}
+.plan-item{
+  display:flex;align-items:center;justify-content:space-between;gap:8px;
+  background:#090d16;border:1px solid var(--border);border-radius:12px;padding:8px 10px;
+}
+.plan-item.done-item{border-color:rgba(34,197,94,.45);background:rgba(34,197,94,.08)}
+.plan-item-main{flex:1;min-width:0;cursor:pointer}
+.plan-item-num{font-weight:900;color:#60a5fa;margin-right:6px;font-size:.84rem}
+.plan-item-name{font-weight:800;font-size:.86rem;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.plan-item-meta{font-size:.7rem;color:var(--muted)}
+.plan-item-actions{display:flex;gap:4px;flex-shrink:0}
+.plan-mini-btn{
+  background:var(--surface2);border:1px solid var(--border);color:#fff;
+  width:30px;height:30px;border-radius:8px;font-weight:900;font-size:.8rem;cursor:pointer;
+}
+.plan-mini-btn:active{transform:scale(.94)}
+.plan-mini-btn.rm{color:#fca5a5;border-color:rgba(239,68,68,.35)}
+
+/* PROGRESO POR GRUPO Y GRAFICA */
+.prog-group-tabs{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;margin-bottom:12px}
+.prog-gtab{
+  flex:1;min-width:92px;padding:9px 8px;border-radius:12px;
+  background:var(--surface);border:1px solid var(--border);
+  color:var(--muted);font-weight:800;font-size:.76rem;text-align:center;cursor:pointer;
+}
+.prog-gtab.active[data-grp="pecho"]{background:rgba(220,38,38,.22);border-color:#ef4444;color:#fca5a5}
+.prog-gtab.active[data-grp="pierna"]{background:rgba(37,99,235,.22);border-color:#3b82f6;color:#93c5fd}
+.prog-gtab.active[data-grp="espalda"]{background:rgba(22,163,74,.22);border-color:#22c55e;color:#86efac}
+.prog-metric-row{display:flex;gap:6px;margin-bottom:10px}
+.prog-mbtn{
+  flex:1;padding:8px 10px;border-radius:10px;background:#090d16;border:1px solid var(--border);
+  color:var(--muted);font-size:.76rem;font-weight:800;cursor:pointer;
+}
+.prog-mbtn.active{background:var(--surface2);border-color:var(--accent);color:#fff}
+.chart-card{
+  background:var(--surface);border:1px solid var(--border);border-radius:18px;
+  padding:12px;margin-bottom:14px;
+}
+.chart-head{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:8px}
+.chart-title{font-size:.86rem;font-weight:900;text-transform:uppercase}
+.chart-sub{font-size:.72rem;color:var(--muted)}
+.chart-canvas-wrap{background:#090d16;border:1px solid var(--border);border-radius:12px;padding:6px}
+.chart-canvas-wrap canvas{width:100%;height:190px;display:block}
+
+.ex-card-side{display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0}
+.ex-today-btn{
+  background:var(--surface2);border:1px solid var(--border);color:#cbd5e1;
+  padding:6px 9px;border-radius:10px;font-size:.72rem;font-weight:900;cursor:pointer;white-space:nowrap;
+}
+.ex-today-btn.in-plan{background:rgba(59,130,246,.22);border-color:#3b82f6;color:#93c5fd}
+.ex-order-btns{display:flex;gap:4px}
+.ex-ord-btn{
+  background:#090d16;border:1px solid var(--border);color:#fff;
+  width:28px;height:28px;border-radius:8px;font-size:.78rem;font-weight:900;cursor:pointer;
+}
+.ex-ord-btn:active{transform:scale(.93)}
+.list-tools-row{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:10px}
+.list-hint{font-size:.72rem;color:var(--muted);font-weight:700}
+
+/* RESALTE EN ROJO PARA EJERCICIOS EN SESION DE HOY + DRAG TACTIL */
+.ex-card.in-today-plan{
+  border:2px solid #ef4444;
+  background:linear-gradient(90deg, rgba(220,38,38,.18) 0%, var(--surface) 55%);
+  box-shadow:0 4px 14px rgba(220,38,38,.22);
+}
+.ex-card.in-today-plan.done-today{
+  border-left:5px solid var(--ok);
+  border-top:2px solid #ef4444;
+  border-right:2px solid #ef4444;
+  border-bottom:2px solid #ef4444;
+}
+.ex-today-btn.in-plan{
+  background:rgba(220,38,38,.28) !important;
+  border-color:#ef4444 !important;
+  color:#fecaca !important;
+}
+.ex-card.dragging-card{
+  opacity:.92;
+  transform:scale(1.03);
+  border:2px solid #60a5fa !important;
+  box-shadow:0 14px 28px rgba(0,0,0,.55);
+  z-index:20;
+  position:relative;
+}
+.ex-card.drag-over-card{
+  border-top:3px solid #f59e0b !important;
+}
+.nav-item{position:relative}
+.nav-badge-dot{
+  position:absolute;top:5px;right:18%;
+  background:#ef4444;color:#fff;font-size:.62rem;font-weight:900;
+  min-width:16px;height:16px;line-height:16px;border-radius:9px;padding:0 4px;
+}
+
+/* PULSADOR RESALTADO DE CARDIO EN BARRA INFERIOR */
+.nav-item{padding:6px 8px !important;min-width:58px}
+.nav-item.nav-cardio{
+  background:linear-gradient(180deg, rgba(245,158,11,.24) 0%, rgba(217,119,6,.16) 100%);
+  border:1px solid rgba(245,158,11,.55);
+  color:#fbbf24 !important;
+  box-shadow:0 2px 10px rgba(245,158,11,.22);
+}
+.nav-item.nav-cardio svg{stroke:#fbbf24 !important}
+.nav-item.nav-cardio.active{
+  background:linear-gradient(180deg, #f59e0b 0%, #d97706 100%) !important;
+  color:#0f172a !important;
+  border-color:#fde68a !important;
+  font-weight:900;
+}
+.nav-item.nav-cardio.active svg{stroke:#0f172a !important}
+
+/* SELECTOR DE 3 GRUPOS EN VISTA HOY (RUTINA PREDEFINIDA POR GRUPO) */
+.today-group-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+.today-grp-btn{
+  border-radius:14px;padding:11px 8px;border:1px solid var(--border);
+  background:var(--surface);color:#fff;text-align:center;cursor:pointer;
+  display:flex;flex-direction:column;align-items:center;gap:4px;transition:.12s;
+}
+.today-grp-btn:active{transform:scale(.97)}
+.today-grp-btn .tg-name{font-size:.76rem;font-weight:900;line-height:1.15}
+.today-grp-btn .tg-cnt{font-size:.68rem;color:var(--muted);font-weight:700}
+.today-grp-btn.active.grp-pecho{background:linear-gradient(180deg,rgba(220,38,38,.32),rgba(153,27,27,.22));border-color:#ef4444}
+.today-grp-btn.active.grp-pierna{background:linear-gradient(180deg,rgba(37,99,235,.32),rgba(29,78,216,.22));border-color:#3b82f6}
+.today-grp-btn.active.grp-espalda{background:linear-gradient(180deg,rgba(22,163,74,.32),rgba(21,128,61,.22));border-color:#22c55e}
+.today-grp-btn.active.grp-cardio{background:linear-gradient(180deg,rgba(245,158,11,.34),rgba(217,119,6,.22));border-color:#f59e0b}
+
+/* VISTA CARDIO Y CALENTAMIENTO */
+.cardio-card{
+  background:var(--surface);border:1px solid var(--border);border-radius:18px;
+  padding:14px;margin-bottom:14px;
+}
+.cardio-pill-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.c-chip{
+  background:#090d16;border:1px solid var(--border);color:#cbd5e1;
+  padding:7px 11px;border-radius:10px;font-size:.76rem;font-weight:800;cursor:pointer;
+}
+.c-chip.active{background:rgba(245,158,11,.22);border-color:#f59e0b;color:#fde68a}
+
+/* PESTAÑA EJERCICIOS (CATÁLOGO DE VÍDEOS POR SUBCARPETA) */
+.vid-hero-banner{
+  background:linear-gradient(135deg, rgba(59,130,246,.22), rgba(15,23,42,.95));
+  border:1px solid var(--border);
+  border-radius:16px;
+  padding:10px 12px;
+  display:flex;align-items:center;gap:12px;
+  margin-bottom:10px;
+}
+.vid-hero-logo{
+  width:52px;height:52px;border-radius:12px;object-fit:contain;
+  background:#090d16;border:1px solid var(--border);padding:4px;flex-shrink:0;
+}
+.vid-hero-title{font-size:.95rem;font-weight:900;color:#fff}
+.vid-hero-sub{font-size:.73rem;color:var(--muted);margin-top:2px}
+.vid-sub-tabs{
+  display:flex;gap:6px;overflow-x:auto;padding-bottom:6px;margin-bottom:8px;
+  scrollbar-width:none;
+}
+.vid-sub-tabs::-webkit-scrollbar{display:none}
+.vid-sub-pill{
+  background:var(--surface);border:1px solid var(--border);color:#cbd5e1;
+  padding:6px 11px;border-radius:999px;font-size:.73rem;font-weight:800;
+  white-space:nowrap;cursor:pointer;flex-shrink:0;
+}
+.vid-sub-pill.active{
+  background:var(--blue1);border-color:#60a5fa;color:#fff;
+}
+.vid-assign-row{
+  display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end;margin-top:4px;
+}
+.vid-grp-btn{
+  border-radius:8px;padding:4px 7px;font-size:.66rem;font-weight:900;
+  border:1px solid var(--border);background:#090d16;color:#e2e8f0;cursor:pointer;
+}
+.vid-grp-btn.added{
+  background:rgba(220,38,38,.28);border-color:#ef4444;color:#fecaca;
+}
+
+</style>
+</head>
+<body>
+
+<div id="toast" class="toast">Guardado</div>
+
+<div class="topbar">
+  <div class="brand"><img src="./icons/logo-red-192x192.png" alt="">GYM<span>TONY</span></div>
+  <div style="display:flex;align-items:center;gap:6px">
+    <button class="top-pill" id="sync-pill" onclick="manualQuickSync()" style="cursor:pointer;display:none">☁</button>
+    <div class="top-pill" id="today-label"></div>
+  </div>
+</div>
+
+<!-- VISTA 1: INICIO (3 BLOQUES) -->
+<div id="view-home">
+  <div class="blocks-grid">
+    <div class="block-card block-red" onclick="openCategory('pecho')">
+      <div class="block-badge" id="badge-pecho">0 hoy</div>
+      <img src="./logos/PECHO.png" alt="Pecho">
+      <div class="block-title">Pecho + Tríceps</div>
+      <div class="block-sub" id="subcount-pecho">Empuje</div>
+    </div>
+
+    <div class="block-card block-blue" onclick="openCategory('pierna')">
+      <div class="block-badge" id="badge-pierna">0 hoy</div>
+      <img src="./logos/PIERNA.png" alt="Pierna">
+      <div class="block-title">Pierna + Hombro</div>
+      <div class="block-sub" id="subcount-pierna">Tren inferior y hombro</div>
+    </div>
+
+    <div class="block-card block-green" onclick="openCategory('espalda')">
+      <div class="block-badge" id="badge-espalda">0 hoy</div>
+      <img src="./logos/BRAZO_transparente.png" alt="Espalda">
+      <div class="block-title">Espalda + Bíceps</div>
+      <div class="block-sub" id="subcount-espalda">Tracción</div>
+    </div>
+  </div>
+</div>
+
+<!-- VISTA 2: LISTA DE EJERCICIOS DEL BLOQUE -->
+<div id="view-list" class="hidden">
+  <div class="nav-head">
+    <button class="back-btn" onclick="switchTab('home')">← Inicio</button>
+    <div class="head-title" id="cat-header"></div>
+    <button class="add-ex-btn" onclick="openExModal(null)">+ Nuevo</button>
+  </div>
+  <input type="search" id="search-inp" class="search-box" placeholder="Buscar ejercicio..." oninput="renderExList()">
+  <div class="tabs" id="sub-tabs"></div>
+  <div class="list-tools-row">
+    <div class="list-hint" id="list-order-hint">Mantén pulsado un ejercicio para moverlo de orden</div>
+    <button class="t-btn" id="list-plan-pill" style="padding:5px 10px;font-size:.72rem" onclick="groupRoutines.activeGroup=currentCat;switchTab('today')">Ver Hoy: 0</button>
+  </div>
+  <div class="ex-list" id="ex-container"></div>
+</div>
+
+<!-- VISTA 3: REGISTRO RAPIDO DE SERIES -->
+<div id="view-detail" class="hidden">
+  <div class="nav-head">
+    <button class="back-btn" onclick="backToList()">← Lista</button>
+    <div class="head-title" id="det-title"></div>
+    <button id="det-plan-btn" class="ex-today-btn" onclick="toggleCurrentExInPlan()">+ Hoy</button>
+    <button class="edit-ex-btn" onclick="openExModal(currentEx.id)">✎</button>
+  </div>
+
+  <div class="media-box" onclick="openFullscreenMedia()">
+    <img id="det-img" src="" alt="Ejercicio">
+    <video id="det-video" class="hidden" style="width:100%;max-height:240px;object-fit:contain;border-radius:14px;background:#090d16" autoplay loop muted playsinline></video>
+    <span class="media-zoom-pill">🔍 Toca para ampliar</span>
+    <button class="media-change-pill" onclick="event.stopPropagation();openExModal(currentEx.id)">Cambiar GIF / Mover</button>
+  </div>
+
+  <div class="stats-strip" id="det-strength-stats">
+    <div class="stat-pill"><small>Última vez</small><strong id="det-last">-</strong></div>
+    <div class="stat-pill"><small>Récord (PR)</small><strong id="det-pr" style="color:var(--amber)">0 kg</strong></div>
+    <div class="stat-pill"><small>Volumen hoy</small><strong id="det-vol" style="color:var(--ok)">0 kg</strong></div>
+  </div>
+
+  <div id="det-strength-box">
+    <div class="sets-header">
+      <div>#</div><div>Peso (kg)</div><div>Reps</div><div>OK</div><div></div>
+    </div>
+    <div id="sets-container"></div>
+  </div>
+
+  <div id="det-cardio-box" class="cardio-card hidden" style="margin-bottom:10px">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div>
+        <label class="field-lbl" style="margin-top:0">Tiempo (minutos)</label>
+        <input type="number" id="det-cardio-mins" class="field-inp" style="margin:0;font-size:1.05rem;font-weight:900;text-align:center" value="10" min="1" max="240" inputmode="numeric">
+      </div>
+      <div>
+        <label class="field-lbl" style="margin-top:0">Intensidad / Nivel</label>
+        <select id="det-cardio-int" class="field-sel" style="font-weight:800">
+          <option value="Suave (Calentamiento)">Suave (Calentamiento)</option>
+          <option value="Moderada">Moderada</option>
+          <option value="Alta">Alta</option>
+          <option value="Intervalos (HIIT)">Intervalos (HIIT)</option>
+        </select>
+      </div>
+    </div>
+    <div class="cardio-pill-row" style="margin-top:10px;margin-bottom:0">
+      <button type="button" class="c-chip" onclick="document.getElementById('det-cardio-mins').value=5">5 min</button>
+      <button type="button" class="c-chip" onclick="document.getElementById('det-cardio-mins').value=10">10 min</button>
+      <button type="button" class="c-chip" onclick="document.getElementById('det-cardio-mins').value=15">15 min</button>
+      <button type="button" class="c-chip" onclick="document.getElementById('det-cardio-mins').value=25">25 min</button>
+      <button type="button" class="c-chip" onclick="document.getElementById('det-cardio-mins').value=35">35 min</button>
+      <button type="button" class="c-chip" onclick="document.getElementById('det-cardio-mins').value=45">45 min</button>
+    </div>
+  </div>
+
+  <input type="text" id="det-note" class="notes-inp" placeholder="Nota opcional (ej: nivel 6, ritmo cómodo, asiento pos. 4...)">
+
+  <div class="action-row">
+    <button id="det-add-set-btn" class="btn-full btn-add" onclick="addSetRow()">+ Serie</button>
+    <button class="btn-full btn-save" onclick="saveWorkout()">Guardar</button>
+  </div>
+
+  <div class="hist-box">
+    <div class="hist-title"><span>Progreso anterior</span><span id="det-sessions-count"></span></div>
+    <div id="det-history"></div>
+  </div>
+</div>
+
+<!-- VISTA: SESION DE HOY (RUTINA PREDEFINIDA POR GRUPO) -->
+<div id="view-today" class="hidden">
+  <div style="font-size:.76rem;color:var(--muted);font-weight:800;margin-bottom:7px;text-transform:uppercase;letter-spacing:.4px">1. Elige el grupo muscular de hoy</div>
+  <div class="today-group-grid" style="grid-template-columns:repeat(2,1fr)">
+    <button class="today-grp-btn grp-pecho active" id="tgrp-pecho" onclick="selectTodayRoutineGroup('pecho')">
+      <span class="tg-name">Pecho + Tríceps</span>
+      <span class="tg-cnt" id="tgrp-cnt-pecho">0 ejerc.</span>
+    </button>
+    <button class="today-grp-btn grp-pierna" id="tgrp-pierna" onclick="selectTodayRoutineGroup('pierna')">
+      <span class="tg-name">Pierna + Hombro</span>
+      <span class="tg-cnt" id="tgrp-cnt-pierna">0 ejerc.</span>
+    </button>
+    <button class="today-grp-btn grp-espalda" id="tgrp-espalda" onclick="selectTodayRoutineGroup('espalda')">
+      <span class="tg-name">Espalda + Bíceps</span>
+      <span class="tg-cnt" id="tgrp-cnt-espalda">0 ejerc.</span>
+    </button>
+    <button class="today-grp-btn grp-cardio" id="tgrp-cardio" onclick="selectTodayRoutineGroup('cardio')">
+      <span class="tg-name" style="color:#fbbf24">Cardio / Aeróbico</span>
+      <span class="tg-cnt" id="tgrp-cnt-cardio">0 ejerc.</span>
+    </button>
+  </div>
+
+  <div class="today-plan-card" id="today-plan-card">
+    <div class="today-plan-head">
+      <div class="today-plan-title" id="plan-card-title">Rutina · Pecho + Tríceps</div>
+      <div style="display:flex;gap:6px">
+        <button class="t-btn" style="padding:7px 11px;font-size:.76rem" onclick="openPlanModal()">+ Añadir</button>
+        <button id="plan-clear-btn" class="t-btn hidden" style="padding:7px 10px;font-size:.76rem" onclick="clearTodayPlan()">Vaciar</button>
+      </div>
+    </div>
+    <div class="today-plan-sub" id="plan-card-sub" style="cursor:pointer" onclick="openPlanModal()">Sin ejercicios guardados en este grupo. Entra al grupo y pulsa "+ Hoy" o toca "+ Añadir".</div>
+    <div class="plan-chips-list" id="plan-list-box"></div>
+    <button id="plan-start-btn" class="btn-full btn-save hidden" style="padding:11px" onclick="startNextPlannedExercise()">▶ Empezar / Siguiente ejercicio</button>
+  </div>
+</div>
+
+<!-- VISTA: CARDIO Y CALENTAMIENTO -->
+<div id="view-cardio" class="hidden">
+  <div class="nav-head">
+    <div class="head-title" style="color:#fbbf24">Cardio y Calentamiento</div>
+    <button class="add-ex-btn" style="background:linear-gradient(180deg,#f59e0b,#d97706);color:#0f172a;font-weight:900" onclick="openNewCardioExercise()">+ Nuevo</button>
+  </div>
+
+  <div class="list-tools-row">
+    <div class="list-hint">Toca un ejercicio para configurar tiempo e intensidad o pulsa + Hoy</div>
+    <button class="t-btn" id="cardio-plan-pill" style="padding:5px 10px;font-size:.72rem" onclick="groupRoutines.activeGroup='cardio';switchTab('today')">Ver Hoy (0)</button>
+  </div>
+
+  <div class="ex-list" id="cardio-ex-container"></div>
+</div>
+
+<!-- VISTA: EJERCICIOS (BIBLIOTECA DE VÍDEOS POR SUBCARPETA) -->
+<div id="view-videos" class="hidden">
+  <div class="nav-head">
+    <div class="head-title" style="color:#60a5fa">Ejercicios · Vídeos</div>
+    <span class="top-pill" id="vid-total-badge">0 vídeos</span>
+  </div>
+
+  <div class="vid-hero-banner">
+    <img id="vid-group-logo" class="vid-hero-logo" src="./logos/PECHO.png" alt="Grupo">
+    <div style="min-width:0;flex:1">
+      <div class="vid-hero-title" id="vid-banner-title">Todos los vídeos</div>
+      <div class="vid-hero-sub" id="vid-banner-sub">Selecciona un grupo para añadirlo a Inicio / Hoy</div>
+    </div>
+  </div>
+
+  <div class="search-wrap" style="margin-bottom:8px">
+    <input type="text" id="vid-search-inp" class="search-inp" placeholder="Buscar vídeo por nombre..." oninput="renderVideosLibrary()">
+  </div>
+
+  <div class="vid-sub-tabs" id="vid-sub-tabs"></div>
+  <div class="ex-list" id="vid-list-container"></div>
+</div>
+
+<!-- VISTA 4: PROGRESO / REGISTRO GLOBAL -->
+<div id="view-progress" class="hidden">
+  <div class="prog-group-tabs" id="prog-group-tabs">
+    <button class="prog-gtab active" data-grp="pecho" onclick="setProgressGroup('pecho')">Pecho + Tríceps</button>
+    <button class="prog-gtab" data-grp="pierna" onclick="setProgressGroup('pierna')">Pierna + Hombro</button>
+    <button class="prog-gtab" data-grp="espalda" onclick="setProgressGroup('espalda')">Espalda + Bíceps</button>
+  </div>
+
+  <div class="summary-cards">
+    <div class="sum-card"><small>Días del grupo</small><div id="stat-days">0</div></div>
+    <div class="sum-card"><small>Series del grupo</small><div id="stat-sets">0</div></div>
+  </div>
+
+  <div class="chart-card">
+    <div class="chart-head">
+      <div class="chart-title" id="prog-chart-title">Evolución · Pecho + Tríceps</div>
+      <div class="chart-sub" id="prog-chart-latest">Sin datos</div>
+    </div>
+    <div class="prog-metric-row">
+      <button id="pm-vol" class="prog-mbtn active" onclick="setProgressMetric('vol')">Volumen sesión (kg)</button>
+      <button id="pm-max" class="prog-mbtn" onclick="setProgressMetric('max')">Peso máx (kg)</button>
+    </div>
+    <div class="chart-canvas-wrap">
+      <canvas id="prog-chart-canvas" width="520" height="190"></canvas>
+    </div>
+  </div>
+
+  <div class="hist-box">
+    <div class="hist-title"><span id="prog-hist-title">Historial · Pecho + Tríceps</span><span id="prog-hist-count"></span></div>
+    <div id="global-history"></div>
+  </div>
+</div>
+
+<!-- VISTA 5: AJUSTES Y COPIA DE SEGURIDAD -->
+<div id="view-settings" class="hidden">
+  <div class="cfg-card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+      <h3 style="margin:0">Versión instalada</h3>
+      <span id="app-version-badge" style="background:rgba(59,130,246,.2);color:#60a5fa;border:1px solid #3b82f6;padding:4px 10px;border-radius:10px;font-size:.82rem;font-weight:900">v3.3</span>
+    </div>
+    <p>Si subes cambios a GitHub y no aparecen, pulsa este botón. Tus entrenamientos, pesos y GIFs NO se borran.</p>
+    <div class="cfg-btns">
+      <button class="btn-full btn-add" onclick="forceAppUpdate()">Forzar actualización (Limpiar caché)</button>
+    </div>
+  </div>
+  <div class="cfg-card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+      <h3 style="margin:0">Sincronización GitHub (Nube)</h3>
+      <span id="gh-status-badge" style="font-size:.72rem;font-weight:800;color:var(--muted)">Sin configurar</span>
+    </div>
+    <p>Guarda automáticamente tus entrenamientos, ejercicios nuevos y GIFs en tu repositorio para tener lo mismo en móvil y PC.</p>
+
+    <div class="cfg-btns" style="margin-bottom:10px">
+      <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener" class="btn-full btn-add" style="text-align:center;text-decoration:none;display:inline-block">1. Crear Token en GitHub ↗</a>
+      <button class="btn-full btn-add" onclick="toggleTokenGuide()">Ver guía pasos</button>
+    </div>
+
+    <div id="gh-guide-box" style="background:#090d16;border:1px solid var(--border);border-radius:12px;padding:12px;margin-bottom:12px;font-size:.78rem;line-height:1.45;color:#cbd5e1">
+      <div style="font-weight:900;color:#60a5fa;margin-bottom:6px;text-transform:uppercase">Pasos exactos en GitHub:</div>
+      <div style="margin-bottom:4px"><b>1.</b> Pulsa <b>Crear Token en GitHub ↗</b> arriba (inicia sesión si te lo pide).</div>
+      <div style="margin-bottom:4px"><b>2. Token name:</b> escribe <code style="color:#fbbf24">GymTony</code>.</div>
+      <div style="margin-bottom:4px"><b>3. Expiration:</b> elige <b>Custom</b> (máximo 1 año) para no renovarlo cada mes.</div>
+      <div style="margin-bottom:4px"><b>4. Repository access:</b> marca <b>Only select repositories</b> y elige <b>GYMTONY</b>.</div>
+      <div style="margin-bottom:4px"><b>5. Permissions → Repository permissions:</b> busca <b>Contents</b> y cámbialo de <i>No access</i> a <b>Read and write</b>.</div>
+      <div style="margin-bottom:4px"><b>6.</b> Baja del todo, pulsa <b>Generate token</b> (botón verde) y copia el código (<code style="color:#4ade80">github_pat_...</code>).</div>
+      <div><b>7.</b> Vuelve aquí y pulsa <b>2. Pegar y Probar</b> abajo.</div>
+    </div>
+
+    <label class="field-lbl">Usuario GitHub</label>
+    <input type="text" id="gh-owner" class="field-inp" placeholder="jstony2000">
+    <div style="display:grid;grid-template-columns:2fr 1fr;gap:8px">
+      <div>
+        <label class="field-lbl">Repositorio</label>
+        <input type="text" id="gh-repo" class="field-inp" placeholder="GYMTONY">
+      </div>
+      <div>
+        <label class="field-lbl">Rama</label>
+        <input type="text" id="gh-branch" class="field-inp" placeholder="main">
+      </div>
+    </div>
+    <label class="field-lbl">Token personal de GitHub</label>
+    <div style="display:flex;gap:6px">
+      <input type="password" id="gh-token" class="field-inp" placeholder="github_pat_... o ghp_..." style="flex:1">
+      <button class="t-btn" onclick="toggleTokenVisibility()" title="Mostrar/Ocultar" style="padding:0 12px;font-size:.9rem">👁</button>
+    </div>
+    <label style="display:flex;align-items:center;gap:8px;margin-top:10px;font-size:.82rem;font-weight:700;cursor:pointer">
+      <input type="checkbox" id="gh-auto" style="width:18px;height:18px;accent-color:var(--ok)">
+      Sincronizar automáticamente al abrir y guardar
+    </label>
+    <div id="gh-last-sync" style="font-size:.74rem;color:var(--muted);margin-top:8px"></div>
+    <div class="cfg-btns" style="margin-top:12px">
+      <button class="btn-full btn-save" onclick="pasteAndTestToken()">2. Pegar y Probar</button>
+      <button class="btn-full btn-add" onclick="saveGhConfig(true)">Guardar</button>
+    </div>
+    <div class="cfg-btns" style="margin-top:8px">
+      <button class="btn-full btn-add" onclick="pushToGitHub(true)">↑ Subir a GitHub</button>
+      <button class="btn-full btn-add" onclick="pullFromGitHub(true)">↓ Bajar de GitHub</button>
+    </div>
+  </div>
+  <div class="cfg-card">
+    <h3>Copia de seguridad completa</h3>
+    <p>Incluye todo: tus pesos, repeticiones, ejercicios nuevos, cambios de grupo y los GIF/fotos que hayas subido desde el móvil.</p>
+    <div class="cfg-btns">
+      <button class="btn-full btn-add" onclick="exportBackup()">Exportar Todo</button>
+      <button class="btn-full btn-add" onclick="document.getElementById('impFile').click()">Importar Copia</button>
+      <input type="file" id="impFile" accept=".json" class="hidden" onchange="importBackup(event)">
+    </div>
+  </div>
+  <div class="cfg-card">
+    <h3>Descanso por defecto</h3>
+    <p>Se activa automáticamente cada vez que marcas el check ✓ de una serie completada.</p>
+    <div class="cfg-btns">
+      <button class="t-btn" style="flex:1;padding:10px" onclick="setDefaultRest(60)">60 seg</button>
+      <button class="t-btn" style="flex:1;padding:10px" onclick="setDefaultRest(90)">90 seg</button>
+      <button class="t-btn" style="flex:1;padding:10px" onclick="setDefaultRest(120)">2 min</button>
+      <button class="t-btn" style="flex:1;padding:10px" onclick="setDefaultRest(180)">3 min</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL CREAR / EDITAR / MOVER EJERCICIO Y SUBIR GIF -->
+<div id="ex-modal" class="modal-backdrop hidden">
+  <div class="modal-card">
+    <h3 id="modal-title">Editar ejercicio</h3>
+
+    <label class="field-lbl">Nombre del ejercicio</label>
+    <input type="text" id="m-name" class="field-inp" placeholder="Ej: Patada de tríceps en polea">
+
+    <label class="field-lbl">Bloque principal (Mover ejercicio)</label>
+    <select id="m-cat" class="field-sel" onchange="updateModalSubOptions()">
+      <option value="pecho">Pecho + Tríceps</option>
+      <option value="pierna">Pierna + Hombro</option>
+      <option value="espalda">Espalda + Bíceps</option>
+      <option value="cardio">Cardio / Aeróbico</option>
+    </select>
+
+    <label class="field-lbl">Subgrupo muscular</label>
+    <select id="m-sub" class="field-sel"></select>
+
+    <label class="field-lbl">Imagen o GIF animado</label>
+    <div class="preview-box">
+      <img id="m-preview" src="" alt="Vista previa"><br>
+      <label class="file-label">
+        Elegir GIF / Foto del móvil o PC
+        <input type="file" id="m-file" accept="image/*" class="hidden" onchange="handleMediaUpload(event)">
+      </label>
+    </div>
+
+    <div class="action-row" style="margin-top:14px">
+      <button class="btn-full btn-add" onclick="closeExModal()">Cancelar</button>
+      <button class="btn-full btn-save" onclick="saveExModal()">Guardar cambios</button>
+    </div>
+    <div id="m-del-wrap" class="hidden" style="margin-top:8px">
+      <button class="btn-full btn-danger" onclick="deleteCurrentExercise()">Eliminar ejercicio</button>
+    </div>
+  </div>
+</div>
+
+<svg width="0" height="0" style="position:absolute;pointer-events:none" aria-hidden="true">
+  <defs>
+    <filter id="gymSharpFilter" x="-5%" y="-5%" width="110%" height="110%">
+      <feConvolveMatrix order="3" preserveAlpha="true" kernelMatrix="0 -1 0 -1 5 -1 0 -1 0"/>
+    </filter>
+  </defs>
+</svg>
+
+
+<!-- MODAL PLANIFICAR / ORDENAR SESION DE HOY -->
+<div id="plan-modal" class="modal-backdrop hidden" onclick="closePlanModal()">
+  <div class="modal-card" onclick="event.stopPropagation()">
+    <h3>Sesión de hoy (orden)</h3>
+    <div style="font-size:.76rem;color:var(--muted);margin-bottom:8px">Elige ejercicios de uno o varios grupos y ordénalos con ↑ y ↓.</div>
+
+    <div class="field-lbl" style="margin-top:4px">Orden actual hoy (<span id="plan-sel-count">0</span>)</div>
+    <div id="plan-modal-selected" class="plan-chips-list"></div>
+
+    <label class="field-lbl">Añadir ejercicios (cualquier grupo)</label>
+    <div style="display:flex;gap:6px;margin-bottom:8px">
+      <select id="plan-cat-filter" class="field-sel" style="width:auto;flex:1;padding:8px 10px;font-size:.82rem" onchange="renderPlanPicker()">
+        <option value="all">Todos los grupos</option>
+        <option value="pecho">Pecho + Tríceps</option>
+        <option value="pierna">Pierna + Hombro</option>
+        <option value="espalda">Espalda + Bíceps</option>
+      <option value="cardio">Cardio / Aeróbico</option>
+      </select>
+      <input type="search" id="plan-search-inp" class="field-inp" style="flex:1.2;margin:0;padding:8px 10px;font-size:.82rem" placeholder="Buscar..." oninput="renderPlanPicker()">
+    </div>
+    <div id="plan-picker-list" style="max-height:220px;overflow-y:auto;display:flex;flex-direction:column;gap:6px;background:#090d16;border:1px solid var(--border);border-radius:12px;padding:8px"></div>
+
+    <div class="action-row" style="margin-top:14px">
+      <button class="btn-full btn-add" onclick="closePlanModal()">Cerrar</button>
+      <button class="btn-full btn-save" onclick="saveAndClosePlanModal()">Listo</button>
+    </div>
+  </div>
+</div>
+
+<!-- VISOR PANTALLA COMPLETA AL TOCAR GIF -->
+<div id="fs-media-modal" class="fs-media-overlay hidden" onclick="closeFullscreenMedia()">
+  <div class="fs-media-top" onclick="event.stopPropagation()">
+    <div class="fs-media-title" id="fs-media-title">Ejercicio</div>
+    <button class="back-btn" onclick="closeFullscreenMedia()">✕ Cerrar</button>
+  </div>
+  <div class="fs-media-stage" onclick="cycleFsZoom()">
+    <img id="fs-media-img" class="perfil-presbicia" src="" alt="Ejercicio ampliado">
+    <video id="fs-media-video" class="hidden perfil-original" style="width:100%;max-width:100vw;max-height:76vh;object-fit:contain;border-radius:14px;background:#090d16;transition:transform .2s ease,filter .2s ease;transform-origin:center center" autoplay loop muted playsinline></video>
+  </div>
+  <div class="fs-media-bar" onclick="event.stopPropagation()">
+    <button id="fs-profile-btn" class="t-btn sel" style="padding:9px 12px;font-size:.78rem" onclick="cycleFsProfile()">Contraste: Normal</button>
+    <button id="fs-zoom-btn" class="t-btn" style="padding:9px 12px;font-size:.78rem" onclick="cycleFsZoom()">Zoom: 2x</button>
+    <button class="t-btn" style="padding:9px 14px;font-size:.78rem" onclick="closeFullscreenMedia()">Volver</button>
+  </div>
+</div>
+
+<!-- TEMPORIZADOR FLOTANTE -->
+<div class="timer-bar" id="timer-bar">
+  <div class="timer-clock" id="timer-display">01:30</div>
+  <div class="timer-presets">
+    <button class="t-btn" id="p-60" onclick="startTimer(60)">60s</button>
+    <button class="t-btn sel" id="p-90" onclick="startTimer(90)">90s</button>
+    <button class="t-btn" id="p-120" onclick="startTimer(120)">2m</button>
+    <button class="t-btn stop" onclick="stopTimer()">Stop</button>
+  </div>
+</div>
+
+<!-- BARRA INFERIOR -->
+<nav class="bottom-nav">
+  <button class="nav-item active" id="nav-home" onclick="switchTab('home')">
+    <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    Inicio
+  </button>
+  <button class="nav-item" id="nav-today" onclick="groupRoutines.activeGroup=currentCat;switchTab('today')">
+    <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="3" ry="3"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><polyline points="9 15 11 17 15 13"/></svg>
+    Hoy
+    <span id="nav-today-badge" class="nav-badge-dot hidden">0</span>
+  </button>
+  <button class="nav-item nav-cardio" id="nav-cardio" onclick="switchTab('cardio')">
+    <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+    Cardio
+  </button>
+  <button class="nav-item" id="nav-videos" onclick="switchTab('videos')">
+    <svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+    Ejercicios
+  </button>
+  <button class="nav-item" id="nav-progress" onclick="switchTab('progress')">
+    <svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+    Progreso
+  </button>
+  <button class="nav-item" id="nav-settings" onclick="switchTab('settings')">
+    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+    Ajustes
+  </button>
+</nav>
+
+<script>
+const APP_VERSION = 'v3.5.5';
+const DB_KEY = 'gymtony_pro_v2';
+const EX_KEY = 'gymtony_exercises_v3';
+const CFG_KEY = 'gymtony_cfg_v2';
+const GH_KEY = 'gymtony_gh_v32';
+const TS_KEY = 'gymtony_ts_v32';
+
+const DEFAULT_EXERCISES = [
+  {"id": "cardio_eliptica", "cat": "cardio", "sub": "Aeróbico", "name": "Elíptica", "file": "ELIPTICA CARDIO.gif", "customMedia": false, "dirtyMedia": false},
+  {"id": "cardio_bici", "cat": "cardio", "sub": "Aeróbico", "name": "Bici Estática", "file": "BICI ESTATICA.gif", "customMedia": false, "dirtyMedia": false},
+  {"id": "cardio_cinta", "cat": "cardio", "sub": "Aeróbico", "name": "Cinta / Caminata", "file": "CINTA CORRER.gif", "customMedia": false, "dirtyMedia": false},
+  {"id": "cardio_remo", "cat": "cardio", "sub": "Aeróbico", "name": "Remo Ergómetro", "file": "REMO CARDIO.gif", "customMedia": false, "dirtyMedia": false},
+  {"id": "e1", "cat": "espalda", "sub": "Espalda", "name": "Jalón con agarre neutro", "file": "custom_e1.gif", "customMedia": true, "dirtyMedia": false},
+  {"id": "gif96_1795133427314_93", "cat": "espalda", "sub": "Espalda", "name": "Remo en Polea", "file": "Remo en Polea.gif", "customMedia": false, "dirtyMedia": false},
+  {"id": "p3", "cat": "pecho", "sub": "Pecho", "name": "Press de pecho isolateral", "file": "custom_p3.gif", "customMedia": true, "dirtyMedia": false},
+  {"id": "gif96_1795133427314_5", "cat": "pecho", "sub": "Pecho", "name": "Aperturas en Maquina Peck Deck", "file": "Aperturas en Maquina Peck Deck.gif", "customMedia": false, "dirtyMedia": false},
+  {"id": "p2", "cat": "pecho", "sub": "Pecho", "name": "Press Inclinado Máquina", "file": "PRES INCLINADO MAQUINA.gif", "customMedia": false, "dirtyMedia": false},
+  {"id": "p5", "cat": "pecho", "sub": "Pecho", "name": "Press Frontal Cerrado en Máquina", "file": "PRESS FRONTAL CERRADO EN MAQUINA.gif", "customMedia": false, "dirtyMedia": false},
+  {"id": "custom_1795071246140", "cat": "pecho", "sub": "Tríceps", "name": "Extensión de tríceps con barra ,rompecráneos", "file": "custom_custom_1795071246140.gif", "customMedia": true, "dirtyMedia": false},
+  {"id": "t3", "cat": "pecho", "sub": "Tríceps", "name": "Pullover con Barra Z", "file": "custom_t3.gif", "customMedia": true, "dirtyMedia": false},
+  {"id": "custom_1795070264903", "cat": "pecho", "sub": "Tríceps", "name": "Fodos asistidos", "file": "custom_custom_1795070264903.gif", "customMedia": true, "dirtyMedia": false},
+  {"id": "p1", "cat": "pecho", "sub": "Pecho", "name": "Press Banca en Máquina", "file": "PRESS BANCA EN MAQUINA.gif", "customMedia": false, "dirtyMedia": false},
+  {"id": "p4", "cat": "pecho", "sub": "Pecho", "name": "Press Frontal Superior en Máquina", "file": "PRESS FRONTAL SUPERIOR EN MAQUINA.gif", "customMedia": false, "dirtyMedia": false},
+  {"id": "p8", "cat": "pecho", "sub": "Pecho", "name": "Cruces en Máquina", "file": "CRUCES EN MAQUINA.gif", "customMedia": false, "dirtyMedia": false},
+  {"id": "t1", "cat": "pecho", "sub": "Tríceps", "name": "Extensión Vertical con Polea", "file": "EXTENSION VERTICAL CON POLEA.gif", "customMedia": false, "dirtyMedia": false},
+  {"id": "t2", "cat": "pecho", "sub": "Tríceps", "name": "Extensión Vertical Neutra Polea Alta", "file": "EXTENSION VERTICAL NEUTRA EN POLEA ALTA.gif", "customMedia": false, "dirtyMedia": false},
+  {"id": "t4", "cat": "pecho", "sub": "Tríceps", "name": "Extensión Declinada con Mancuernas", "file": "EXTENSION DECLINADA CON MANCUERNAS.gif", "customMedia": false, "dirtyMedia": false},
+  {"id": "t5", "cat": "pecho", "sub": "Tríceps", "name": "Fondos en Máquina", "file": "custom_t5.gif", "customMedia": true, "dirtyMedia": false},
+  {"id": "t6", "cat": "pecho", "sub": "Tríceps", "name": "Fondos en Pronación en Máquina", "file": "FONDOS EN PRONACION EN MAQUINA.gif", "customMedia": false, "dirtyMedia": false},
+  {"id": "l1", "cat": "pierna", "sub": "Pierna", "name": "Prensa Inclinada", "file": "PRENSA INCLINADA.gif", "customMedia": false, "dirtyMedia": false},
+  {"id": "l3", "cat": "pierna", "sub": "Pierna", "name": "Extensión de Cuádriceps en Máquina", "file": "EXTENSION DE CUÁDRICEPS EN MÁQUINA.jpg", "customMedia": false, "dirtyMedia": false},
+  {"id": "gif96_1795133427314_9", "cat": "pierna", "sub": "Pierna", "name": "Curl Femoral Tumbado", "file": "Curl Femoral Tumbado.gif", "customMedia": false, "dirtyMedia": false},
+  {"id": "l2", "cat": "pierna", "sub": "Pierna", "name": "Sentadilla Cerrada Inclinada Máquina", "file": "SENTADILLA CERRADA INCLINADA EN MÁQUINA.gif", "customMedia": false, "dirtyMedia": false},
+  {"id": "l5", "cat": "pierna", "sub": "Pierna", "name": "Hip Thrust Inclinado con Barra", "file": "HIP THRUST INCLINADO CON BARRA.gif", "customMedia": false, "dirtyMedia": false},
+  {"id": "a2", "cat": "pierna", "sub": "Abdomen", "name": "Crunch Diagonal de Rodillas Poleas", "file": "CRUNCH DIAGONAL DE RODILLAS CON POLEAS.gif", "customMedia": false, "dirtyMedia": false},
+  {"id": "a1", "cat": "pierna", "sub": "Abdomen", "name": "Crunch Cruzado con Poleas", "file": "CRUNCH CRUZADO CON POLEAS.gif", "customMedia": false, "dirtyMedia": false},
+  {"id": "gif96_1795133427314_2", "cat": "pierna", "sub": "Pierna", "name": "Aductores de Cadera", "file": "Aductores de Cadera.gif", "customMedia": false, "dirtyMedia": false},
+  {"id": "gif96_1795133427314_1", "cat": "pierna", "sub": "Pierna", "name": "Abductores de Cadera", "file": "Abductores de Cadera.gif", "customMedia": false, "dirtyMedia": false},
+  {"id": "l9", "cat": "pierna", "sub": "Pierna", "name": "Extensión de Gemelo Sentado Máquina", "file": "EXTENSION DE GEMELO SENADO EN MAQUINA.gif", "customMedia": false, "dirtyMedia": false},
+  {"id": "gif96_1795133427314_14", "cat": "espalda", "sub": "Bíceps", "name": "Curl Martillo en Banco Inclinado", "file": "Curl Martillo en Banco Inclinado.gif", "customMedia": false, "dirtyMedia": false},
+  {"id": "e3", "cat": "espalda", "sub": "Espalda", "name": "Dominada Mixta", "file": "DOMINADA MIXTA.gif", "customMedia": false, "dirtyMedia": false},
+  {"id": "custom_1795072342958", "cat": "espalda", "sub": "Espalda", "name": "Dominada asistida", "file": "custom_custom_1795072342958.gif", "customMedia": true, "dirtyMedia": false},
+  {"id": "e2", "cat": "espalda", "sub": "Espalda", "name": "Dominada Abierta", "file": "DOMINADA ABUIERTA.gif", "customMedia": false, "dirtyMedia": false},
+  {"id": "b2", "cat": "espalda", "sub": "Bíceps", "name": "Curl Inclinado Alterno Mancuernas", "file": "CURL INCLINADO ALTERNO EN SUPINACION CON MANCUERNAS.gif", "customMedia": false, "dirtyMedia": false},
+  {"id": "b3", "cat": "espalda", "sub": "Bíceps", "name": "Curl en Pronación en Máquina Scott", "file": "CURL EN PRONACION EN MAQUINA SCOTT.gif", "customMedia": false, "dirtyMedia": false},
+  {"id": "e5", "cat": "espalda", "sub": "Espalda", "name": "Remo en Barra T en Supinación", "file": "REMO EN BARRA T EN SUPINACION.gif", "customMedia": false, "dirtyMedia": false},
+  {"id": "e6", "cat": "espalda", "sub": "Espalda", "name": "Remo Horizontal Aislado con Polea", "file": "REMO HORIZONTAL AISLADO CON POLEA.gif", "customMedia": false, "dirtyMedia": false},
+  {"id": "e7", "cat": "espalda", "sub": "Espalda", "name": "Remo Superior Aislado con Polea", "file": "REMO SUPERIOR AISLADO CON POLEA.gif", "customMedia": false, "dirtyMedia": false},
+  {"id": "e8", "cat": "pierna", "sub": "Pierna", "name": "Peso Muerto con Barra", "file": "PESO MUERTO CON BARRA.gif", "customMedia": false, "dirtyMedia": false},
+  {"id": "b1", "cat": "espalda", "sub": "Bíceps", "name": "Curl Alterno en Supinación Máquina", "file": "CURL ALTERNO EN SUPINACION EN MAQUINA.gif", "customMedia": false, "dirtyMedia": false},
+  {"id": "gif96_1795133427314_3", "cat": "pecho", "sub": "Pecho", "name": "Aperturas con Mancuernas en Banco Inclinado", "file": "Aperturas con Mancuernas en Banco Inclinado.gif", "customMedia": false, "dirtyMedia": false},
+  {"id": "gif96_1795133427314_4", "cat": "pecho", "sub": "Pecho", "name": "Aperturas con Mancuernas", "file": "Aperturas con Mancuernas.gif", "customMedia": false, "dirtyMedia": false},
+  {"id": "gif96_1795133427314_6", "cat": "pierna", "sub": "Hombro", "name": "Crunch Lateral en Polea", "file": "Crunch Lateral en Polea.gif", "customMedia": false, "dirtyMedia": false},
+  {"id": "gif96_1795133427314_7", "cat": "pierna", "sub": "Abdomen", "name": "Crunch en Polea de Pie", "file": "Crunch en Polea de Pie.gif", "customMedia": false, "dirtyMedia": false},
+  {"id": "gif96_1795133427314_8", "cat": "pierna", "sub": "Abdomen", "name": "Crunch en Polea", "file": "Crunch en Polea.gif", "customMedia": false, "dirtyMedia": false},
+  {"id": "gif96_1795133427314_10", "cat": "pierna", "sub": "Pierna", "name": "Curl Femoral", "file": "Curl Femoral.gif", "customMedia": false, "dirtyMedia": false},
+  {"id": "gif96_1795133427314_11", "cat": "espalda", "sub": "Bíceps", "name": "Curl Inverso en Polea a un Brazo", "file": "Curl Inverso en Polea a un Brazo.gif", "customMedia": false, "dirtyMedia": false},
+  {"id": "gif96_1795133427314_12", "cat": "espalda", "sub": "Bíceps", "name": "Curl Inverso en Polea", "file": "Curl Inverso en Polea.gif", "customMedia": false, "dirtyMedia": false},
+  {"id": "gif96_1795133427314_20", "cat": "espalda", "sub": "Bíceps", "name": "Curl de Biceps en Polea con Barra", "file": "Curl de Biceps en Polea con Barra.gif", "customMedia": false, "dirtyMedia": false},
+  {"id": "gif96_1795133427314_13", "cat": "espalda", "sub": "Bíceps", "name": "Curl Martillo con Cuerda en Polea", "file": "Curl Martillo con Cuerda en Polea.gif", "customMedia": false, "dirtyMedia": false},
+  {"id": "gif96_1795133427314_15", "cat": "espalda", "sub": "Bíceps", "name": "Curl Martillo en Polea", "file": "Curl Martillo en Polea.gif", "customMedia": false, "dirtyMedia": false},
+  {"id": "gif96_1795133427314_16", "cat": "espalda", "sub": "Bíceps", "name": "Curl Scott con Barra Z", "file": "Curl Scott con Barra Z.gif", "customMedia": false, "dirtyMedia": false},
+  {"id": "gif96_1795133427314_17", "cat": "espalda", "sub": "Bíceps", "name": "Curl Scott en Maquina", "file": "Curl Scott en Maquina.gif", "customMedia": false, "dirtyMedia": false},
+  {"id": "gif96_1795133427314_18", "cat": "espalda", "sub": "Bíceps", "name": "Curl Zottman con Mancuernas Sentado", "file": "Curl Zottman con Mancuernas Sentado.gif", "customMedia": false, "dirtyMedia": false},
+  {"id": "gif96_1795133427314_19", "cat": "espalda", "sub": "Bíceps", "name": "Curl de Biceps con Mancuernas Sentado", "file": "Curl de Biceps con Mancuernas Sentado.gif", "customMedia": false, "dirtyMedia": false},
+  {"id": "gif96_1795133427314_21", "cat": "espalda", "sub": "Bíceps", "name": "Curl de Biceps en Polea", "file": "Curl de Biceps en Polea.gif", "customMedia": false, "dirtyMedia": false},
+  {"id": "gif96_1795133427314_54", "cat": "espalda", "sub": "Espalda", "name": "Jalon Agarre Neutro", "file": "Jalon Agarre Neutro.gif", "customMedia": false, "dirtyMedia": false},
+  {"id": "gif96_1795133427314_23", "cat": "pierna", "sub": "Hombro", "name": "Elevacion Frontal con Mancuernas Sentado", "file": "Elevacion Frontal con Mancuernas Sentado.gif", "customMedia": false, "dirtyMedia": false},
+  {"id": "gif96_1795133427314_24", "cat": "espalda", "sub": "Espalda", "name": "Elevacion Frontal con Mancuernas en Banco Inclinado", "file": "Elevacion Frontal con Mancuernas en Banco Inclinado.gif", "customMedia": false, "dirtyMedia": false},
+  {"id": "gif96_1795133427314_25", "cat": "pierna", "sub": "Hombro", "name": "Elevacion Frontal en Polea", "file": "Elevacion Frontal en Polea.gif", "customMedia": false, "dirtyMedia": false},
+  {"id": "gif96_1795133427314_26", "cat": "pierna", "sub": "Pierna", "name": "Elevacion de Gemelos Sentado en Maquina a Una Pierna", "file": "Elevacion de Gemelos Sentado en Maquina a Una Pierna.gif", "customMedia": false, "dirtyMedia": false},
+  {"id": "gif96_1795133427314_27", "cat": "pierna", "sub": "Pierna", "name": "Elevacion de Gemelos en Hack Squat", "file": "Elevacion de Gemelos en Hack Squat.gif", "customMedia": false, "dirtyMedia": false},
+  {"id": "gif96_1795133427314_28", "cat": "pierna", "sub": "Pierna", "name": "Elevacion de Gemelos en Maquina de Pie", "file": "Elevacion de Gemelos en Maquina de Pie.gif", "customMedia": false, "dirtyMedia": false},
+  {"id": "gif96_1795133427314_29", "cat": "pierna", "sub": "Hombro", "name": "Elevaciones Laterales Sentado", "file": "Elevaciones Laterales Sentado.gif", "customMedia": false, "dirtyMedia": false},
+  {"id": "gif96_1795133427314_30", "cat": "pierna", "sub": "Hombro", "name": "Elevaciones Laterales con Mancuernas", "file": "Elevaciones Laterales con Mancuernas.gif", "customMedia": false, "dirtyMedia": false},
+  {"id": "gif96_1795133427314_31", "cat": "pierna", "sub": "Hombro", "name": "Elevaciones Laterales en Maquina de Discos", "file": "Elevaciones Laterales en Maquina de Discos.gif", "customMedia": false, "dirtyMedia": false},
+  {"id": "gif96_1795133427314_32", "cat": "pierna", "sub": "Hombro", "name": "Elevaciones Laterales en Maquina", "file": "Elevaciones Laterales en Maquina.gif", "customMedia": false, "dirtyMedia": false},
+  {"id": "gif96_1795133427314_34", "cat": "pierna", "sub": "Abdomen", "name": "Encogimientos en Polea", "file": "Encogimientos en Polea.gif", "customMedia": false, "dirtyMedia": false},
+  {"id": "gif96_1795133427314_35", "cat": "espalda", "sub": "Espalda", "name": "Extension a un Brazo en Polea", "file": "Extension a un Brazo en Polea.gif", "customMedia": false, "dirtyMedia": false},
+  {"id": "gif96_1795133427314_36", "cat": "pierna", "sub": "Pierna", "name": "Extension de Cuadriceps a Una Pierna", "file": "Extension de Cuadriceps a Una Pierna.gif", "customMedia": false, "dirtyMedia": false},
+  {"id": "gif96_1795133427314_37", "cat": "pierna", "sub": "Pierna", "name": "Extension de Cuadriceps", "file": "Extension de Cuadriceps.gif", "customMedia": false, "dirtyMedia": false},
+  {"id": "gif96_1795133427314_38", "cat": "pecho", "sub": "Tríceps", "name": "Extension de Triceps con Cuerda en Polea", "file": "Extension de Triceps con Cuerda en Polea.gif", "customMedia": false, "dirtyMedia": false},
+  {"id": "gif96_1795133427314_39", "cat": "pecho", "sub": "Tríceps", "name": "Extension de Triceps con Mancuerna", "file": "Extension de Triceps con Mancuerna.gif", "customMedia": false, "dirtyMedia": false},
+  {"id": "gif96_1795133427314_40", "cat": "pecho", "sub": "Tríceps", "name": "Extension de Triceps en Polea con Barra Recta", "file": "Extension de Triceps en Polea con Barra Recta.gif", "customMedia": false, "dirtyMedia": false},
+  {"id": "gif96_1795133427314_41", "cat": "pecho", "sub": "Tríceps", "name": "Extension de Triceps en Polea con Barra V", "file": "Extension de Triceps en Polea con Barra V.gif", "customMedia": false, "dirtyMedia": false},
+  {"id": "gif96_1795133427314_42", "cat": "pecho", "sub": "Tríceps", "name": "Extension de Triceps en Polea con Barra", "file": "Extension de Triceps en Polea con Barra.gif", "customMedia": false, "dirtyMedia": false},
+  {"id": "gif96_1795133427314_43", "cat": "pecho", "sub": "Tríceps", "name": "Extension de Triceps por Encima de la Cabeza Barra Recta en Polea", "file": "Extension de Triceps por Encima de la Cabeza Barra Recta en Polea.gif", "customMedia": false, "dirtyMedia": false},
+  {"id": "gif96_1795133427314_44", "cat": "pecho", "sub": "Tríceps", "name": "Extension de Triceps por Encima de la Cabeza a Dos Manos en Polea", "file": "Extension de Triceps por Encima de la Cabeza a Dos Manos en Polea.gif", "customMedia": false, "dirtyMedia": false},
+  {"id": "gif96_1795133427314_45", "cat": "pecho", "sub": "Tríceps", "name": "Extension de Triceps por Encima de la Cabeza a un Brazo en Polea", "file": "Extension de Triceps por Encima de la Cabeza a un Brazo en Polea.gif", "customMedia": false, "dirtyMedia": false},
+  {"id": "gif96_1795133427314_46", "cat": "pecho", "sub": "Tríceps", "name": "Extension de Triceps por Encima de la Cabeza con Cuerda", "file": "Extension de Triceps por Encima de la Cabeza con Cuerda.gif", "customMedia": false, "dirtyMedia": false},
+  {"id": "gif96_1795133427314_48", "cat": "pecho", "sub": "Tríceps", "name": "Fondos en Maquina de Discos", "file": "Fondos en Maquina de Discos.gif", "customMedia": false, "dirtyMedia": false},
+  {"id": "gif96_1795133427314_50", "cat": "espalda", "sub": "Espalda", "name": "Jalon Agarre Ancho Iso-Lateral", "file": "Jalon Agarre Ancho Iso-Lateral.gif", "customMedia": false, "dirtyMedia": false},
+  {"id": "gif96_1795133427314_51", "cat": "espalda", "sub": "Espalda", "name": "Jalon Agarre Cerrado Iso-Lateral", "file": "Jalon Agarre Cerrado Iso-Lateral.gif", "customMedia": false, "dirtyMedia": false},
+  {"id": "gif96_1795133427314_47", "cat": "espalda", "sub": "Espalda", "name": "Extension por Encima de la Cabeza con Cuerda", "file": "Extension por Encima de la Cabeza con Cuerda.gif", "customMedia": false, "dirtyMedia": false},
+  {"id": "gif96_1795133427314_52", "cat": "espalda", "sub": "Espalda", "name": "Jalon Agarre Cerrado", "file": "Jalon Agarre Cerrado.gif", "customMedia": false, "dirtyMedia": false},
+  {"id": "gif96_1795133427314_53", "cat": "espalda", "sub": "Espalda", "name": "Jalon Agarre Inverso", "file": "Jalon Agarre Inverso.gif", "customMedia": false, "dirtyMedia": false},
+  {"id": "gif96_1795133427314_55", "cat": "espalda", "sub": "Espalda", "name": "Jalon Iso-Lateral", "file": "Jalon Iso-Lateral.gif", "customMedia": false, "dirtyMedia": false},
+  {"id": "gif96_1795133427314_56", "cat": "pecho", "sub": "Pecho", "name": "Jalon al Pecho a un Brazo", "file": "Jalon al Pecho a un Brazo.gif", "customMedia": false, "dirtyMedia": false},
+  {"id": "gif96_1795133427314_57", "cat": "pecho", "sub": "Pecho", "name": "Jalon al Pecho en Polea", "file": "Jalon al Pecho en Polea.gif", "customMedia": false, "dirtyMedia": false},
+  {"id": "gif96_1795133427314_58", "cat": "espalda", "sub": "Espalda", "name": "Pajaros en Maquina Posterior de Hombro", "file": "Pajaros en Maquina Posterior de Hombro.gif", "customMedia": false, "dirtyMedia": false},
+  {"id": "gif96_1795133427314_59", "cat": "pierna", "sub": "Pierna", "name": "Patada Trasera en Maquina", "file": "Patada Trasera en Maquina.gif", "customMedia": false, "dirtyMedia": false},
+  {"id": "gif96_1795133427314_60", "cat": "pierna", "sub": "Pierna", "name": "Peso Muerto Rumano en Polea", "file": "Peso Muerto Rumano en Polea.gif", "customMedia": false, "dirtyMedia": false},
+  {"id": "gif96_1795133427314_62", "cat": "pecho", "sub": "Pecho", "name": "Press Banca Inclinado Agarre Cerrado en Multipower", "file": "Press Banca Inclinado Agarre Cerrado en Multipower.gif", "customMedia": false, "dirtyMedia": false},
+  {"id": "gif96_1795133427314_63", "cat": "pecho", "sub": "Pecho", "name": "Press Declinado de Pecho Iso-Lateral", "file": "Press Declinado de Pecho Iso-Lateral.gif", "customMedia": false, "dirtyMedia": false},
+  {"id": "gif96_1795133427314_64", "cat": "pecho", "sub": "Tríceps", "name": "Press Frances con Barra Z", "file": "Press Frances con Barra Z.gif", "customMedia": false, "dirtyMedia": false},
+  {"id": "gif96_1795133427314_65", "cat": "pecho", "sub": "Tríceps", "name": "Press Frances con Barra", "file": "Press Frances con Barra.gif", "customMedia": false, "dirtyMedia": false},
+  {"id": "gif96_1795133427314_66", "cat": "pecho", "sub": "Tríceps", "name": "Press Frances con Mancuernas", "file": "Press Frances con Mancuernas.gif", "customMedia": false, "dirtyMedia": false},
+  {"id": "gif96_1795133427314_67", "cat": "pecho", "sub": "Pecho", "name": "Press Hexagonal con Mancuernas", "file": "Press Hexagonal con Mancuernas.gif", "customMedia": false, "dirtyMedia": false},
+  {"id": "gif96_1795133427314_68", "cat": "pecho", "sub": "Pecho", "name": "Press Inclinado con Mancuernas", "file": "Press Inclinado con Mancuernas.gif", "customMedia": false, "dirtyMedia": false},
+  {"id": "gif96_1795133427314_69", "cat": "pecho", "sub": "Pecho", "name": "Press Inclinado de Pecho Iso-Lateral", "file": "Press Inclinado de Pecho Iso-Lateral.gif", "customMedia": false, "dirtyMedia": false},
+  {"id": "gif96_1795133427314_70", "cat": "pecho", "sub": "Pecho", "name": "Press Inclinado en Polea", "file": "Press Inclinado en Polea.gif", "customMedia": false, "dirtyMedia": false},
+  {"id": "gif96_1795133427314_71", "cat": "pecho", "sub": "Pecho", "name": "Press Larsen con Mancuernas", "file": "Press Larsen con Mancuernas.gif", "customMedia": false, "dirtyMedia": false},
+  {"id": "gif96_1795133427314_72", "cat": "pecho", "sub": "Pecho", "name": "Press con Mancuernas", "file": "Press con Mancuernas.gif", "customMedia": false, "dirtyMedia": false},
+  {"id": "gif96_1795133427314_73", "cat": "pierna", "sub": "Hombro", "name": "Press de Hombros Iso-Lateral", "file": "Press de Hombros Iso-Lateral.gif", "customMedia": false, "dirtyMedia": false},
+  {"id": "gif96_1795133427314_74", "cat": "pierna", "sub": "Hombro", "name": "Press de Hombros con Mancuernas", "file": "Press de Hombros con Mancuernas.gif", "customMedia": false, "dirtyMedia": false},
+  {"id": "gif96_1795133427314_75", "cat": "pierna", "sub": "Hombro", "name": "Press de Hombros en Maquina Agarre Neutro", "file": "Press de Hombros en Maquina Agarre Neutro.gif", "customMedia": false, "dirtyMedia": false},
+  {"id": "gif96_1795133427314_76", "cat": "pecho", "sub": "Pecho", "name": "Press de Pecho Iso-Lateral", "file": "Press de Pecho Iso-Lateral.gif", "customMedia": false, "dirtyMedia": false},
+  {"id": "gif96_1795133427314_77", "cat": "pecho", "sub": "Pecho", "name": "Press de Pecho en Maquina Sentado", "file": "Press de Pecho en Maquina Sentado.gif", "customMedia": false, "dirtyMedia": false},
+  {"id": "gif96_1795133427314_78", "cat": "pecho", "sub": "Pecho", "name": "Press de Pecho en Polea Sentado", "file": "Press de Pecho en Polea Sentado.gif", "customMedia": false, "dirtyMedia": false},
+  {"id": "gif96_1795133427314_80", "cat": "pecho", "sub": "Tríceps", "name": "Pullover con Barra", "file": "Pullover con Barra.gif", "customMedia": false, "dirtyMedia": false},
+  {"id": "gif96_1795133427314_81", "cat": "pecho", "sub": "Tríceps", "name": "Pullover con Cuerda en Polea", "file": "Pullover con Cuerda en Polea.gif", "customMedia": false, "dirtyMedia": false},
+  {"id": "gif96_1795133427314_82", "cat": "pecho", "sub": "Tríceps", "name": "Pullover con Mancuerna", "file": "Pullover con Mancuerna.gif", "customMedia": false, "dirtyMedia": false},
+  {"id": "gif96_1795133427314_83", "cat": "pecho", "sub": "Tríceps", "name": "Pullover en Polea", "file": "Pullover en Polea.gif", "customMedia": false, "dirtyMedia": false},
+  {"id": "gif96_1795133427314_84", "cat": "espalda", "sub": "Espalda", "name": "Remo Alto Iso-Lateral", "file": "Remo Alto Iso-Lateral.gif", "customMedia": false, "dirtyMedia": false},
+  {"id": "gif96_1795133427314_85", "cat": "espalda", "sub": "Espalda", "name": "Remo a un Brazo con Mancuerna", "file": "Remo a un Brazo con Mancuerna.gif", "customMedia": false, "dirtyMedia": false},
+  {"id": "gif96_1795133427314_86", "cat": "pierna", "sub": "Hombro", "name": "Remo al Cuello con Mancuernas", "file": "Remo al Cuello con Mancuernas.gif", "customMedia": false, "dirtyMedia": false},
+  {"id": "gif96_1795133427314_87", "cat": "pierna", "sub": "Hombro", "name": "Remo al Cuello en Polea", "file": "Remo al Cuello en Polea.gif", "customMedia": false, "dirtyMedia": false},
+  {"id": "gif96_1795133427314_88", "cat": "pecho", "sub": "Pecho", "name": "Remo con Mancuernas con Apoyo al Pecho", "file": "Remo con Mancuernas con Apoyo al Pecho.gif", "customMedia": false, "dirtyMedia": false},
+  {"id": "gif96_1795133427314_89", "cat": "espalda", "sub": "Espalda", "name": "Remo en Maquina Sentado Agarre Neutro", "file": "Remo en Maquina Sentado Agarre Neutro.gif", "customMedia": false, "dirtyMedia": false},
+  {"id": "gif96_1795133427314_90", "cat": "espalda", "sub": "Espalda", "name": "Remo en Maquina", "file": "Remo en Maquina.gif", "customMedia": false, "dirtyMedia": false},
+  {"id": "gif96_1795133427314_91", "cat": "espalda", "sub": "Espalda", "name": "Remo en Polea Agarre Neutro Cerrado", "file": "Remo en Polea Agarre Neutro Cerrado.gif", "customMedia": false, "dirtyMedia": false},
+  {"id": "gif96_1795133427314_92", "cat": "espalda", "sub": "Espalda", "name": "Remo en Polea a un Brazo", "file": "Remo en Polea a un Brazo.gif", "customMedia": false, "dirtyMedia": false},
+  {"id": "gif96_1795133427314_94", "cat": "pierna", "sub": "Hombro", "name": "Rotacion Externa en Polea", "file": "Rotacion Externa en Polea.gif", "customMedia": false, "dirtyMedia": false},
+  {"id": "gif96_1795133427314_95", "cat": "pierna", "sub": "Hombro", "name": "Rotacion Interna en Polea", "file": "Rotacion Interna en Polea.gif", "customMedia": false, "dirtyMedia": false},
+  {"id": "gif96_1795133427314_96", "cat": "pierna", "sub": "Pierna", "name": "Sentadilla Hack", "file": "Sentadilla Hack.gif", "customMedia": false, "dirtyMedia": false}
+];
+
+const SUB_MAP = {
+  pecho: ['Pecho', 'Tríceps'],
+  pierna: ['Pierna', 'Hombro', 'Abdomen'],
+  espalda: ['Espalda', 'Bíceps'],
+  cardio: ['Aeróbico', 'Calentamiento']
+};
+
+const PLAN_KEY = 'gymtony_today_plan_v2';
+const CARDIO_KEY = 'gymtony_cardio_v1';
+let exercises = JSON.parse(localStorage.getItem(EX_KEY) || 'null') || DEFAULT_EXERCISES;
+(function ensureCardioExercises(){
+  const defaultsCardio = [
+    {id:'cardio_eliptica',cat:'cardio',sub:'Aeróbico',name:'Elíptica',file:'ELIPTICA CARDIO.gif',customMedia:false,dirtyMedia:false},
+    {id:'cardio_bici',cat:'cardio',sub:'Aeróbico',name:'Bici Estática',file:'BICI ESTATICA.gif',customMedia:false,dirtyMedia:false},
+    {id:'cardio_cinta',cat:'cardio',sub:'Aeróbico',name:'Cinta / Caminata',file:'CINTA CORRER.gif',customMedia:false,dirtyMedia:false},
+    {id:'cardio_remo',cat:'cardio',sub:'Aeróbico',name:'Remo Ergómetro',file:'REMO CARDIO.gif',customMedia:false,dirtyMedia:false}
+  ];
+  let changed = false;
+  defaultsCardio.forEach(ce => {
+    if(!exercises.some(e => e.id === ce.id)){
+      exercises.unshift(ce);
+      changed = true;
+    }
+  });
+  if(changed) localStorage.setItem(EX_KEY, JSON.stringify(exercises));
+})();
+let logs = JSON.parse(localStorage.getItem(DB_KEY) || '{}');
+let cfg = JSON.parse(localStorage.getItem(CFG_KEY) || '{"rest":90}');
+let groupRoutines = JSON.parse(localStorage.getItem(PLAN_KEY) || '{"activeGroup":"pecho","groups":{"pecho":[],"pierna":[],"espalda":[],"cardio":[]}}');
+if(!groupRoutines || !groupRoutines.groups){
+  groupRoutines = { activeGroup: 'pecho', groups: { pecho: [], pierna: [], espalda: [], cardio: [] } };
+}
+if(!groupRoutines.groups.cardio) groupRoutines.groups.cardio = [];
+let cardioLogs = JSON.parse(localStorage.getItem(CARDIO_KEY) || '[]');
+let ghCfg = JSON.parse(localStorage.getItem(GH_KEY) || '{"owner":"jstony2000","repo":"GYMTONY","branch":"main","token":"","auto":true}');
+let localUpdatedAt = parseInt(localStorage.getItem(TS_KEY) || '0', 10);
+let isSyncing = false;
+
+let currentCat = 'pecho';
+let currentSub = 'Todos';
+let currentEx = null;
+let editingExId = null;
+let pendingMediaData = null;
+
+let timerInt = null;
+let timeLeft = cfg.rest;
+
+/* INDEXEDDB PARA GIFS/IMAGENES SUBIDAS DESDE MOVIL */
+const MEDIA_DB_NAME = 'GymTonyMediaDB';
+let mediaDB = null;
+const mediaUrlCache = {};
+
+function initMediaDB(){
+  return new Promise(resolve=>{
+    const req = indexedDB.open(MEDIA_DB_NAME, 1);
+    req.onupgradeneeded = e => e.target.result.createObjectStore('media');
+    req.onsuccess = e => { mediaDB = e.target.result; resolve(); };
+    req.onerror = () => resolve();
+  });
+}
+
+function saveCustomMedia(id, dataUrl){
+  mediaUrlCache[id] = dataUrl;
+  return new Promise(resolve=>{
+    if(!mediaDB) return resolve();
+    const tx = mediaDB.transaction('media','readwrite');
+    tx.objectStore('media').put(dataUrl, id);
+    tx.oncomplete = () => resolve();
+    tx.onerror = () => resolve();
+  });
+}
+
+function getCustomMedia(id){
+  if(mediaUrlCache[id]) return Promise.resolve(mediaUrlCache[id]);
+  return new Promise(resolve=>{
+    if(!mediaDB) return resolve(null);
+    const tx = mediaDB.transaction('media','readonly');
+    const req = tx.objectStore('media').get(id);
+    req.onsuccess = () => {
+      if(req.result) mediaUrlCache[id] = req.result;
+      resolve(req.result || null);
+    };
+    req.onerror = () => resolve(null);
+  });
+}
+
+function getAllCustomMedia(){
+  return new Promise(resolve=>{
+    if(!mediaDB) return resolve({});
+    const tx = mediaDB.transaction('media','readonly');
+    const out = {};
+    const req = tx.objectStore('media').openCursor();
+    req.onsuccess = e => {
+      const cursor = e.target.result;
+      if(cursor){ out[cursor.key] = cursor.value; cursor.continue(); }
+      else resolve(out);
+    };
+    req.onerror = () => resolve({});
+  });
+}
+
+
+/* CATÁLOGO DE VÍDEOS MP4 POR SUBCARPETA (DE smartworkout_videos -> VIDEOS/<subcarpeta>/<archivo>.mp4) */
+const VIDEOS_CATALOG = {"abdominales":["abdominal-oblicuo-de-pie-con-elevacion-de-rodilla.mp4","abdominales-alternos-sentado.mp4","abdominales-circulares-inversos-sentados.mp4","abdominales-completos-con-press-de-disco-sobre-la-cabeza.mp4","abdominales-completos-en-banco-declinado.mp4","abdominales-con-peso.mp4","abdominales-crunch.mp4","abdominales-en-banco-declinado.mp4","abdominales-en-bicicleta.mp4","abdominales-en-ghd.mp4","abdominales-inclinados-con-giro.mp4","abdominales-invertidos.mp4","abdominales-janda.mp4","abdominales.mp4","balanceo-en-posicion-hueca.mp4","bandera-del-dragon.mp4","bicho-muerto-con-balon.mp4","bicho-muerto.mp4","bicicleta-de-aire-de-pie.mp4","bicicleta-de-aire.mp4","caminata-con-saco-de-arena-abrazado-al-pecho.mp4","carrera-en-el-sitio-con-rodillas-altas.mp4","cien-de-pilates-en-v.mp4","circulos-de-rodillas-colgantes.mp4","codo-a-rodilla-del-lado-opuesto.mp4","corte-de-lena-con-banda-de-alta-a-baja.mp4","corte-en-medio-arrodillado-con-banda.mp4","crunch-abdominal-con-banda-de-rodillas.mp4","crunch-abdominal-con-cable-de-rodillas.mp4","crunch-abdominal-de-pie-con-cable.mp4","crunch-abdominal-en-maquina.mp4","crunch-abdominal-sentado-en-polea.mp4","crunch-con-balon-de-estabilidad.mp4","crunch-con-brazo-recto-y-peso.mp4","crunch-con-flexion-de-rodillas.mp4","crunch-con-giro.mp4","crunch-de-rana.mp4","crunch-declinado-con-peso.mp4","crunch-en-maquina-acostado.mp4","crunch-en-v.mp4","crunch-giratorio-de-rodillas-con-banda.mp4","crunch-lateral-de-rodillas-con-cable.mp4","crunch-lateral.mp4","crunches-de-bicicleta-con-banda.mp4","crunches-de-pie-con-banda.mp4","crunches-de-pie-con-giro-con-banda.mp4","dead-bug-con-peso.mp4","dedos-a-la-barra.mp4","descensos-de-cadera-en-plancha.mp4","desplazamiento-con-barra---de-rodillas.mp4","elevacion-colgante-de-garhammer.mp4","elevacion-de-cadera-en-anillas.mp4","elevacion-de-cadera-en-plancha-lateral.mp4","elevacion-de-piernas-acostado-en-banco-plano.mp4","elevacion-de-piernas-colgando-a-la-barra.mp4","elevacion-de-piernas-colgando-con-peso.mp4","elevacion-de-piernas-rectas-acostado.mp4","elevacion-de-piernas-rectas-colgado.mp4","elevacion-de-piernas-rectas-en-barras-paralelas.mp4","elevacion-de-piernas-sentado.mp4","elevacion-de-rodillas-al-pecho-en-suspension.mp4","elevacion-de-rodillas-en-ab-coaster.mp4","elevacion-de-rodillas-oblicuas-colgado.mp4","elevacion-en-v.mp4","elevaciones-de-piernas-en-banco-inclinado.mp4","elevaciones-de-piernas-rectas-en-silla-romana.mp4","elevaciones-de-rodillas-colgado.mp4","elevaciones-de-rodillas-en-silla-del-capitan.mp4","encogimiento-abdominal-con-toque-de-los-dedos-de-los-pies.mp4","escalador-de-montana.mp4","estiramiento-de-flexores-de-cadera-de-rodillas.mp4","extension-y-flexion-de-piernas.mp4","flexion-abdominal-con-rodillas-al-pecho.mp4","flexion-lateral-del-tronco-a-45-grados.mp4","gateo-de-oso.mp4","gato-vaca.mp4","giro-con-banda-(horizontal).mp4","giro-con-barra-en-tierra.mp4","giro-con-cable-(arriba-abajo).mp4","giro-con-cable-(horizontal).mp4","giro-de-pie-con-barra.mp4","giro-ruso-con-balon-medicinal.mp4","giro-ruso-con-barra.mp4","giro-ruso-con-mancuerna.mp4","giro-ruso-con-peso.mp4","giro-ruso-de-pie.mp4","giro-sentado.mp4","giros-de-limpiaparabrisas-en-decubito-supino.mp4","inclinacion-lateral-de-pie-con-banda.mp4","inclinacion-lateral-de-pie-con-mancuerna.mp4","l-sitio.mp4","lanzamiento-rotacional-con-balon-medicinal.mp4","molino-de-viento-colgado-a-la-mitad.mp4","molino-de-viento-con-peso-corporal.mp4","patada-de-aleteo-sentado.mp4","patadas-de-tijera-colgado.mp4","perro-hacia-arriba.mp4","plancha-alta.mp4","plancha-con-apertura-y-cierre-de-piernas.mp4","plancha-con-apoyo-de-rodillas.mp4","plancha-con-balon-suizo.mp4","plancha-con-elevacion-alterna-de-piernas.mp4","plancha-con-peso.mp4","plancha-con-transicion-de-antebrazos-a-manos.mp4","plancha-de-oso.mp4","plancha-lateral.mp4","plancha-serrucho.mp4","plancha.mp4","postura-de-la-vela.mp4","postura-del-cangrejo.mp4","prensa-pallof-horizontal-con-cable.mp4","prensa-pallof-horizontal-en-polea-baja.mp4","press-pallof-con-banda.mp4","puente-lateral-con-mancuernas.mp4","rodamiento-con-rueda-abdominal.mp4","rodillas-a-codos-colgando.mp4","rotacion-de-tronco-con-cable-en-posicion-de-rodillas.mp4","rotacion-de-tronco-en-maquina-sentado.mp4","rotacion-de-tronco-en-maquina.mp4","rotacion-de-tronco-sentado-con-banda.mp4","sosten-de-piernas-elevadas-en-banco.mp4","squat-thrust.mp4","sujecion-de-cuerpo-hueco-con-peso.mp4","sujecion-de-cuerpo-hueco.mp4","sujecion-isometrica-del-press-pallof-contra-la-pared.mp4","tijeras-horizontales.mp4","tijeras.mp4","toques-de-dedos.mp4","toques-de-tobillo.mp4","torsion-espinal-supina.mp4","traslado-de-mancuerna-en-plancha.mp4","trx-perro-de-caza-a-una-pierna.mp4","v-ups-en-suspension.mp4","vacio-abdominal.mp4"],"antebrazos":["aparato-de-agarre-manual.mp4","caminata-con-marco-de-madera.mp4","caminata-del-granjero-unilateral.mp4","caminata-del-granjero.mp4","colgado-muerto.mp4","curl-de-antebrazos-con-barra-en-agarre-inverso.mp4","curl-de-biceps-con-barra-ez-agarre-inverso.mp4","curl-de-muneca-con-barra-de-pie.mp4","curl-de-muneca-con-barra.mp4","curl-de-muneca-con-mancuerna-a-una-mano.mp4","curl-de-muneca-de-pie-con-barra.mp4","curl-de-muneca-de-pie-con-mancuerna.mp4","curl-de-muneca-en-polea-sentado.mp4","curl-de-muneca-en-polea.mp4","curl-de-muneca-inversa-sentado-con-barra-ez.mp4","curl-de-muneca-inverso-con-barra.mp4","curl-de-muneca-inverso-de-pie-con-mancuernas.mp4","curl-de-muneca-neutral-con-mancuerna-a-un-brazo.mp4","curl-de-muneca-sentado-con-barra-ez.mp4","curl-en-banco-scott-con-barra-ez-y-agarre-prono.mp4","curl-en-polea-con-agarre-inverso.mp4","curl-inverso-de-biceps-con-mancuernas.mp4","curl-inverso-de-muneca-con-mancuerna-a-un-brazo.mp4","curl-invertido-de-arana-con-barra-ez.mp4","dominada-scapular.mp4","enrollamiento-de-muneca-de-pie-con-cable.mp4","flexion-de-muneca.mp4","maquina-de-flexion-de-muneca.mp4","paseo-del-granjero-con-mancuernas.mp4","paseo-del-granjero-unilateral.mp4","pronacion-acostada-con-mancuernas.mp4","rodillo-de-muneca.mp4","sentadilla-con-disco-en-agarre-de-pinza.mp4","supinacion-con-mancuernas-en-decubito.mp4"],"bíceps":["cuerdas-de-batalla.mp4","curl-alterno-con-mancuernas-en-supinacion.mp4","curl-alterno-supinado-con-mancuernas-en-banco-inclinado.mp4","curl-bayesiano-en-cable-sentado.mp4","curl-con-mancuerna-individual.mp4","curl-con-mancuernas-en-supinacion.mp4","curl-de-arana-con-barra-ez.mp4","curl-de-arana-con-mancuernas.mp4","curl-de-arrastre-con-barra.mp4","curl-de-arrastre-con-mancuerna.mp4","curl-de-biceps-con-agarre-cerrado.mp4","curl-de-biceps-con-banda-elastica.mp4","curl-de-biceps-con-barra-de-pie-con-agarre-ancho.mp4","curl-de-biceps-con-barra-en-la-pared.mp4","curl-de-biceps-con-barra-en-polea.mp4","curl-de-biceps-con-barra-ez-agarre-cerrado.mp4","curl-de-biceps-con-barra-ez.mp4","curl-de-biceps-con-barra.mp4","curl-de-biceps-con-cable-a-un-brazo.mp4","curl-de-biceps-con-kettlebell.mp4","curl-de-biceps-con-mancuerna-y-soporte-para-brazos.mp4","curl-de-biceps-con-mancuernas-sentado.mp4","curl-de-biceps-con-mancuernas.mp4","curl-de-biceps-con-trx.mp4","curl-de-biceps-en-banco-inclinado-con-barra.mp4","curl-de-biceps-en-banco-scott-con-barra-ez.mp4","curl-de-biceps-en-banco-scott-con-barra.mp4","curl-de-biceps-en-maquina.mp4","curl-de-biceps-en-polea-(de-espaldas).mp4","curl-de-biceps-en-polea-acostado.mp4","curl-de-biceps-en-polea-bayesian.mp4","curl-de-biceps-en-polea-de-rodillas.mp4","curl-de-biceps-inclinado-sentado.mp4","curl-de-concentracion-con-mancuerna.mp4","curl-de-hercules.mp4","curl-de-martillo-con-banda.mp4","curl-de-martillo-con-cable-a-un-brazo.mp4","curl-de-martillo-con-mancuernas.mp4","curl-de-martillo-en-banco-scott-con-un-brazo.mp4","curl-de-martillo-sentado.mp4","curl-de-predicador-con-mancuerna-a-un-brazo.mp4","curl-de-predicador-en-maquina-con-un-brazo.mp4","curl-de-predicador-supinado-con-mancuerna.mp4","curl-en-cable-inclinado.mp4","curl-en-predicador-con-cable.mp4","curl-martillo-alterno-con-mancuernas.mp4","curl-martillo-alterno-sentado-con-mancuernas.mp4","curl-martillo-con-cuerda-en-polea.mp4","curl-martillo-cruzado-con-mancuerna.mp4","curl-martillo-en-banco-scott.mp4","curl-martillo-inclinado-con-mancuerna.mp4","curl-predicador-con-mancuernas.mp4","curl-predicador-en-maquina.mp4","curl-zottman.mp4","dominada-con-un-brazo.mp4","dominada-supina-asistida-con-banda-elastica.mp4","dominadas-con-peso.mp4","estiramiento-de-biceps-de-pie.mp4","muscle-up-en-anillas.mp4","spider-hammer-curl_-curl-martillo-en-arana.mp4","subida-por-cuerda.mp4"],"espalda":["angel-de-nieve-inverso.mp4","bandera.mp4","dominada-arquero.mp4","dominada-en-l.mp4","dominada-en-palanca-frontal.mp4","dominada-negativa.mp4","dominada-supina-asistida.mp4","dominadas-asistidas-con-banda.mp4","dominadas-asistidas.mp4","dominadas-australianas-con-agarre-estrecho-en-anillas.mp4","dominadas-con-agarre-ancho-hacia-atras.mp4","dominadas-con-agarre-ancho.mp4","dominadas-con-agarre-estrecho.mp4","dominadas-con-agarre-neutro-y-peso-adicional.mp4","dominadas-con-agarre-neutro.mp4","dominadas-con-lastre.mp4","dominadas-en-anillas.mp4","dominadas-supinas.mp4","dominadas.mp4","elevacion-en-w-en-decubito-prono.mp4","elevaciones-laterales-inclinadas-con-apoyo-en-el-pecho-con-mancuernas.mp4","encogimiento-con-barra-detras-de-la-espalda.mp4","encogimiento-con-cable.mp4","encogimiento-de-hombros-con-barra.mp4","encogimiento-de-hombros-en-maquina-smith.mp4","encogimiento-invertido.mp4","encogimientos-con-barra-hexagonal.mp4","encogimientos-de-hombros-con-mancuernas-sentado.mp4","encogimientos-de-hombros-con-mancuernas.mp4","encogimientos-de-hombros-kelso-con-mancuernas.mp4","encogimientos-en-fondos.mp4","encogimientos-en-maquina.mp4","ergometro-de-esqui.mp4","estiramiento-de-los-musculos-dorsales-en-posicion-de-rodillas.mp4","estiramiento-del-manguito-rotador-en-decubito-lateral.mp4","estiramiento-lateral-de-pie.mp4","estiramiento-lateral-del-cuello.mp4","extension-cervical-con-arnes-para-la-cabeza.mp4","extension-cervical-en-decubito-prono-con-carga.mp4","extension-de-espalda-en-maquina.mp4","flexion-de-cuello.mp4","front-lever_-palanca-frontal.mp4","jalon-al-pecho-con-agarre-cerrado-en-polea.mp4","jalon-al-pecho-con-cable-a-una-mano-en-posicion-de-medio-arrodillado.mp4","jalon-al-pecho-con-un-brazo.mp4","jalon-con-banda-detras-del-cuello.mp4","jalon-de-dorsales-con-banda-a-un-brazo.mp4","jalon-de-dorsales-con-brazos-rectos.mp4","jalon-de-dorsales-con-cable-a-un-brazo-y-brazo-recto.mp4","jalon-de-dorsales-con-cable-a-una-mano-en-medio-arrodillado.mp4","jalon-de-dorsales-con-cuerda-y-brazos-rectos.mp4","jalon-de-dorsales-en-polea.mp4","jalon-de-espalda-con-banda-inclinado.mp4","jalon-de-espalda-en-polea-con-agarre-neutral-ancho.mp4","jalon-de-espalda-en-polea-de-rodillas.mp4","jalon-dorsal-en-posicion-prona.mp4","jalon-en-polea-con-agarre-ancho-detras-de-la-nuca.mp4","jalon-en-polea-con-agarre-invertido.mp4","jalon-en-polea-con-agarre-neutro.mp4","jalon-lateral-con-agarre-amplio-en-polea-alta.mp4","maquina-de-jalon-de-espalda.mp4","maquina-de-remo.mp4","nadador-en-posicion-prona.mp4","palanca-frontal-con-piernas-flexionadas.mp4","palanca-inversa.mp4","pullover-con-mancuerna-y-piernas-elevadas.mp4","pullover-en-maquina.mp4","pulover-con-mancuerna.mp4","remo-alto-con-palanca-a-un-brazo.mp4","remo-alto-en-palanca.mp4","remo-alto-unilateral-en-polea.mp4","remo-amplio-con-banda-anclada-en-alto.mp4","remo-ancho-con-mancuernas-en-banco-inclinado.mp4","remo-bajo-en-maquina.mp4","remo-bajo-en-polea-sentado-con-agarre-neutro.mp4","remo-bajo-unilateral-en-polea.mp4","remo-con-apoyo-en-el-pecho-y-agarre-amplio.mp4","remo-con-barra-en-banco-inclinado-con-agarre-ancho.mp4","remo-con-barra-en-t-a-una-mano-inclinado.mp4","remo-con-barra-en-t-inclinado.mp4","remo-con-barra-inclinado.mp4","remo-con-barra-para-deltoides-posteriores.mp4","remo-con-barra-t-en-agarre-cerrado.mp4","remo-con-kettlebell-inclinado.mp4","remo-con-mancuerna-a-una-mano-inclinado-con-enfoque-en-la-escapula.mp4","remo-con-mancuerna-en-banco-con-una-pierna-extendida.mp4","remo-con-mancuernas-en-banco-plano.mp4","remo-de-cable-a-una-mano.mp4","remo-de-gorila.mp4","remo-de-kayak-en-polea.mp4","remo-en-banco-prono.mp4","remo-en-barra-en-t-con-apoyo-para-pecho.mp4","remo-en-maquina-con-soporte-para-el-pecho.mp4","remo-en-maquina-con-soporte-para-pecho-a-un-brazo.mp4","remo-en-polea-sentado.mp4","remo-en-suspension.mp4","remo-gorila-con-pesas-rusas.mp4","remo-inclinado-con-banda-elastica.mp4","remo-inclinado-con-barra-desde-pin.mp4","remo-inclinado-con-barra-en-banco.mp4","remo-inclinado-con-barra-y-agarre-invertido.mp4","remo-inclinado-con-mancuernas-2.mp4","remo-inclinado-con-mancuernas-agarre-neutro.mp4","remo-inclinado-con-mancuernas.mp4","remo-inclinado-en-multipower.mp4","remo-invertido-(australiano).mp4","remo-invertido-bajo-una-mesa.mp4","remo-invertido-con-agarre-supino.mp4","remo-invertido-en-suspension.mp4","remo-pendlay.mp4","remo-renegado-alterno.mp4","remo-renegado-con-kettlebell.mp4","remo-sentado-a-una-mano.mp4","remo-sentado-con-agarre-supino-en-polea.mp4","remo-sentado-con-cable-agarre-neutro.mp4","remo-sentado-con-cable-y-agarre-ancho.mp4","remo-sentado-con-flexion-en-polea.mp4","remo-sentado-en-polea-baja-a-una-mano.mp4","remo-yates.mp4","rotacion-externa-de-hombro-de-pie-con-banda-elastica.mp4","rotacion-externa-de-hombro-en-polea.mp4","traccion-de-trineo-con-cuerda.mp4"],"glúteos":["abduccion-de-cadera-con-banda-sentado.mp4","abduccion-de-cadera-con-banda.mp4","abduccion-de-cadera-con-cable.mp4","abduccion-de-cadera-de-pie.mp4","abduccion-de-cadera-en-cuadrupedia-con-extension-de-rodilla.mp4","abduccion-de-cadera-en-decubito-lateral.mp4","abduccion-de-cadera-sentado.mp4","bisagra-de-cadera.mp4","buenos-dias-con-barra.mp4","buenos-dias-en-multipower.mp4","buenos-dias-sentado.mp4","cambio-de-cadera-90-a-90-con-apoyo-de-manos.mp4","cambio-de-cadera-90-a-90.mp4","caminata-lateral-con-banda.mp4","concha-en-decubito-lateral.mp4","concha-lateral-con-banda-elastica-acostado.mp4","desplazamiento-lateral-rapido.mp4","elevacion-de-cadera-con-banda-elastica-mini.mp4","elevacion-de-cadera-con-barra.mp4","elevacion-de-cadera-con-mancuernas.mp4","elevacion-de-cadera-estilo-rana.mp4","elevacion-de-cadera.mp4","empuje-de-cadera-en-maquina-smith.mp4","empuje-de-cadera-en-maquina.mp4","empuje-de-cadera-en-posicion-de-rodillas.mp4","empuje-de-cadera-unilateral-con-mancuerna.mp4","empuje-de-cadera-unilateral.mp4","estiramiento-de-figura-4-en-silla.mp4","estiramiento-de-figura-4-sentado.mp4","estiramiento-de-rodilla-al-pecho-acostado.mp4","estiramiento-en-decubito-supino-con-la-pierna-en-posicion-de-figura-cuatro.mp4","extension-de-cadera-de-pie-en-polea.mp4","extension-de-espalda-con-mancuerna.mp4","extension-de-espalda-con-peso.mp4","extension-de-espalda.mp4","extension-diagonal-de-cadera-en-polea-baja.mp4","glute-bridge-single-leg_-puente-de-gluteos-a-una-pierna.mp4","hiperextension-inversa-a-45-grados.mp4","hiperextension-inversa-con-banda.mp4","hiperextension-inversa-en-banco.mp4","hiperextension-inversa-en-maquina.mp4","nadadores-superman.mp4","patada-de-burro.mp4","patada-de-gluteo-con-banda-de-resistencia-en-equilibrio-de-pie.mp4","patada-de-gluteos-con-banda.mp4","patada-de-gluteos-en-maquina.mp4","patada-de-gluteos-en-polea.mp4","perro-de-caza.mp4","peso-muerto-con-banda-elastica.mp4","peso-muerto-con-una-mancuerna-al-lado.mp4","peso-muerto-desde-bloques.mp4","peso-muerto-rumano-a-una-pierna.mp4","peso-muerto-rumano-con-barra-landmine.mp4","peso-muerto-rumano-en-maquina-smith.mp4","peso-muerto-rumano-en-posicion-sumo.mp4","peso-muerto-rumano.mp4","peso-muerto-sumo-con-mancuernas.mp4","peso-muerto-sumo-con-tiron-corto.mp4","peso-muerto-sumo.mp4","plancha-lateral-con-abduccion-de-cadera.mp4","postura-de-la-paloma.mp4","postura-del-nino.mp4","puente-de-gluteos-con-banda-elastica-mini.mp4","puente-de-gluteos-con-barra.mp4","puente-de-gluteos-con-marcha.mp4","puente-de-gluteos-con-peso-a-una-pierna.mp4","puente-de-gluteos-con-peso.mp4","puente-de-gluteos-en-banco.mp4","puente-de-gluteos.mp4","rodillo-para-gluteos.mp4","rotacion-espinal-sentado.mp4","rotacion-externa-de-cadera-sentado.mp4","rotacion-interna-de-cadera-sentado.mp4","saltos-de-patinador.mp4","sentadilla-bulgara.mp4","sentadilla-con-cinturon-en-maquina.mp4","sentadilla-con-kettlebell-en-copa.mp4","sentadilla-dividida-con-pie-delantero-elevado.mp4","sentadilla-sumo-con-mancuernas.mp4","tiron-con-cable.mp4","volteo-de-neumatico.mp4","zancada-cruzada-posterior-con-mancuernas.mp4","zancada-cruzada-posterior.mp4","zancada-inversa-con-mancuernas-desde-escalon.mp4","zancada-trasera-con-barra-en-escalon.mp4","zancada-trasera-con-mancuerna.mp4"],"hombros":["angel-en-la-pared.mp4","apertura-inclinada-con-mancuernas-alterna.mp4","apertura-inversa-en-polea-para-deltoides-posterior.mp4","apertura-posterior-de-deltoides-con-un-brazo.mp4","apertura-posterior-de-deltoides-en-polea-con-un-brazo.mp4","aperturas-posteriores-con-mancuernas-acostado.mp4","arrancada-con-mancuerna.mp4","cable-leaning-lateral-raise_-elevacion-lateral-inclinada-con-cable.mp4","caminata-con-mancuerna-sobre-la-cabeza-a-un-brazo.mp4","caminata-en-posicion-de-parada-de-manos.mp4","caminata-por-la-pared.mp4","cargada-y-envion-con-kettlebell.mp4","cargada-y-press-con-mancuernas.mp4","cargada-y-press-con-tronco.mp4","circulo-de-brazo.mp4","circulos-de-hombros.mp4","conductor-de-disco.mp4","conductor-de-pie-con-mancuerna.mp4","corte-de-lenador-con-peso.mp4","elevacion-de-powell.mp4","elevacion-en-t-con-mancuernas-en-banco-inclinado.mp4","elevacion-en-t-en-decubito-prono.mp4","elevacion-en-y-con-cable-en-inclinacion-con-soporte-de-espalda.mp4","elevacion-en-y-con-cable.mp4","elevacion-en-y-en-decubito-prono.mp4","elevacion-en-y-para-trapecio.mp4","elevacion-frontal-alternada-con-mancuernas-en-martillo.mp4","elevacion-frontal-alternada-con-mancuernas.mp4","elevacion-frontal-con-barra.mp4","elevacion-frontal-con-cable-a-un-brazo.mp4","elevacion-frontal-con-cable.mp4","elevacion-frontal-con-disco-y-rotacion.mp4","elevacion-frontal-con-disco.mp4","elevacion-frontal-con-mancuerna.mp4","elevacion-lateral-a-frontal.mp4","elevacion-lateral-con-banda.mp4","elevacion-lateral-con-barra-t-en-suelo.mp4","elevacion-lateral-con-cable-a-un-brazo.mp4","elevacion-lateral-con-cable.mp4","elevacion-lateral-con-mancuerna-a-un-brazo-inclinado-con-apoyo.mp4","elevacion-lateral-con-mancuerna-a-un-brazo.mp4","elevacion-lateral-con-mancuerna-e-inclinacion-lateral-del-tronco.mp4","elevacion-lateral-con-mancuernas-inclinado-sentado.mp4","elevacion-lateral-con-mancuernas-inclinado.mp4","elevacion-lateral-con-mancuernas-sentado.mp4","elevacion-lateral-con-mancuernas.mp4","elevacion-lateral-de-un-brazo-en-polea.mp4","elevacion-lateral-en-maquina.mp4","elevacion-lateral-en-t-con-soporte-para-pecho.mp4","elevacion-lateral-inclinada-con-mancuerna-a-un-brazo.mp4","elevacion-lateral-inclinado-con-cable-a-un-brazo.mp4","elevacion-lateral-poliquin-con-mancuernas.mp4","elevacion-lateral-posterior-en-t-con-mancuernas-en-banco-inclinado.mp4","elevacion-lateral-posterior-sentado-con-cable.mp4","elevacion-posterior-del-deltoides-con-barra.mp4","elevacion-powell-en-inclinacion.mp4","elevaciones-laterales-con-mancuernas.mp4","envion-de-potencia.mp4","estiramiento-del-deltoides-posterior.mp4","flexion-de-brazos-en-parada-de-manos.mp4","flexion-pica-entre-sillas.mp4","flexion-pica.mp4","flexion-pike-en-banco.mp4","flexion-pike-entre-bancos.mp4","jalon-al-rostro-sentado.mp4","jalon-de-cara-con-cable-acostado.mp4","jalon-de-cara-con-cable-en-supinacion.mp4","jalon-de-cara-con-cable.mp4","jalon-facial-con-anillas.mp4","jalon-facial-con-banda.mp4","jalon-facial-en-suspension.mp4","lanzamiento-de-balon-medicinal.mp4","levantamiento-turco.mp4","lever-seated-hammer-grip-shoulder-press_-press-de-hombros-con-agarre-martillo-en-maquina-sentado.mp4","molino-con-kettlebell.mp4","natacion-estilo-crol.mp4","parada-de-cabeza-asistida-sirsasana.mp4","parada-de-manos-libre.mp4","paso-de-banda-a-traves-de-los-hombros.mp4","plancha-abierta.mp4","plancha-completa.mp4","plancha-de-perro-de-caza.mp4","plancha-frontal-estatica.mp4","press-bradford-con-barra.mp4","press-cubano-de-pie.mp4","press-cubano-sentado.mp4","press-de-arnold-con-mancuernas-sentado.mp4","press-de-barra-en-t.mp4","press-de-empuje-con-pesa-rusa-a-un-brazo.mp4","press-de-hombro-a-un-brazo-con-mancuerna.mp4","press-de-hombro-con-kettlebell-a-una-mano.mp4","press-de-hombro-con-mancuerna-en-medio-arrodillado.mp4","press-de-hombro-de-pie-con-barra-en-tierra-a-un-brazo.mp4","press-de-hombro-en-medio-arrodillado-con-landmine-a-un-brazo.mp4","press-de-hombros-alterno-de-pie-con-mancuernas.mp4","press-de-hombros-con-banda-elastica.mp4","press-de-hombros-con-barra-sentado.mp4","press-de-hombros-con-mancuerna-en-medio-arrodillado.mp4","press-de-hombros-con-mancuernas-de-pie.mp4","press-de-hombros-con-mancuernas-sentado.mp4","press-de-hombros-de-pie-en-poleas.mp4","press-de-hombros-en-maquina-con-discos.mp4","press-de-hombros-en-maquina.mp4","press-de-hombros-sentado-con-agarre-neutro.mp4","press-de-hombros-sentado-en-maquina-smith.mp4","press-de-hombros-tsunami.mp4","press-landmine-a-dos-manos.mp4","press-militar-con-barra.mp4","press-militar-tras-nuca-con-barra.mp4","press-tras-nuca-en-multipower-sentado.mp4","press-vikingo-con-barra-landmine.mp4","press-z-con-barra.mp4","press-z-con-mancuernas.mp4","push-press-con-barra.mp4","push-press-con-mancuernas.mp4","remo-al-menton-en-maquina-smith.mp4","remo-alto-inclinado-sentado-con-mancuernas.mp4","remo-con-mancuernas-de-pie.mp4","remo-posterior-para-deltoides-con-mancuernas.mp4","remo-vertical-con-banda.mp4","remo-vertical-con-barra-de-agarre-estrecho.mp4","remo-vertical-con-barra-y-agarre-ancho.mp4","remo-vertical-con-barra-y-agarre-de-hombros.mp4","remo-vertical-con-polea.mp4","rotacion-con-kettlebell-alrededor-de-la-cabeza.mp4","rotacion-cubana-con-mancuernas.mp4","rotacion-externa-de-hombro-sentado.mp4","rotacion-externa-en-decubito-lateral.mp4","rotaciones-controladas-de-hombros-en-decubito-prono.mp4","sosten-en-parada-de-manos.mp4","tiron-alto-con-barra-desde-posicion-colgante.mp4"],"pecho":["almeja-de-pecho-sentada.mp4","apertura-baja-con-mancuerna-unilateral.mp4","apertura-con-cable-acostado.mp4","apertura-con-mancuernas-de-abajo-hacia-arriba.mp4","apertura-de-cable-unilateral-de-abajo-hacia-arriba.mp4","apertura-de-pecho-con-banda.mp4","apertura-de-pecho-con-mancuernas-en-banco-inclinado.mp4","apertura-de-pecho-con-mancuernas-en-el-suelo.mp4","apertura-de-pecho-con-mancuernas.mp4","apertura-de-pecho-de-pie.mp4","apertura-de-pecho-en-suspension.mp4","apertura-en-polea-de-alto-a-bajo-con-un-brazo.mp4","apertura-polea-unilateral.mp4","aperturas-con-mancuernas-en-banco-declinado.mp4","aperturas-en-contractora-de-pecho.mp4","aperturas-inclinadas-con-mancuernas.mp4","around-the-world-con-mancuernas-en-banco-plano.mp4","boxeo-con-saco-de-boxeo.mp4","cruce-de-polea-medio.mp4","cruce-de-poleas-alto-de-rodillas.mp4","cruce-de-poleas-alto.mp4","cruce-de-poleas-bajo.mp4","cruce-de-poleas-en-banco-inclinado.mp4","cruce-de-poleas-medio-en-banco.mp4","estiramiento-de-pecho-con-brazo-flexionado.mp4","estiramiento-de-pecho-con-codos-abiertos.mp4","estiramiento-de-pecho-en-el-marco-de-la-puerta.mp4","estiramiento-de-rotacion-de-espalda-arrodillado.mp4","estiramiento-de-rotacion-toracica-en-decubito-lateral.mp4","estiramiento-dinamico-de-hombros-con-banda-elastica.mp4","estiramiento-global.mp4","flexion-a-un-brazo.mp4","flexion-abiertas.mp4","flexion-ancha-de-rodillas.mp4","flexion-completa-de-muneca.mp4","flexion-con-banda-de-resistencia.mp4","flexion-con-palmada.mp4","flexion-de-arquero.mp4","flexion-de-brazos-con-protraccion-escapular.mp4","flexion-de-brazos-con-transicion-a-plancha-lateral.mp4","flexion-de-dedos.mp4","flexion-de-escapulas.mp4","flexion-de-nudillos.mp4","flexion-de-superman.mp4","flexion-en-anillas.mp4","flexion-jack.mp4","flexion-negativa.mp4","flexion-pliometrica.mp4","flexion-profunda-con-mancuernas.mp4","flexion-profunda-en-barras-paralelas.mp4","flexiones-con-asas.mp4","flexiones-con-despegue-de-manos.mp4","flexiones-con-peso.mp4","flexiones-contra-la-pared.mp4","flexiones-de-rodillas.mp4","flexiones-declinadas.mp4","flexiones-inclinadas.mp4","flexiones.mp4","fondos-coreanos.mp4","fondos-de-pecho.mp4","fondos-en-paralelas.mp4","fondos-en-plancha.mp4","golpes-alternos-con-los-punos.mp4","inchworm-con-flexion.mp4","laterales-poliquin.mp4","pec-deck_-contractora-de-pecho.mp4","perro-boca-abajo-de-pie.mp4","plancha-inclinada.mp4","press-circular-de-pie.mp4","press-con-macuernas-cerrado.mp4","press-de-banca-con-banda-de-resistencia.mp4","press-de-banca-con-barra-hasta-el-cuello.mp4","press-de-banca-con-barra-y-agarre-amplio.mp4","press-de-banca-con-barra-y-agarre-supino.mp4","press-de-banca-con-barra-y-cadenas.mp4","press-de-banca-con-pausa.mp4","press-de-banca-con-tope.mp4","press-de-banca-en-el-suelo.mp4","press-de-banca-en-maquina.mp4","press-de-banca.mp4","press-de-fuerza-unilateral-cruzado.mp4","press-de-larsen-con-barra.mp4","press-de-mancuernas-en-el-suelo.mp4","press-de-pecho-bajo-en-polea-de-pie.mp4","press-de-pecho-con-banda-en-banco.mp4","press-de-pecho-convergente.mp4","press-de-pecho-de-pie-con-banda-elastica.mp4","press-de-pecho-de-pie-con-cable.mp4","press-de-pecho-en-maquina-con-agarre-neutro.mp4","press-de-pecho-en-maquina-sentado.mp4","press-de-pecho-en-polea-declinado.mp4","press-de-pecho-en-suspension.mp4","press-de-piso-con-kettlebell-a-un-brazo.mp4","press-declinado-con-barra.mp4","press-declinado-con-mancuernas.mp4","press-declinado-convergente.mp4","press-declinado-en-multipower.mp4","press-inclinado-con-barra.mp4","press-inclinado-con-mancuernas-agarre-neutro.mp4","press-inclinado-con-mancuernas.mp4","press-inclinado-con-poleas-en-banco.mp4","press-inclinado-convergente.mp4","press-inclinado-en-multipower.mp4","press-inlinado-con-mancuernas-unilateral.mp4","press-larsen-con-mancuernas.mp4","press-plano-con-mancuernas-agarre-neutro.mp4","press-plano-con-mancuernas-unilateral.mp4","press-plano-con-mancuernas.mp4","press-plano-con-poleas.mp4","press-plano-en-maquina.mp4","press-plano-en-multipower.mp4","press-poliquin-con-mancuernas.mp4","press-svend.mp4","pullover-con-barra.mp4","toque-de-hombro.mp4"],"piernas":["aduccion-de-cadera-con-banda-de-resistencia.mp4","aduccion-de-cadera-en-decubito-lateral.mp4","aduccion-de-cadera-en-polea.mp4","aduccion-de-cadera-sentado.mp4","aduccion-de-copenhague.mp4","arrancada-con-kettlebell.mp4","arrancada-de-potencia.mp4","arrancada-en-suspension.mp4","arrancada-y-envion.mp4","arrancada.mp4","arranque-de-potencia.mp4","arrastre-de-trineo.mp4","balance-de-arrancada.mp4","balanceo-americano-con-pesa-rusa.mp4","balanceo-con-kettlebell.mp4","balanceo-con-mancuerna.mp4","balanceo-de-kettlebell-con-un-brazo.mp4","balanceos-de-piernas.mp4","balanceos-laterales-de-pierna.mp4","bicicleta-de-aire-de-asalto.mp4","bicicleta-estatica-reclinada.mp4","bicicleta-estatica.mp4","buenos-dias-con-banda-elastica.mp4","burpee.mp4","caminata-en-cinta-de-correr.mp4","caminata-monstruo-hacia-adelante-con-banda.mp4","cardio-caminando.mp4","carga-de-piedra-atlas-a-la-plataforma.mp4","cargada-con-mancuernas.mp4","cargada-en-suspension.mp4","cargada-muscular-desde-el-suelo.mp4","carrera-de-velocidad.mp4","carrera-en-cinta.mp4","ciclismo.mp4","circulos-de-cadera.mp4","clean-con-kettlebell.mp4","correr.mp4","curl-de-isquiotibiales-unilateral-en-decubito.mp4","curl-de-jefferson.mp4","curl-de-pierna-de-pie-con-banda-anclada-al-rack.mp4","curl-de-pierna-de-pie-con-banda-bajo-el-pie.mp4","curl-de-pierna-de-pie.mp4","curl-de-pierna-en-cable-a-una-pierna.mp4","curl-de-pierna-sentado-con-banda.mp4","curl-de-pierna-unilateral-sentado.mp4","curl-de-piernas-acostado-con-banda.mp4","curl-de-piernas-acostado-con-mancuernas.mp4","curl-de-piernas-con-balon-suizo.mp4","curl-de-piernas-deslizante.mp4","curl-de-piernas-en-anillas.mp4","curl-de-piernas-en-decubito-prono.mp4","curl-de-piernas-en-suspension.mp4","curl-de-piernas-sentado.mp4","curl-nordico-de-isquiotibiales.mp4","devil-press-con-mancuernas.mp4","doble-paso-de-cuerda.mp4","elevacion-de-cadera-en-multipower-de-rodillas.mp4","elevacion-de-gluteos-e-isquiotibiales-1-2.mp4","elevacion-de-pantorrilla-en-maquina-sentado-a-una-pierna.mp4","elevacion-de-pantorrillas-en-maquina-rotatoria.mp4","elevacion-de-poliquin.mp4","elevacion-de-talon-a-una-pierna.mp4","elevacion-de-talon-sentado-con-mancuerna-a-una-pierna.mp4","elevacion-de-talones-con-barra.mp4","elevacion-de-talones-de-pie.mp4","elevacion-de-talones-en-maquina-con-el-torso-inclinado.mp4","elevacion-de-talones-en-maquina-de-sentadilla-hack.mp4","elevacion-de-talones-en-maquina-smith-a-una-pierna.mp4","elevacion-de-talones-sentado-con-peso.mp4","elevacion-de-talones-sentado-en-maquina-smith.mp4","elevacion-de-talones-sentado.mp4","elevacion-de-tibial-anterior-de-pie.mp4","elevaciones-de-gemelos-en-maquina-smith.mp4","elevaciones-de-gemelos-en-maquina.mp4","elevaciones-de-gemelos-en-smith.mp4","elevaciones-de-pierna-con-mancuerna.mp4","elevaciones-de-talones-de-pie-con-mancuernas.mp4","entrenador-eliptico.mp4","envion-en-tijera.mp4","escalada-en-cinta-de-correr.mp4","escaladora.mp4","estiramiento-90-a-90.mp4","estiramiento-de-cuadriceps-acostado-de-lado.mp4","estiramiento-de-cuadriceps-acostado.mp4","estiramiento-de-cuadriceps-con-pie-trasero-en-banco.mp4","estiramiento-de-cuadriceps-de-pie.mp4","estiramiento-de-cuadriceps-en-medio-arrodillado.mp4","estiramiento-de-isquiotibiales-con-una-pierna-sentado.mp4","estiramiento-de-isquiotibiales-de-pie.mp4","estiramiento-de-isquiotibiales-de-rodillas.mp4","estiramiento-de-mariposa-inclinada-hacia-adelante.mp4","estiramiento-de-mariposa.mp4","estiramiento-de-media-rana-balanceante.mp4","estiramiento-de-pantorrilla-en-la-pared.mp4","estiramiento-de-rodilla-al-pecho.mp4","estiramiento-de-zancada.mp4","extension-de-pierna-unilateral.mp4","extension-de-piernas-en-maquina-sentado.mp4","extension-de-rodilla-sentado-con-mancuerna.mp4","extension-terminal-de-rodilla-en-polea.mp4","extension-terminal-de-rodilla.mp4","flexion-adelante-de-pie.mp4","flexion-hacia-adelante-sentado.mp4","flexiones-de-rodilla-con-talones-hacia-los-gluteos.mp4","hang-power-clean.mp4","kickboxing.mp4","lanzamiento-de-balon-medicinal-contra-la-pared.mp4","levantarse-de-la-silla.mp4","marcha-con-mochila-lastrada.mp4","media-sentadilla.mp4","paso-adelante-con-cable.mp4","paso-al-frente-con-barra.mp4","patada-de-gluteos-en-maquina-smith.mp4","perro-boca-abajo.mp4","peso-muerto-a-una-pierna.mp4","peso-muerto-con-agarre-de-arrancada.mp4","peso-muerto-con-barra-hexagonal.mp4","peso-muerto-con-deficit.mp4","peso-muerto-con-kettlebell.mp4","peso-muerto-con-mancuerna-a-una-pierna.mp4","peso-muerto-con-mancuernas-piernas-rectas.mp4","peso-muerto-con-mancuernas-y-piernas-rectas.mp4","peso-muerto-con-mancuernas.mp4","peso-muerto-con-piernas-rectas-con-barra.mp4","peso-muerto-de-cargada.mp4","peso-muerto-rumano-a-una-pierna-con-peso-corporal.mp4","peso-muerto-rumano-con-banda-elastica.mp4","peso-muerto-rumano-con-dos-pesas-rusas.mp4","peso-muerto-rumano-con-mancuernas.mp4","peso-muerto-rumano-en-cable.mp4","peso-muerto-rumano-en-posicion-b.mp4","peso-muerto.mp4","plancha-invertida.mp4","postura-de-mariposa-acostada.mp4","postura-del-bebe-feliz.mp4","postura-del-lagarto.mp4","postura-del-loto.mp4","prensa-de-pierna-unilateral.mp4","prensa-de-piernas-a-45-grados-con-postura-estrecha.mp4","prensa-de-piernas-con-postura-amplia.mp4","prensa-de-piernas-horizontal-en-maquina.mp4","prensa-de-piernas-para-pantorrillas.mp4","prensa-de-piernas-vertical-en-maquina-smith.mp4","prensa-de-piernas-vertical.mp4","prensa-de-piernas.mp4","puente-de-gluteos-con-pasos-hacia-delante.mp4","rana-balanceante.mp4","remo-parcial-con-barra-en-rack.mp4","rodar-el-pie.mp4","rodar-gemelos.mp4","saltar-la-cuerda.mp4","salto-con-apertura-de-brazos-y-piernas.mp4","salto-con-contramovimiento.mp4","salto-con-mancuernas.mp4","salto-con-rodillas-al-pecho.mp4","salto-de-longitud.mp4","salto-de-rana.mp4","salto-en-caja-a-una-pierna.mp4","salto-en-profundidad.mp4","saltos-de-tijera.mp4","saltos-en-caja.mp4","saltos-laterales.mp4","saltos-pogo.mp4","saludo-al-sol-a.mp4","sentadilla-a-una-pierna-sujetando-el-pie-trasero.mp4","sentadilla-al-aire.mp4","sentadilla-anderson.mp4","sentadilla-bulgara-con-barra-2.mp4","sentadilla-bulgara-con-barra.mp4","sentadilla-bulgara-con-mancuernas.mp4","sentadilla-bulgara-con-pie-delantero-elevado.mp4","sentadilla-bulgara-con-salto.mp4","sentadilla-bulgara-en-maquina-smith.mp4","sentadilla-bulgara-en-smith.mp4","sentadilla-bulgara.mp4","sentadilla-con-banda.mp4","sentadilla-con-barra-alta.mp4","sentadilla-con-barra-baja.mp4","sentadilla-con-barra-de-seguridad.mp4","sentadilla-con-barra-en-tierra.mp4","sentadilla-con-barra-y-pausa.mp4","sentadilla-con-barra.mp4","sentadilla-con-mancuerna-en-copa.mp4","sentadilla-con-mancuerna-tipo-copa.mp4","sentadilla-con-mancuernas-sobre-la-cabeza.mp4","sentadilla-con-mancuernas.mp4","sentadilla-con-salto-con-barra-hexagonal.mp4","sentadilla-con-salto-y-apertura-de-piernas.mp4","sentadilla-con-sistema-de-suspension.mp4","sentadilla-contra-la-pared-con-balon-de-estabilidad.mp4","sentadilla-cossack-con-barra.mp4","sentadilla-cossack-con-mancuernas.mp4","sentadilla-cossack-con-peso.mp4","sentadilla-cossack.mp4","sentadilla-de-arranque.mp4","sentadilla-de-barra-por-encima-de-la-cabeza.mp4","sentadilla-de-ciclista.mp4","sentadilla-de-patinador.mp4","sentadilla-de-rodillas-con-barra.mp4","sentadilla-dividida-con-barra-por-encima-de-la-cabeza.mp4","sentadilla-dividida-con-mancuerna.mp4","sentadilla-en-caja.mp4","sentadilla-en-la-pared.mp4","sentadilla-en-maquina-con-cinturon.mp4","sentadilla-en-maquina-smith-a-banco.mp4","sentadilla-en-maquina-smith.mp4","sentadilla-en-polea.mp4","sentadilla-en-rack.mp4","sentadilla-en-silla-con-maquina-smith.mp4","sentadilla-frontal-con-dos-pesas-rusas.mp4","sentadilla-frontal-con-mancuernas.mp4","sentadilla-frontal-con-pin.mp4","sentadilla-frontal-en-banco.mp4","sentadilla-frontal-en-maquina-smith.mp4","sentadilla-frontal.mp4","sentadilla-hack-con-barra.mp4","sentadilla-hack-en-maquina-smith.mp4","sentadilla-hack-en-maquina.mp4","sentadilla-hack-inversa-en-maquina.mp4","sentadilla-pendular.mp4","sentadilla-pistol-asistida.mp4","sentadilla-pistol-con-peso.mp4","sentadilla-pistol-en-caja.mp4","sentadilla-pistol.mp4","sentadilla-profunda-a-flexion-amplia-con-sujecion-del-pie.mp4","sentadilla-sissy-con-peso-adicional.mp4","sentadilla-sissy-con-peso-en-posicion-de-rodillas.mp4","sentadilla-sissy-de-rodillas.mp4","sentadilla-sissy.mp4","sentadilla-sumo-con-barra.mp4","sentadilla-sumo-con-multipower.mp4","sentadilla-sumo-desde-stepbox.mp4","sentadilla-sumo.mp4","sentadilla-zercher-en-maquina-smith.mp4","sentadilla-zercher-isometrica.mp4","sentadilla-zercher.mp4","sentadilla.mp4","step-de-patrick.mp4","subida-al-banco-con-mancuernas.mp4","subida-al-cajon.mp4","superman.mp4","thruster-con-barra.mp4","thruster-con-dos-pesas-rusas.mp4","thruster-con-mancuernas.mp4","tiron-de-arranque.mp4","tiron-de-cargada-desde-el-suelo.mp4","toque-de-rodilla-alta-saltando.mp4","trineo-prowler.mp4","trote-en-el-sitio.mp4","zancada-con-mancuernas-por-encima-de-la-cabeza.mp4","zancada-con-salto.mp4","zancada-hacia-adelante-con-barra.mp4","zancada-inversa.mp4","zancada-lateral-pliometrica.mp4","zancada-trasera-con-kettlebell.mp4","zancada-trasera-en-multipower.mp4","zancadas-caminando-con-barra.mp4","zancadas-caminando-con-mancuernas.mp4","zancadas-caminando-con-saco-bulgaro.mp4","zancadas-caminando.mp4","zancadas-con-mancuernas.mp4","zancadas-hacia-delante-con-saco-de-arena.mp4","zancadas-inversas-con-barra.mp4","zancadas-laterales-con-mancuernas.mp4","zancadas-laterales.mp4","zancadas.mp4"],"tríceps":["dominada-con-impulso.mp4","empuje-de-triceps-en-maquina.mp4","equilibrio-sobre-los-codos.mp4","estiramiento-de-triceps-por-encima-de-la-cabeza.mp4","extension-de-triceps-con-banda.mp4","extension-de-triceps-con-barra-en-banco-inclinado.mp4","extension-de-triceps-con-barra-en-decubito-supino.mp4","extension-de-triceps-con-barra-ez-en-decubito-supino.mp4","extension-de-triceps-con-barra-ez.mp4","extension-de-triceps-con-barra-por-encima-de-la-cabeza-de-pie.mp4","extension-de-triceps-con-cable-a-dos-brazos.mp4","extension-de-triceps-con-cable-por-encima-de-la-cabeza-(barra).mp4","extension-de-triceps-con-cuerda.mp4","extension-de-triceps-con-katana.mp4","extension-de-triceps-con-mancuernas-acostado.mp4","extension-de-triceps-con-mancuernas-en-banco-inclinado.mp4","extension-de-triceps-con-mancuernas-sentado.mp4","extension-de-triceps-en-anillas.mp4","extension-de-triceps-en-cable-con-agarre-invertido-a-una-mano.mp4","extension-de-triceps-en-cruce-con-cable.mp4","extension-de-triceps-en-maquina.mp4","extension-de-triceps-en-polea-acostado.mp4","extension-de-triceps-en-polea-alta-por-encima-de-la-cabeza.mp4","extension-de-triceps-en-polea-alta.mp4","extension-de-triceps-en-polea-con-agarre-inverso.mp4","extension-de-triceps-en-polea-con-barra-en-v.mp4","extension-de-triceps-en-polea-con-un-brazo.mp4","extension-de-triceps-en-polea-inclinada.mp4","extension-de-triceps-en-polea-una-mano.mp4","extension-de-triceps-en-pronacion.mp4","extension-de-triceps-en-suspension.mp4","extension-de-triceps-horizontal-de-pie-con-cable-a-un-brazo.mp4","extension-de-triceps-por-encima-de-la-cabeza-con-banda.mp4","extension-de-triceps-por-encima-de-la-cabeza-con-cable.mp4","extension-de-triceps-por-encima-de-la-cabeza-con-katana-a-una-mano.mp4","extension-de-triceps-por-encima-de-la-cabeza-con-un-brazo.mp4","extension-de-triceps-sentado-con-barra-ez.mp4","extension-de-triceps-sentado-con-mancuerna-a-un-brazo.mp4","extension-de-triceps-sentado-con-mancuernas.mp4","flexion-cobra.mp4","flexion-de-brazo-con-extension-de-pierna-y-brazo-opuesto.mp4","flexion-de-brazos-con-agarre-cerrado-y-rodillas-en-el-suelo.mp4","flexion-de-brazos-con-agarre-invertido.mp4","flexion-de-brazos-con-rodillas-en-diamante.mp4","flexion-de-brazos-cruzados.mp4","flexion-de-brazos-en-inclinacion-con-agarre-cerrado.mp4","flexion-de-brazos-en-plancha-completa.mp4","flexion-de-triceps.mp4","flexion-en-diamante-declinado.mp4","flexiones-cerradas-(triceps).mp4","flexiones-diamante.mp4","flexiones-en-pseudo-plancha.mp4","fondo-de-triceps-en-banco-sentado.mp4","fondos-asistidos-con-banda-elastica.mp4","fondos-asistidos-en-maquina.mp4","fondos-en-anillas.mp4","fondos-en-banco-con-los-pies-elevados.mp4","fondos-en-banco-con-peso.mp4","fondos-en-silla.mp4","fondos-lastrados.mp4","fondos.mp4","muscle-up-asistido-con-banda-elastica.mp4","muscle-up-con-peso.mp4","patada-de-triceps-con-cable.mp4","plancha-de-rana.mp4","plancha-en-anillas-con-rodillas-flexionadas.mp4","press-de-banca-con-agarre-cerrado.mp4","press-de-banca-inclinado-con-mancuernas-y-agarre-cerrado.mp4","press-de-california.mp4","press-de-smith-jm.mp4","press-frances-con-barra-en-banco-declinado.mp4","press-frances-de-pie-con-una-mancuerna.mp4","press-frances-horizontal-en-polea-sentado.mp4","press-jm-en-maquina-smith.mp4","press-jm.mp4","press-tate.mp4","pullover-para-triceps-con-barra.mp4","sosten-en-apoyo-sobre-anillas.mp4"]};
+
+const VIDEO_SUBFOLDER_META = {
+  'pecho':       { label: 'Pecho',       cat: 'pecho',   sub: 'Pecho',   logo: './logos/PECHO.png' },
+  'tríceps':     { label: 'Tríceps',     cat: 'pecho',   sub: 'Tríceps', logo: './logos/PECHO.png' },
+  'piernas':     { label: 'Piernas',     cat: 'pierna',  sub: 'Pierna',  logo: './logos/PIERNA.png' },
+  'glúteos':     { label: 'Glúteos',     cat: 'pierna',  sub: 'Pierna',  logo: './logos/PIERNA.png' },
+  'hombros':     { label: 'Hombros',     cat: 'pierna',  sub: 'Hombro',  logo: './logos/PIERNA.png' },
+  'abdominales': { label: 'Abdominales', cat: 'pierna',  sub: 'Abdomen', logo: './logos/PIERNA.png' },
+  'espalda':     { label: 'Espalda',     cat: 'espalda', sub: 'Espalda', logo: './logos/BRAZO_transparente.png' },
+  'bíceps':      { label: 'Bíceps',      cat: 'espalda', sub: 'Bíceps',  logo: './logos/BRAZO_transparente.png' },
+  'antebrazos':  { label: 'Antebrazos',  cat: 'espalda', sub: 'Bíceps',  logo: './logos/BRAZO_transparente.png' }
+};
+
+let activeVideoSub = 'Todos';
+
+function isVideoFile(srcOrFile){
+  if(!srcOrFile) return false;
+  const clean = String(srcOrFile).split('?')[0].split('#')[0].toLowerCase();
+  return clean.endsWith('.mp4') || clean.endsWith('.webm') || clean.startsWith('data:video/');
+}
+
+function resolveMediaUrl(ex){
+  if(ex.customMedia && mediaUrlCache[ex.id]) return mediaUrlCache[ex.id];
+  if(ex.file){
+    if(ex.file.startsWith('VIDEOS/') || ex.file.includes('/')){
+      return './' + ex.file.split('/').map(p => encodeURIComponent(p)).join('/');
+    }
+    return './ejercicios/' + encodeURIComponent(ex.file);
+  }
+  return './icons/logo-red-192x192.png';
+}
+
+function setMediaElement(imgEl, vidEl, srcUrl, rawFallbackName){
+  const isVid = isVideoFile(srcUrl) || isVideoFile(rawFallbackName);
+  if(isVid){
+    if(imgEl) imgEl.classList.add('hidden');
+    if(vidEl){
+      vidEl.classList.remove('hidden');
+      vidEl.src = srcUrl;
+      vidEl.onerror = () => {
+        if(!vidEl.dataset.triedRaw && rawFallbackName){
+          vidEl.dataset.triedRaw = '1';
+          const owner = ghCfg.owner || 'jstony2000';
+          const repo = ghCfg.repo || 'GYMTONY';
+          const branch = ghCfg.branch || 'main';
+          const relPath = rawFallbackName.includes('/') ? rawFallbackName : ('ejercicios/' + rawFallbackName);
+          vidEl.src = `https://raw.githubusercontent.com/${owner}/${repo}/${branch}/${relPath}`;
+        } else {
+          vidEl.classList.add('hidden');
+          if(imgEl){ imgEl.classList.remove('hidden'); imgEl.src = './icons/logo-red-192x192.png'; }
+        }
+      };
+      vidEl.play().catch(()=>{});
+    }
+  } else {
+    if(vidEl){ vidEl.pause(); vidEl.removeAttribute('src'); vidEl.classList.add('hidden'); }
+    if(imgEl){
+      imgEl.classList.remove('hidden');
+      delete imgEl.dataset.triedRaw;
+      const encFile = rawFallbackName ? encodeURIComponent(rawFallbackName) : '';
+      imgEl.onerror = () => imgFallback(imgEl, encFile);
+      imgEl.src = srcUrl;
+    }
+  }
+}
+
+function formatVideoTitle(filename){
+  const base = filename.replace(/\.mp4$/i, '').replace(/[_-]+/g, ' ').trim();
+  return base.charAt(0).toUpperCase() + base.slice(1);
+}
+
+function selectVideoSubfolder(sub){
+  activeVideoSub = sub;
+  renderVideosLibrary();
+}
+
+function renderVideosLibrary(){
+  const tabsBox = document.getElementById('vid-sub-tabs');
+  const listBox = document.getElementById('vid-list-container');
+  const totalBadge = document.getElementById('vid-total-badge');
+  const bannerTitle = document.getElementById('vid-banner-title');
+  const bannerSub = document.getElementById('vid-banner-sub');
+  const bannerLogo = document.getElementById('vid-group-logo');
+  if(!tabsBox || !listBox) return;
+
+  const subs = ['Todos', ...Object.keys(VIDEOS_CATALOG)];
+  const allEntries = [];
+  Object.keys(VIDEOS_CATALOG).forEach(sub => {
+    (VIDEOS_CATALOG[sub] || []).forEach(fn => {
+      allEntries.push({ sub, fn, relPath: `VIDEOS/${sub}/${fn}`, name: formatVideoTitle(fn) });
+    });
+  });
+
+  if(totalBadge) totalBadge.textContent = `${allEntries.length} vídeos`;
+
+  tabsBox.innerHTML = subs.map(s => {
+    const cnt = s === 'Todos' ? allEntries.length : (VIDEOS_CATALOG[s] || []).length;
+    const lbl = s === 'Todos' ? `Todos (${cnt})` : `${VIDEO_SUBFOLDER_META[s]?.label || s} (${cnt})`;
+    return `<button type="button" class="vid-sub-pill ${activeVideoSub===s?'active':''}" onclick="selectVideoSubfolder('${s.replace(/'/g, "\'")}')">${lbl}</button>`;
+  }).join('');
+
+  const meta = VIDEO_SUBFOLDER_META[activeVideoSub];
+  if(bannerLogo){
+    bannerLogo.src = meta ? meta.logo : './logos/PIERNA.png';
+  }
+  if(bannerTitle){
+    bannerTitle.textContent = activeVideoSub === 'Todos'
+      ? 'Catálogo de Vídeos (9 subcarpetas)'
+      : `${meta ? meta.label : activeVideoSub} · ${ (VIDEOS_CATALOG[activeVideoSub]||[]).length } vídeos`;
+  }
+  if(bannerSub){
+    bannerSub.textContent = 'Añade cualquier vídeo a Pecho+Tríceps, Pierna+Hombro, Espalda+Bíceps o Cardio';
+  }
+
+  const q = (document.getElementById('vid-search-inp')?.value || '').trim().toLowerCase();
+  const filtered = allEntries.filter(item =>
+    (activeVideoSub === 'Todos' || item.sub === activeVideoSub) &&
+    (!q || item.name.toLowerCase().includes(q) || item.fn.toLowerCase().includes(q))
+  ).slice(0, 120);
+
+  if(!filtered.length){
+    listBox.innerHTML = '<div style="color:var(--muted);font-size:.82rem;padding:12px">No hay vídeos que coincidan con el filtro.</div>';
+    return;
+  }
+
+  listBox.innerHTML = filtered.map(item => {
+    const existingEx = exercises.find(e => e.file === item.relPath);
+    const inPecho = existingEx ? getGroupPlanIds('pecho').includes(existingEx.id) : false;
+    const inPierna = existingEx ? getGroupPlanIds('pierna').includes(existingEx.id) : false;
+    const inEspalda = existingEx ? getGroupPlanIds('espalda').includes(existingEx.id) : false;
+    const inCardio = existingEx ? getGroupPlanIds('cardio').includes(existingEx.id) : false;
+    const vidUrl = `./${item.relPath.split('/').map(p=>encodeURIComponent(p)).join('/')}`;
+
+    return `<div class="ex-card" style="align-items:flex-start" onclick="openVideoPreview('${item.relPath.replace(/'/g, "\'")}', '${item.name.replace(/'/g, "\'")}', '${item.sub.replace(/'/g, "\'")}')">
+      <video class="ex-thumb" src="${vidUrl}" muted loop playsinline preload="metadata" style="object-fit:cover;background:#090d16"></video>
+      <div class="ex-meta">
+        <div class="ex-name">${item.name}</div>
+        <div class="ex-last">Subcarpeta: ${item.sub}</div>
+        <div class="vid-assign-row" onclick="event.stopPropagation()">
+          <button type="button" class="vid-grp-btn ${inPecho?'added':''}" onclick="assignVideoToGroup('${item.relPath.replace(/'/g, "\'")}','${item.name.replace(/'/g, "\'")}','${item.sub.replace(/'/g, "\'")}','pecho')">${inPecho?'Pecho ✓':'+ Pecho'}</button>
+          <button type="button" class="vid-grp-btn ${inPierna?'added':''}" onclick="assignVideoToGroup('${item.relPath.replace(/'/g, "\'")}','${item.name.replace(/'/g, "\'")}','${item.sub.replace(/'/g, "\'")}','pierna')">${inPierna?'Pierna ✓':'+ Pierna'}</button>
+          <button type="button" class="vid-grp-btn ${inEspalda?'added':''}" onclick="assignVideoToGroup('${item.relPath.replace(/'/g, "\'")}','${item.name.replace(/'/g, "\'")}','${item.sub.replace(/'/g, "\'")}','espalda')">${inEspalda?'Espalda ✓':'+ Espalda'}</button>
+          <button type="button" class="vid-grp-btn ${inCardio?'added':''}" onclick="assignVideoToGroup('${item.relPath.replace(/'/g, "\'")}','${item.name.replace(/'/g, "\'")}','${item.sub.replace(/'/g, "\'")}','cardio')">${inCardio?'Cardio ✓':'+ Cardio'}</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function assignVideoToGroup(relPath, name, subFolder, targetGrp){
+  const meta = VIDEO_SUBFOLDER_META[subFolder] || { cat: targetGrp === 'cardio' ? 'cardio' : targetGrp, sub: GROUP_LABELS[targetGrp] || 'General' };
+  let ex = exercises.find(e => e.file === relPath);
+  if(!ex){
+    ex = {
+      id: 'vid_' + Date.now() + '_' + Math.random().toString(36).slice(2,6),
+      cat: targetGrp === 'cardio' ? 'cardio' : targetGrp,
+      sub: targetGrp === 'cardio' ? 'Aeróbico' : (meta.cat === targetGrp ? meta.sub : (SUB_MAP[targetGrp]?.[0] || 'General')),
+      name: name,
+      file: relPath,
+      customMedia: false,
+      dirtyMedia: false
+    };
+    exercises.unshift(ex);
+    saveExercises();
+  }
+
+  groupRoutines.activeGroup = targetGrp;
+  const ids = getGroupPlanIds(targetGrp);
+  const idx = ids.indexOf(ex.id);
+  if(idx >= 0){
+    ids.splice(idx, 1);
+    showToast(`Quitado de ${GROUP_LABELS[targetGrp]}`);
+  } else {
+    ids.push(ex.id);
+    showToast(`Añadido a ${GROUP_LABELS[targetGrp]} ✓`);
+  }
+  saveGroupRoutines();
+  renderVideosLibrary();
+}
+
+function openVideoPreview(relPath, name, subFolder){
+  let ex = exercises.find(e => e.file === relPath);
+  if(!ex){
+    const meta = VIDEO_SUBFOLDER_META[subFolder] || { cat: 'pecho', sub: 'General' };
+    ex = {
+      id: 'vid_' + Date.now() + '_' + Math.random().toString(36).slice(2,6),
+      cat: meta.cat,
+      sub: meta.sub,
+      name: name,
+      file: relPath,
+      customMedia: false,
+      dirtyMedia: false
+    };
+    exercises.unshift(ex);
+    saveExercises();
+    touchLocalAndSync();
+  }
+  openExercise(ex.id);
+}
+
+function getExImgSrc(ex){
+  return resolveMediaUrl(ex);
+}
+function imgFallback(el, encodedFile){
+  if(!encodedFile || el.dataset.triedRaw){ el.src='./icons/logo-red-192x192.png'; return; }
+  el.dataset.triedRaw = '1';
+  const owner = ghCfg.owner || 'jstony2000';
+  const repo = ghCfg.repo || 'GYMTONY';
+  const branch = ghCfg.branch || 'main';
+  el.src = `https://raw.githubusercontent.com/${owner}/${repo}/${branch}/ejercicios/${encodedFile}`;
+}
+
+async function hydrateMediaCache(){
+  for(const ex of exercises.filter(e=>e.customMedia)){
+    await getCustomMedia(ex.id);
+  }
+}
+
+function saveExercises(){
+  localStorage.setItem(EX_KEY, JSON.stringify(exercises));
+}
+
+function todayStr(){
+  const d = new Date();
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+}
+
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),1900);
+}
+
+let hIdx = 0;
+
+function setNavState(stateObj, level){
+  hIdx = level;
+  const payload = Object.assign({}, stateObj, { hIdx: level });
+  const curLevel = (history.state && typeof history.state.hIdx === 'number') ? history.state.hIdx : 0;
+  if(level > curLevel){
+    history.pushState(payload, '');
+  } else {
+    history.replaceState(payload, '');
+  }
+}
+
+function hideAllViews(){
+  ['view-home','view-today','view-cardio','view-videos','view-list','view-detail','view-progress','view-settings'].forEach(id=>{
+    document.getElementById(id).classList.add('hidden');
+  });
+}
+
+function renderTabDirect(tab){
+  document.getElementById('ex-modal').classList.add('hidden');
+  document.getElementById('fs-media-modal').classList.add('hidden');
+  document.getElementById('plan-modal').classList.add('hidden');
+  hideAllViews();
+  ['nav-home','nav-today','nav-cardio','nav-videos','nav-progress','nav-settings'].forEach(id=>document.getElementById(id).classList.remove('active'));
+  if(tab==='home'){
+    document.getElementById('view-home').classList.remove('hidden');
+    document.getElementById('nav-home').classList.add('active');
+    updateBadges();
+    renderTodayPlanCard();
+  }else if(tab==='today'){
+    document.getElementById('view-today').classList.remove('hidden');
+    document.getElementById('nav-today').classList.add('active');
+    renderTodayPlanCard();
+  }else if(tab==='cardio'){
+    document.getElementById('view-cardio').classList.remove('hidden');
+    document.getElementById('nav-cardio').classList.add('active');
+    renderCardioView();
+  }else if(tab==='videos'){
+    document.getElementById('view-videos').classList.remove('hidden');
+    document.getElementById('nav-videos').classList.add('active');
+    renderVideosLibrary();
+  }else if(tab==='progress'){
+    document.getElementById('view-progress').classList.remove('hidden');
+    document.getElementById('nav-progress').classList.add('active');
+    renderGlobalProgress();
+  }else if(tab==='settings'){
+    document.getElementById('view-settings').classList.remove('hidden');
+    document.getElementById('nav-settings').classList.add('active');
+    loadGhForm();
+  }
+  window.scrollTo(0,0);
+}
+
+function switchTab(tab, fromPop){
+  if(!fromPop){
+    if(tab === 'home'){
+      if(hIdx > 0){
+        const steps = hIdx;
+        hIdx = 0;
+        history.go(-steps);
+        return;
+      }
+      history.replaceState({gymView:'home', hIdx:0}, '');
+    } else {
+      setNavState({gymView:tab}, 1);
+    }
+  }
+  renderTabDirect(tab);
+}
+
+function updateBadges(){
+  const t = todayStr();
+  const labels = {pecho:'Empuje', pierna:'Tren inferior y hombro', espalda:'Tracción'};
+  ['pecho','pierna','espalda'].forEach(c=>{
+    const catEx = exercises.filter(e=>e.cat===c);
+    const count = catEx.filter(e=>(logs[e.id]||[]).some(l=>l.date===t)).length;
+    const el = document.getElementById('badge-'+c);
+    el.textContent = count > 0 ? `${count} hoy ✓` : '0 hoy';
+    el.classList.toggle('done', count > 0);
+    const subEl = document.getElementById('subcount-'+c);
+    if(subEl) subEl.textContent = `${labels[c]} · ${catEx.length} ejercicios`;
+  });
+}
+
+function renderCategoryDirect(cat, keepSub){
+  currentCat = cat;
+  if(!keepSub){
+    currentSub = 'Todos';
+    document.getElementById('search-inp').value = '';
+  }
+  const titles = {pecho:'Pecho + Tríceps',pierna:'Pierna + Hombro',espalda:'Espalda + Bíceps'};
+  document.getElementById('cat-header').textContent = titles[cat];
+  document.getElementById('ex-modal').classList.add('hidden');
+  document.getElementById('fs-media-modal').classList.add('hidden');
+  document.getElementById('plan-modal').classList.add('hidden');
+  hideAllViews();
+  document.getElementById('view-list').classList.remove('hidden');
+  renderTabs();
+  renderExList();
+  window.scrollTo(0,0);
+}
+
+function openCategory(cat, fromPop){
+  if(!fromPop){
+    setNavState({gymView:'list', cat:cat, sub:'Todos'}, 1);
+  }
+  renderCategoryDirect(cat, false);
+}
+
+function renderTabs(){
+  const subs = ['Todos', ...SUB_MAP[currentCat]];
+  document.getElementById('sub-tabs').innerHTML = subs.map(s=>
+    `<div class="tab ${s===currentSub?'active':''}" onclick="setSub('${s}')">${s}</div>`
+  ).join('');
+}
+
+function setSub(s){ currentSub = s; renderTabs(); renderExList(); }
+
+function toggleExInTodayPlan(exId){
+  const ex = exercises.find(e => e.id === exId);
+  const targetGrp = (ex && ['pecho','pierna','espalda','cardio'].includes(ex.cat)) ? ex.cat : (groupRoutines.activeGroup || 'pecho');
+  groupRoutines.activeGroup = targetGrp;
+  const ids = getGroupPlanIds(targetGrp);
+  const idx = ids.indexOf(exId);
+  if(idx >= 0){
+    ids.splice(idx, 1);
+    showToast(`Quitado de ${GROUP_LABELS[targetGrp]}`);
+  } else {
+    ids.push(exId);
+    showToast(`Guardado en Hoy · ${GROUP_LABELS[targetGrp]} ✓`);
+  }
+  saveGroupRoutines();
+  renderExList();
+  renderCardioView();
+  updateDetailPlanBtn();
+}
+
+function toggleCurrentExInPlan(){
+  if(!currentEx) return;
+  toggleExInTodayPlan(currentEx.id);
+}
+
+function updateDetailPlanBtn(){
+  const btn = document.getElementById('det-plan-btn');
+  if(!btn || !currentEx) return;
+  const inPlan = getAllSelectedRoutineIds().has(currentEx.id);
+  btn.textContent = inPlan ? 'En hoy ✓' : '+ Hoy';
+  btn.classList.toggle('in-plan', inPlan);
+}
+
+function reorderExerciseToPosition(draggedId, targetId, onDone){
+  if(!draggedId || !targetId || draggedId === targetId) return;
+  const fromIdx = exercises.findIndex(e => e.id === draggedId);
+  const toIdx = exercises.findIndex(e => e.id === targetId);
+  if(fromIdx < 0 || toIdx < 0) return;
+  const [moved] = exercises.splice(fromIdx, 1);
+  exercises.splice(toIdx, 0, moved);
+  saveExercises();
+  touchLocalAndSync();
+  if(typeof onDone === 'function') onDone();
+  else renderExList();
+  showToast('Orden guardado ✓');
+}
+
+function attachGroupTouchDragHandlers(containerId, onDone){
+  const container = document.getElementById(containerId || 'ex-container');
+  if(!container) return;
+  const cards = [...container.querySelectorAll('.ex-card[data-exid]')];
+  let pressTimer = null;
+  let draggingCard = null;
+  let draggedId = null;
+  let overCard = null;
+  let startX = 0, startY = 0;
+  let didDrag = false;
+
+  const clearDragVisuals = () => {
+    cards.forEach(c => c.classList.remove('dragging-card', 'drag-over-card'));
+    draggingCard = null;
+    draggedId = null;
+    overCard = null;
+  };
+
+  cards.forEach(card => {
+    card.addEventListener('touchstart', (e) => {
+      if(e.target.closest('button')) return;
+      if(e.touches.length !== 1) return;
+      didDrag = false;
+      startX = e.touches[0].clientX;
+      startY = e.touches[0].clientY;
+      clearTimeout(pressTimer);
+      pressTimer = setTimeout(() => {
+        draggingCard = card;
+        draggedId = card.dataset.exid;
+        didDrag = true;
+        card.classList.add('dragging-card');
+        if(navigator.vibrate) navigator.vibrate(35);
+      }, 320);
+    }, { passive: true });
+
+    card.addEventListener('touchmove', (e) => {
+      if(!draggingCard){
+        if(pressTimer && e.touches.length === 1){
+          const dx = Math.abs(e.touches[0].clientX - startX);
+          const dy = Math.abs(e.touches[0].clientY - startY);
+          if(dx > 10 || dy > 10){
+            clearTimeout(pressTimer);
+            pressTimer = null;
+          }
+        }
+        return;
+      }
+      e.preventDefault();
+      const touch = e.touches[0];
+      const el = document.elementFromPoint(touch.clientX, touch.clientY);
+      const targetCard = el ? el.closest('.ex-card[data-exid]') : null;
+      if(overCard && overCard !== targetCard){
+        overCard.classList.remove('drag-over-card');
+      }
+      if(targetCard && targetCard !== draggingCard){
+        overCard = targetCard;
+        overCard.classList.add('drag-over-card');
+      } else {
+        overCard = null;
+      }
+    }, { passive: false });
+
+    const finishTouch = () => {
+      clearTimeout(pressTimer);
+      pressTimer = null;
+      if(draggingCard){
+        const srcId = draggedId;
+        const dstId = overCard ? overCard.dataset.exid : null;
+        clearDragVisuals();
+        if(srcId && dstId && srcId !== dstId){
+          reorderExerciseToPosition(srcId, dstId, onDone);
+        }
+        setTimeout(() => { didDrag = false; }, 120);
+      }
+    };
+
+    card.addEventListener('touchend', finishTouch);
+    card.addEventListener('touchcancel', () => {
+      clearTimeout(pressTimer);
+      pressTimer = null;
+      clearDragVisuals();
+      didDrag = false;
+    });
+
+    card.addEventListener('click', (e) => {
+      if(didDrag){
+        e.stopImmediatePropagation();
+        e.preventDefault();
+        didDrag = false;
+      }
+    }, true);
+  });
+}
+
+function renderExList(){
+  const t = todayStr();
+  const q = document.getElementById('search-inp').value.trim().toLowerCase();
+  const planIds = getGroupPlanIds(currentCat);
+
+  const pill = document.getElementById('list-plan-pill');
+  if(pill){
+    pill.textContent = `Ver Hoy (${planIds.length})`;
+    pill.classList.toggle('sel', planIds.length > 0);
+  }
+
+  const filtered = exercises.filter(e=>
+    e.cat===currentCat &&
+    (currentSub==='Todos'||e.sub===currentSub) &&
+    (!q || e.name.toLowerCase().includes(q))
+  );
+
+  document.getElementById('ex-container').innerHTML = filtered.map((ex, idx)=>{
+    const hist = logs[ex.id] || [];
+    const last = hist[0];
+    const doneToday = hist.some(h=>h.date===t);
+    const inPlan = planIds.includes(ex.id);
+    const pr = hist.reduce((m,h)=>Math.max(m,...h.sets.map(s=>Number(s.w)||0)),0);
+    const lastTxt = last ? `${last.date.slice(5)} · ${last.sets.map(s=>`${s.w}kg×${s.r}`).join(' | ')}` : 'Sin registros previos';
+    return `<div class="ex-card ${doneToday?'done-today':''} ${inPlan?'in-today-plan':''}" data-exid="${ex.id}" onclick="openExercise('${ex.id}')">
+      <img class="ex-thumb" src="${getExImgSrc(ex)}" onerror="imgFallback(this,'${ex.file?encodeURIComponent(ex.file):''}')" loading="lazy" alt="">
+      <div class="ex-meta">
+        <div class="ex-name">${ex.name}</div>
+        <div class="ex-last">${lastTxt}</div>
+        <div class="ex-tags">
+          <span class="tag-sub">${ex.sub}</span>
+          ${inPlan?'<span class="tag-sub" style="background:rgba(220,38,38,.28);color:#fecaca">HOY</span>':''}
+          ${hist.length>0?`<span class="tag-freq">${hist.length}× hecho</span>`:''}
+          ${pr>0?`<span class="tag-pr">PR ${pr} kg</span>`:''}
+        </div>
+      </div>
+      <div class="ex-card-side" onclick="event.stopPropagation()">
+        <button class="ex-today-btn ${inPlan?'in-plan':''}" onclick="toggleExInTodayPlan('${ex.id}')">${inPlan?'En hoy ✓':'+ Hoy'}</button>
+      </div>
+    </div>`;
+  }).join('');
+
+  attachGroupTouchDragHandlers();
+}
+
+async function openExercise(id, fromPop){
+  currentEx = exercises.find(e=>e.id===id);
+  if(!currentEx) return backToList();
+  if(currentEx.customMedia) await getCustomMedia(currentEx.id);
+
+  if(!fromPop){
+    setNavState({gymView:'detail', cat:currentCat, sub:currentSub, exId:id}, 2);
+  }
+
+  document.getElementById('ex-modal').classList.add('hidden');
+  document.getElementById('fs-media-modal').classList.add('hidden');
+  document.getElementById('plan-modal').classList.add('hidden');
+  hideAllViews();
+  document.getElementById('view-detail').classList.remove('hidden');
+  document.getElementById('det-title').textContent = currentEx.name;
+  updateDetailPlanBtn();
+  const detImg = document.getElementById('det-img');
+  const detVid = document.getElementById('det-video');
+  setMediaElement(detImg, detVid, getExImgSrc(currentEx), currentEx.file || '');
+
+  const hist = logs[id] || [];
+  const t = todayStr();
+  const todayEntry = hist.find(h=>h.date===t);
+  const prevEntry = hist.find(h=>h.date!==t) || hist[0];
+  const isCardio = currentEx.cat === 'cardio';
+
+  document.getElementById('det-strength-stats').classList.toggle('hidden', isCardio);
+  document.getElementById('det-strength-box').classList.toggle('hidden', isCardio);
+  document.getElementById('det-add-set-btn').classList.toggle('hidden', isCardio);
+  document.getElementById('det-cardio-box').classList.toggle('hidden', !isCardio);
+  document.getElementById('det-note').value = todayEntry?.note || prevEntry?.note || '';
+
+  if(isCardio){
+    const ref = todayEntry || prevEntry;
+    document.getElementById('det-cardio-mins').value = ref?.mins || 10;
+    document.getElementById('det-cardio-int').value = ref?.intensity || 'Suave (Calentamiento)';
+  } else {
+    const pr = hist.reduce((m,h)=>Math.max(m,...(h.sets||[]).map(s=>Number(s.w)||0)),0);
+    document.getElementById('det-last').textContent = prevEntry ? prevEntry.date.slice(5) : 'Nuevo';
+    document.getElementById('det-pr').textContent = pr + ' kg';
+    const cont = document.getElementById('sets-container');
+    cont.innerHTML = '';
+    const seedSets = todayEntry ? todayEntry.sets : (prevEntry ? prevEntry.sets : [{w:0,r:12},{w:0,r:12},{w:0,r:10},{w:0,r:10}]);
+    seedSets.forEach(s=>addSetRow(s.w, s.r, !!todayEntry));
+    calcLiveVolume();
+  }
+  renderHistory(hist);
+  window.scrollTo(0,0);
+}
+
+function backToList(fromPop){
+  if(!fromPop && history.state && history.state.gymView === 'detail' && hIdx >= 2){
+    history.back();
+    return;
+  }
+  document.getElementById('ex-modal').classList.add('hidden');
+  hideAllViews();
+  if(currentEx && currentEx.cat === 'cardio'){
+    document.getElementById('view-cardio').classList.remove('hidden');
+    ['nav-home','nav-today','nav-cardio','nav-progress','nav-settings'].forEach(id=>document.getElementById(id).classList.remove('active'));
+    document.getElementById('nav-cardio').classList.add('active');
+    renderCardioView();
+    return;
+  }
+  document.getElementById('view-list').classList.remove('hidden');
+  renderTabs();
+  renderExList();
+}
+
+/* MODAL CREAR / EDITAR / MOVER EJERCICIO */
+function updateModalSubOptions(selectedSub){
+  const cat = document.getElementById('m-cat').value;
+  const subs = SUB_MAP[cat] || ['General'];
+  const sel = document.getElementById('m-sub');
+  sel.innerHTML = subs.map(s=>`<option value="${s}">${s}</option>`).join('');
+  if(selectedSub && subs.includes(selectedSub)) sel.value = selectedSub;
+}
+
+async function openExModal(exId, fromPop){
+  editingExId = exId;
+  pendingMediaData = null;
+  document.getElementById('m-file').value = '';
+
+  if(exId){
+    const ex = exercises.find(e=>e.id===exId);
+    if(ex.customMedia) await getCustomMedia(ex.id);
+    document.getElementById('modal-title').textContent = 'Editar o mover ejercicio';
+    document.getElementById('m-name').value = ex.name;
+    document.getElementById('m-cat').value = ex.cat;
+    updateModalSubOptions(ex.sub);
+    document.getElementById('m-preview').src = getExImgSrc(ex);
+    document.getElementById('m-del-wrap').classList.remove('hidden');
+  } else {
+    document.getElementById('modal-title').textContent = 'Añadir nuevo ejercicio';
+    document.getElementById('m-name').value = '';
+    document.getElementById('m-cat').value = currentCat;
+    updateModalSubOptions(currentSub !== 'Todos' ? currentSub : null);
+    document.getElementById('m-preview').src = './icons/logo-red-192x192.png';
+    document.getElementById('m-del-wrap').classList.add('hidden');
+  }
+  if(!fromPop){
+    setNavState({gymView:'modal', exId:exId}, 3);
+  }
+  document.getElementById('ex-modal').classList.remove('hidden');
+}
+
+function closeExModal(fromPop){
+  document.getElementById('ex-modal').classList.add('hidden');
+  if(!fromPop && history.state && history.state.gymView === 'modal'){
+    history.back();
+  }
+}
+
+const FS_PROFILES = [
+  { key: 'original',  cls: 'perfil-original',  label: 'Contraste: Normal' },
+  { key: 'presbicia', cls: 'perfil-presbicia', label: 'Contraste: Sin gafas (+3.00)' },
+  { key: 'contraste', cls: 'perfil-contraste', label: 'Contraste: Alto' }
+];
+const FS_ZOOMS = [
+  { val: 2,   label: 'Zoom: 2x' },
+  { val: 1.5, label: 'Zoom: 1.5x' },
+  { val: 1,   label: 'Zoom: Original' }
+];
+const MEDIA_PREFS_KEY = 'gymtony_media_prefs_v1';
+let mediaPrefs = JSON.parse(localStorage.getItem(MEDIA_PREFS_KEY) || '{}');
+let fsProfileIdx = 0;
+let fsZoomIdx = 0;
+
+function saveCurrentExMediaPref(){
+  if(!currentEx) return;
+  mediaPrefs[currentEx.id] = { z: fsZoomIdx, p: fsProfileIdx };
+  localStorage.setItem(MEDIA_PREFS_KEY, JSON.stringify(mediaPrefs));
+  touchLocalAndSync();
+}
+
+function applyFsVisualState(){
+  const fsImg = document.getElementById('fs-media-img');
+  const fsVid = document.getElementById('fs-media-video');
+  const pBtn = document.getElementById('fs-profile-btn');
+  const zBtn = document.getElementById('fs-zoom-btn');
+  const prof = FS_PROFILES[fsProfileIdx] || FS_PROFILES[0];
+  const zObj = FS_ZOOMS[fsZoomIdx] || FS_ZOOMS[0];
+  [fsImg, fsVid].forEach(el => {
+    if(!el) return;
+    el.classList.remove('perfil-presbicia', 'perfil-contraste', 'perfil-original', 'nitidez-pro');
+    el.classList.add(prof.cls);
+    el.style.transform = zObj.val === 1 ? 'none' : `scale(${zObj.val})`;
+  });
+  if(pBtn){
+    pBtn.textContent = prof.label;
+    pBtn.classList.toggle('sel', prof.key !== 'original');
+  }
+  if(zBtn){
+    zBtn.textContent = zObj.label;
+    zBtn.classList.toggle('sel', zObj.val !== 1);
+  }
+}
+
+function openFullscreenMedia(fromPop){
+  if(!currentEx) return;
+  const fsModal = document.getElementById('fs-media-modal');
+  const fsImg = document.getElementById('fs-media-img');
+  const fsVid = document.getElementById('fs-media-video');
+  const detImg = document.getElementById('det-img');
+  document.getElementById('fs-media-title').textContent = currentEx.name;
+  const mediaSrc = getExImgSrc(currentEx);
+  setMediaElement(fsImg, fsVid, isVideoFile(mediaSrc) ? mediaSrc : (detImg.src || mediaSrc), currentEx.file || '');
+  const saved = mediaPrefs[currentEx.id];
+  const defaultZoomIdx = (currentEx.cat === 'cardio') ? 2 : 0;
+  fsZoomIdx = (saved && typeof saved.z === 'number' && saved.z >= 0 && saved.z < FS_ZOOMS.length) ? saved.z : defaultZoomIdx;
+  fsProfileIdx = (saved && typeof saved.p === 'number' && saved.p >= 0 && saved.p < FS_PROFILES.length) ? saved.p : 0;
+  applyFsVisualState();
+  if(!fromPop){
+    setNavState({gymView:'fsmedia', exId:currentEx.id}, 3);
+  }
+  fsModal.classList.remove('hidden');
+}
+
+function closeFullscreenMedia(fromPop){
+  document.getElementById('fs-media-modal').classList.add('hidden');
+  document.getElementById('plan-modal').classList.add('hidden');
+  if(!fromPop && history.state && history.state.gymView === 'fsmedia'){
+    history.back();
+  }
+}
+
+function cycleFsProfile(){
+  fsProfileIdx = (fsProfileIdx + 1) % FS_PROFILES.length;
+  applyFsVisualState();
+  saveCurrentExMediaPref();
+}
+
+function cycleFsZoom(){
+  fsZoomIdx = (fsZoomIdx + 1) % FS_ZOOMS.length;
+  applyFsVisualState();
+  saveCurrentExMediaPref();
+}
+
+function handleMediaUpload(ev){
+  const file = ev.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    pendingMediaData = e.target.result;
+    document.getElementById('m-preview').src = pendingMediaData;
+  };
+  reader.readAsDataURL(file);
+}
+
+async function saveExModal(){
+  const name = document.getElementById('m-name').value.trim();
+  const cat = document.getElementById('m-cat').value;
+  const sub = document.getElementById('m-sub').value;
+
+  if(!name){
+    showToast('Escribe un nombre para el ejercicio');
+    return;
+  }
+
+  if(editingExId){
+    const idx = exercises.findIndex(e=>e.id===editingExId);
+    if(idx >= 0){
+      exercises[idx].name = name;
+      exercises[idx].cat = cat;
+      exercises[idx].sub = sub;
+      if(pendingMediaData){
+        exercises[idx].customMedia = true;
+        exercises[idx].dirtyMedia = true;
+        await saveCustomMedia(editingExId, pendingMediaData);
+      }
+      saveExercises();
+      touchLocalAndSync();
+      closeExModal();
+      showToast('Ejercicio actualizado ✓');
+      if(!document.getElementById('view-detail').classList.contains('hidden')){
+        currentCat = cat;
+        openExercise(editingExId);
+      } else {
+        renderExList();
+      }
+    }
+  } else {
+    const newId = 'custom_' + Date.now();
+    const newEx = {
+      id: newId,
+      cat,
+      sub,
+      name,
+      file: '',
+      customMedia: !!pendingMediaData,
+      dirtyMedia: !!pendingMediaData
+    };
+    if(pendingMediaData){
+      await saveCustomMedia(newId, pendingMediaData);
+    }
+    exercises.unshift(newEx);
+    saveExercises();
+    touchLocalAndSync();
+    closeExModal();
+    showToast('Ejercicio añadido ✓');
+    currentCat = cat;
+    renderTabs();
+    renderExList();
+  }
+}
+
+function deleteCurrentExercise(){
+  if(!editingExId) return;
+  if(!confirm('¿Eliminar este ejercicio de la lista?')) return;
+  exercises = exercises.filter(e=>e.id!==editingExId);
+  saveExercises();
+  touchLocalAndSync();
+  closeExModal();
+  showToast('Ejercicio eliminado');
+  backToList();
+}
+
+/* SERIES */
+function renumberSets(){
+  [...document.querySelectorAll('#sets-container .set-num')].forEach((el,i)=>el.textContent = i+1);
+}
+
+function stepVal(btn, delta){
+  const inp = btn.parentElement.querySelector('input');
+  const cur = parseFloat(inp.value) || 0;
+  const next = Math.max(0, Math.round((cur + delta)*10)/10);
+  inp.value = next;
+  calcLiveVolume();
+}
+
+function addSetRow(w=0, r=10, checked=false){
+  const cont = document.getElementById('sets-container');
+  if(cont.children.length > 0 && w===0 && r===10){
+    const lastInputs = cont.lastElementChild.querySelectorAll('input');
+    w = parseFloat(lastInputs[0].value) || 0;
+    r = parseInt(lastInputs[1].value) || 10;
+  }
+  const idx = cont.children.length + 1;
+  const div = document.createElement('div');
+  div.className = 'set-row' + (checked?' completed':'');
+  div.innerHTML = `
+    <div class="set-num">${idx}</div>
+    <div class="stepper">
+      <button class="step-btn" onclick="stepVal(this,-2.5)">-</button>
+      <input type="number" step="0.5" inputmode="decimal" value="${w}" oninput="calcLiveVolume()">
+      <button class="step-btn" onclick="stepVal(this,2.5)">+</button>
+    </div>
+    <div class="stepper">
+      <button class="step-btn" onclick="stepVal(this,-1)">-</button>
+      <input type="number" inputmode="numeric" value="${r}" oninput="calcLiveVolume()">
+      <button class="step-btn" onclick="stepVal(this,1)">+</button>
+    </div>
+    <button class="check-btn ${checked?'active':''}" onclick="toggleSet(this)">✓</button>
+    <button class="del-btn" onclick="removeSetRow(this)">✕</button>
+  `;
+  cont.appendChild(div);
+  calcLiveVolume();
+}
+
+function removeSetRow(btn){
+  const cont = document.getElementById('sets-container');
+  if(cont.children.length <= 1) return;
+  btn.parentElement.remove();
+  renumberSets();
+  calcLiveVolume();
+}
+
+function toggleSet(btn){
+  const row = btn.parentElement;
+  const active = btn.classList.toggle('active');
+  row.classList.toggle('completed', active);
+  if(active) startTimer(cfg.rest);
+  calcLiveVolume();
+}
+
+function calcLiveVolume(){
+  const rows = [...document.querySelectorAll('#sets-container .set-row')];
+  let vol = 0;
+  rows.forEach(r=>{
+    const ins = r.querySelectorAll('input');
+    const w = parseFloat(ins[0].value)||0;
+    const reps = parseInt(ins[1].value)||0;
+    vol += w * reps;
+  });
+  document.getElementById('det-vol').textContent = Math.round(vol) + ' kg';
+}
+
+function saveWorkout(){
+  if(!logs[currentEx.id]) logs[currentEx.id] = [];
+  const t = todayStr();
+  const note = document.getElementById('det-note').value.trim();
+  const idx = logs[currentEx.id].findIndex(h=>h.date===t);
+
+  if(currentEx.cat === 'cardio'){
+    const mins = Math.max(1, parseInt(document.getElementById('det-cardio-mins').value || '10', 10) || 10);
+    const intensity = document.getElementById('det-cardio-int').value || 'Moderada';
+    const entry = {date:t, mins, intensity, sets:[{w:mins, r:1}], note};
+    if(idx>=0) logs[currentEx.id][idx] = entry;
+    else logs[currentEx.id].unshift(entry);
+    localStorage.setItem(DB_KEY, JSON.stringify(logs));
+    touchLocalAndSync();
+    showToast(`Guardado: ${mins} min · ${intensity} ✓`);
+    openExercise(currentEx.id, true);
+    return;
+  }
+
+  const rows = [...document.querySelectorAll('#sets-container .set-row')];
+  const sets = rows.map(r=>{
+    const ins = r.querySelectorAll('input');
+    return {w: parseFloat(ins[0].value)||0, r: parseInt(ins[1].value)||0};
+  }).filter(s=>s.r>0);
+
+  if(!sets.length){ showToast('Añade repeticiones primero'); return; }
+  const entry = {date:t, sets, note};
+  if(idx>=0) logs[currentEx.id][idx] = entry;
+  else logs[currentEx.id].unshift(entry);
+
+  localStorage.setItem(DB_KEY, JSON.stringify(logs));
+  touchLocalAndSync();
+  showToast('Sesión guardada ✓');
+  openExercise(currentEx.id, true);
+}
+
+function renderHistory(hist){
+  document.getElementById('det-sessions-count').textContent = hist.length + ' sesiones';
+  const box = document.getElementById('det-history');
+  if(!hist.length){
+    box.innerHTML = '<div style="color:var(--muted);font-size:.82rem">Aún no has registrado este ejercicio.</div>';
+    return;
+  }
+  box.innerHTML = hist.slice(0,12).map(h=>{
+    const summary = h.mins ? `${h.mins} min · ${h.intensity || 'Moderada'}` : (h.sets||[]).map(s=>`${s.w}kg×${s.r}`).join(' · ');
+    return `
+    <div class="hist-item">
+      <div class="hist-top">
+        <span style="color:${h.mins?'#fbbf24':'#60a5fa'};font-weight:800">${h.date}</span>
+        <span style="font-weight:800">${summary}</span>
+      </div>
+      ${h.note?`<div class="hist-note">${h.note}</div>`:''}
+    </div>`;
+  }).join('');
+}
+
+/* SESION DE HOY: RUTINA PREDEFINIDA POR GRUPO MUSCULAR */
+const GROUP_LABELS = {
+  pecho: 'Pecho + Tríceps',
+  pierna: 'Pierna + Hombro',
+  espalda: 'Espalda + Bíceps',
+  cardio: 'Cardio / Aeróbico'
+};
+
+function saveGroupRoutines(){
+  localStorage.setItem(PLAN_KEY, JSON.stringify(groupRoutines));
+  touchLocalAndSync();
+  renderTodayPlanCard();
+}
+
+function getGroupPlanIds(grp){
+  const g = grp || groupRoutines.activeGroup || 'pecho';
+  if(!groupRoutines.groups[g]) groupRoutines.groups[g] = [];
+  const validSet = new Set(exercises.map(e => e.id));
+  groupRoutines.groups[g] = groupRoutines.groups[g].filter(id => validSet.has(id));
+  return groupRoutines.groups[g];
+}
+
+function getAllSelectedRoutineIds(){
+  const all = new Set();
+  ['pecho','pierna','espalda','cardio'].forEach(g => getGroupPlanIds(g).forEach(id => all.add(id)));
+  return all;
+}
+
+function selectTodayRoutineGroup(grp){
+  groupRoutines.activeGroup = grp;
+  localStorage.setItem(PLAN_KEY, JSON.stringify(groupRoutines));
+  renderTodayPlanCard();
+}
+
+function renderTodayPlanCard(){
+  const activeGrp = groupRoutines.activeGroup || 'pecho';
+  ['pecho','pierna','espalda','cardio'].forEach(g => {
+    const btn = document.getElementById('tgrp-' + g);
+    if(btn) btn.classList.toggle('active', g === activeGrp);
+    const cntEl = document.getElementById('tgrp-cnt-' + g);
+    const gIds = getGroupPlanIds(g);
+    if(cntEl) cntEl.textContent = `${gIds.length} ejerc.`;
+  });
+
+  const ids = getGroupPlanIds(activeGrp);
+  const listBox = document.getElementById('plan-list-box');
+  const subEl = document.getElementById('plan-card-sub');
+  const titleEl = document.getElementById('plan-card-title');
+  const startBtn = document.getElementById('plan-start-btn');
+  const clearBtn = document.getElementById('plan-clear-btn');
+
+  const navBadge = document.getElementById('nav-today-badge');
+  if(navBadge){
+    navBadge.textContent = ids.length;
+    navBadge.classList.toggle('hidden', ids.length === 0);
+  }
+  if(!listBox) return;
+
+  const t = todayStr();
+  const doneCount = ids.filter(id => (logs[id]||[]).some(h=>h.date===t)).length;
+  const grpTitle = GROUP_LABELS[activeGrp] || 'Grupo';
+  titleEl.textContent = ids.length ? `Rutina · ${grpTitle} (${doneCount}/${ids.length})` : `Rutina · ${grpTitle}`;
+
+  if(!ids.length){
+    subEl.textContent = `Aún no has fijado ejercicios para ${grpTitle}. Entra en el grupo y pulsa "+ Hoy" o toca "+ Añadir".`;
+    listBox.innerHTML = '';
+    startBtn.classList.add('hidden');
+    clearBtn.classList.add('hidden');
+    return;
+  }
+
+  subEl.textContent = 'Ejercicios predefinidos del grupo · Ordena con ↑ ↓ o toca para registrar';
+  clearBtn.classList.remove('hidden');
+  startBtn.classList.remove('hidden');
+
+  listBox.innerHTML = ids.map((id, idx) => {
+    const ex = exercises.find(e=>e.id===id);
+    if(!ex) return '';
+    const done = (logs[id]||[]).some(h=>h.date===t);
+    return `<div class="plan-item ${done?'done-item':''}">
+      <div class="plan-item-main" onclick="openExercise('${ex.id}')">
+        <div><span class="plan-item-num">${idx+1}.</span><span class="plan-item-name">${ex.name}</span></div>
+        <div class="plan-item-meta">${ex.sub}${done?' · Completado hoy ✓':''}</div>
+      </div>
+      <div class="plan-item-actions">
+        <button class="plan-mini-btn" title="Subir" onclick="movePlanItem(${idx},-1)">↑</button>
+        <button class="plan-mini-btn" title="Bajar" onclick="movePlanItem(${idx},1)">↓</button>
+        <button class="plan-mini-btn rm" title="Quitar" onclick="removePlanItem(${idx})">✕</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function movePlanItem(idx, delta){
+  const activeGrp = groupRoutines.activeGroup || 'pecho';
+  const ids = getGroupPlanIds(activeGrp);
+  const target = idx + delta;
+  if(target < 0 || target >= ids.length) return;
+  const tmp = ids[idx];
+  ids[idx] = ids[target];
+  ids[target] = tmp;
+  saveGroupRoutines();
+}
+
+function removePlanItem(idx){
+  const activeGrp = groupRoutines.activeGroup || 'pecho';
+  const ids = getGroupPlanIds(activeGrp);
+  ids.splice(idx, 1);
+  saveGroupRoutines();
+}
+
+function clearTodayPlan(){
+  const activeGrp = groupRoutines.activeGroup || 'pecho';
+  const grpTitle = GROUP_LABELS[activeGrp] || 'este grupo';
+  if(!confirm(`¿Vaciar los ejercicios guardados de ${grpTitle}?`)) return;
+  groupRoutines.groups[activeGrp] = [];
+  saveGroupRoutines();
+}
+
+function startNextPlannedExercise(){
+  const activeGrp = groupRoutines.activeGroup || 'pecho';
+  const ids = getGroupPlanIds(activeGrp);
+  if(!ids.length) return openPlanModal();
+  const t = todayStr();
+  const pendingId = ids.find(id => !(logs[id]||[]).some(h=>h.date===t)) || ids[0];
+  openExercise(pendingId);
+}
+
+function openPlanModal(fromPop){
+  const activeGrp = groupRoutines.activeGroup || 'pecho';
+  const catSel = document.getElementById('plan-cat-filter');
+  if(catSel) catSel.value = activeGrp;
+  renderPlanSelectedList();
+  renderPlanPicker();
+  if(!fromPop){
+    setNavState({gymView:'planmodal'}, 3);
+  }
+  document.getElementById('plan-modal').classList.remove('hidden');
+}
+
+function closePlanModal(fromPop){
+  document.getElementById('plan-modal').classList.add('hidden');
+  if(!fromPop && history.state && history.state.gymView === 'planmodal'){
+    history.back();
+  }
+}
+
+function saveAndClosePlanModal(){
+  saveGroupRoutines();
+  closePlanModal();
+  showToast('Rutina del grupo guardada ✓');
+}
+
+function addExToTodayPlan(exId){
+  const activeGrp = groupRoutines.activeGroup || 'pecho';
+  const ids = getGroupPlanIds(activeGrp);
+  if(!ids.includes(exId)){
+    ids.push(exId);
+    localStorage.setItem(PLAN_KEY, JSON.stringify(groupRoutines));
+    renderPlanSelectedList();
+    renderPlanPicker();
+  }
+}
+
+function renderPlanSelectedList(){
+  const activeGrp = groupRoutines.activeGroup || 'pecho';
+  const ids = getGroupPlanIds(activeGrp);
+  const box = document.getElementById('plan-modal-selected');
+  const cnt = document.getElementById('plan-sel-count');
+  if(cnt) cnt.textContent = ids.length;
+  if(!box) return;
+  if(!ids.length){
+    box.innerHTML = '<div style="color:var(--muted);font-size:.78rem">Aún no has añadido ejercicios a este grupo.</div>';
+    return;
+  }
+  box.innerHTML = ids.map((id, idx) => {
+    const ex = exercises.find(e=>e.id===id);
+    if(!ex) return '';
+    return `<div class="plan-item">
+      <div class="plan-item-main">
+        <span class="plan-item-num">${idx+1}.</span>
+        <span class="plan-item-name">${ex.name}</span>
+      </div>
+      <div class="plan-item-actions">
+        <button class="plan-mini-btn" onclick="movePlanItem(${idx},-1);renderPlanSelectedList()">↑</button>
+        <button class="plan-mini-btn" onclick="movePlanItem(${idx},1);renderPlanSelectedList()">↓</button>
+        <button class="plan-mini-btn rm" onclick="removePlanItem(${idx});renderPlanSelectedList();renderPlanPicker()">✕</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderPlanPicker(){
+  const catFilter = document.getElementById('plan-cat-filter')?.value || 'all';
+  const q = (document.getElementById('plan-search-inp')?.value || '').trim().toLowerCase();
+  const activeGrp = groupRoutines.activeGroup || 'pecho';
+  const ids = getGroupPlanIds(activeGrp);
+  const box = document.getElementById('plan-picker-list');
+  if(!box) return;
+  const list = exercises.filter(ex =>
+    (catFilter === 'all' || ex.cat === catFilter) &&
+    (!q || ex.name.toLowerCase().includes(q) || ex.sub.toLowerCase().includes(q))
+  );
+  if(!list.length){
+    box.innerHTML = '<div style="color:var(--muted);font-size:.78rem">Sin resultados.</div>';
+    return;
+  }
+  box.innerHTML = list.map(ex => {
+    const added = ids.includes(ex.id);
+    return `<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;padding:6px 4px;border-bottom:1px solid rgba(255,255,255,.06)">
+      <div style="min-width:0;flex:1">
+        <div style="font-size:.82rem;font-weight:800;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${ex.name}</div>
+        <div style="font-size:.68rem;color:var(--muted)">${ex.sub}</div>
+      </div>
+      <button class="t-btn ${added?'sel':''}" style="padding:6px 10px;font-size:.74rem;flex-shrink:0" onclick="addExToTodayPlan('${ex.id}')">${added?'En lista ✓':'+ Añadir'}</button>
+    </div>`;
+  }).join('');
+}
+
+/* CARDIO Y CALENTAMIENTO */
+function openNewCardioExercise(){
+  currentCat = 'cardio';
+  currentSub = 'Aeróbico';
+  openExModal(null);
+}
+
+function renderCardioView(){
+  const box = document.getElementById('cardio-ex-container');
+  if(!box) return;
+  const t = todayStr();
+  const planIds = getGroupPlanIds('cardio');
+  const pill = document.getElementById('cardio-plan-pill');
+  if(pill){
+    pill.textContent = `Ver Hoy (${planIds.length})`;
+    pill.classList.toggle('sel', planIds.length > 0);
+  }
+  const cardioList = exercises.filter(e => e.cat === 'cardio');
+  box.innerHTML = cardioList.map(ex => {
+    const hist = logs[ex.id] || [];
+    const last = hist[0];
+    const doneToday = hist.some(h => h.date === t);
+    const inPlan = planIds.includes(ex.id);
+    const lastTxt = last
+      ? `${last.date.slice(5)} · ${last.mins ? `${last.mins} min · ${last.intensity || 'Moderada'}` : 'Registrado'}`
+      : 'Toca para configurar tiempo e intensidad';
+    return `<div class="ex-card ${doneToday?'done-today':''} ${inPlan?'in-today-plan':''}" data-exid="${ex.id}" onclick="openExercise('${ex.id}')">
+      <img class="ex-thumb" src="${getExImgSrc(ex)}" onerror="imgFallback(this,'${ex.file?encodeURIComponent(ex.file):''}')" loading="lazy" alt="">
+      <div class="ex-meta">
+        <div class="ex-name">${ex.name}</div>
+        <div class="ex-last" style="color:#fbbf24">${lastTxt}</div>
+        <div class="ex-tags">
+          <span class="tag-sub">${ex.sub}</span>
+          ${inPlan?'<span class="tag-sub" style="background:rgba(220,38,38,.28);color:#fecaca">HOY</span>':''}
+          ${hist.length>0?`<span class="tag-freq">${hist.length}× hecho</span>`:''}
+        </div>
+      </div>
+      <div class="ex-card-side" onclick="event.stopPropagation()">
+        <button class="ex-today-btn ${inPlan?'in-plan':''}" onclick="toggleExInTodayPlan('${ex.id}')">${inPlan?'En hoy ✓':'+ Hoy'}</button>
+      </div>
+    </div>`;
+  }).join('');
+
+  attachGroupTouchDragHandlers('cardio-ex-container', renderCardioView);
+}
+
+/* PROGRESO POR GRUPO MUSCULAR Y GRAFICA */
+let progGroup = 'pecho';
+let progMetric = 'vol';
+
+const PROG_GROUP_META = {
+  pecho:   { label: 'Pecho + Tríceps', color: '#ef4444', fillTop: 'rgba(239,68,68,.35)', fillBot: 'rgba(239,68,68,.02)' },
+  pierna:  { label: 'Pierna + Hombro', color: '#3b82f6', fillTop: 'rgba(59,130,246,.35)', fillBot: 'rgba(59,130,246,.02)' },
+  espalda: { label: 'Espalda + Bíceps', color: '#22c55e', fillTop: 'rgba(34,197,94,.35)', fillBot: 'rgba(34,197,94,.02)' }
+};
+
+function setProgressGroup(grp){
+  progGroup = grp;
+  document.querySelectorAll('#prog-group-tabs .prog-gtab').forEach(btn=>{
+    btn.classList.toggle('active', btn.dataset.grp === grp);
+  });
+  renderGlobalProgress();
+}
+
+function setProgressMetric(metric){
+  progMetric = metric;
+  document.getElementById('pm-vol')?.classList.toggle('active', metric === 'vol');
+  document.getElementById('pm-max')?.classList.toggle('active', metric === 'max');
+  renderGlobalProgress();
+}
+
+function drawGroupChart(points, meta){
+  const canvas = document.getElementById('prog-chart-canvas');
+  if(!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width;
+  const H = canvas.height;
+  ctx.clearRect(0, 0, W, H);
+
+  ctx.fillStyle = '#090d16';
+  ctx.fillRect(0, 0, W, H);
+
+  if(!points.length){
+    ctx.fillStyle = '#94a3b8';
+    ctx.font = 'bold 13px -apple-system, BlinkMacSystemFont, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('Registra series en este grupo para ver la gráfica', W/2, H/2);
+    return;
+  }
+
+  const padL = 44, padR = 16, padT = 18, padB = 28;
+  const plotW = W - padL - padR;
+  const plotH = H - padT - padB;
+  const vals = points.map(p => p.val);
+  const minV = Math.min(...vals);
+  const maxV = Math.max(...vals);
+  const span = (maxV - minV) > 0 ? (maxV - minV) : Math.max(10, maxV * 0.2 || 10);
+  const yMin = Math.max(0, minV - span * 0.15);
+  const yMax = maxV + span * 0.15;
+
+  // Grid lines & Y labels
+  ctx.strokeStyle = 'rgba(148,163,184,.14)';
+  ctx.lineWidth = 1;
+  ctx.font = 'bold 10px -apple-system, BlinkMacSystemFont, sans-serif';
+  ctx.fillStyle = '#94a3b8';
+  ctx.textAlign = 'right';
+  for(let i = 0; i <= 3; i++){
+    const frac = i / 3;
+    const y = padT + plotH * (1 - frac);
+    ctx.beginPath();
+    ctx.moveTo(padL, y);
+    ctx.lineTo(W - padR, y);
+    ctx.stroke();
+    const labelVal = Math.round(yMin + (yMax - yMin) * frac);
+    ctx.fillText(labelVal + ' kg', padL - 6, y + 3);
+  }
+
+  const coords = points.map((p, idx) => {
+    const x = points.length === 1
+      ? padL + plotW / 2
+      : padL + (idx / (points.length - 1)) * plotW;
+    const y = padT + plotH * (1 - ((p.val - yMin) / (yMax - yMin || 1)));
+    return { x, y, p };
+  });
+
+  // Area gradient
+  if(coords.length > 1){
+    const grad = ctx.createLinearGradient(0, padT, 0, padT + plotH);
+    grad.addColorStop(0, meta.fillTop);
+    grad.addColorStop(1, meta.fillBot);
+    ctx.beginPath();
+    ctx.moveTo(coords[0].x, padT + plotH);
+    coords.forEach(c => ctx.lineTo(c.x, c.y));
+    ctx.lineTo(coords[coords.length - 1].x, padT + plotH);
+    ctx.closePath();
+    ctx.fillStyle = grad;
+    ctx.fill();
+  }
+
+  // Line
+  ctx.beginPath();
+  coords.forEach((c, idx) => {
+    if(idx === 0) ctx.moveTo(c.x, c.y);
+    else ctx.lineTo(c.x, c.y);
+  });
+  ctx.strokeStyle = meta.color;
+  ctx.lineWidth = 3;
+  ctx.stroke();
+
+  // Points & X labels
+  ctx.textAlign = 'center';
+  coords.forEach((c, idx) => {
+    ctx.beginPath();
+    ctx.arc(c.x, c.y, 4.5, 0, Math.PI * 2);
+    ctx.fillStyle = meta.color;
+    ctx.fill();
+    ctx.strokeStyle = '#090d16';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+
+    if(points.length <= 7 || idx === 0 || idx === points.length - 1 || idx % Math.ceil(points.length / 5) === 0){
+      ctx.fillStyle = '#94a3b8';
+      ctx.font = 'bold 10px -apple-system, BlinkMacSystemFont, sans-serif';
+      ctx.fillText(c.p.date.slice(5), c.x, H - 8);
+    }
+  });
+}
+
+function renderGlobalProgress(){
+  const meta = PROG_GROUP_META[progGroup] || PROG_GROUP_META.pecho;
+  document.getElementById('prog-chart-title').textContent = `Evolución · ${meta.label}`;
+  document.getElementById('prog-hist-title').textContent = `Historial · ${meta.label}`;
+
+  const groupExIds = new Set(exercises.filter(e => e.cat === progGroup).map(e => e.id));
+  const daysSet = new Set();
+  let totalSets = 0;
+  const byDate = {};
+  const flat = [];
+
+  exercises.forEach(ex => {
+    if(!groupExIds.has(ex.id)) return;
+    (logs[ex.id] || []).forEach(h => {
+      daysSet.add(h.date);
+      totalSets += (h.sets || []).length;
+      const vol = (h.sets || []).reduce((acc, s) => acc + (Number(s.w) || 0) * (Number(s.r) || 0), 0);
+      const maxW = (h.sets || []).reduce((m, s) => Math.max(m, Number(s.w) || 0), 0);
+      if(!byDate[h.date]) byDate[h.date] = { date: h.date, vol: 0, maxW: 0 };
+      byDate[h.date].vol += vol;
+      byDate[h.date].maxW = Math.max(byDate[h.date].maxW, maxW);
+      flat.push({ date: h.date, name: ex.name, sub: ex.sub, sets: h.sets || [] });
+    });
+  });
+
+  document.getElementById('stat-days').textContent = daysSet.size;
+  document.getElementById('stat-sets').textContent = totalSets;
+
+  const sortedDates = Object.keys(byDate).sort();
+  const points = sortedDates.map(d => ({
+    date: d,
+    val: progMetric === 'max' ? Math.round(byDate[d].maxW * 10) / 10 : Math.round(byDate[d].vol)
+  }));
+
+  drawGroupChart(points, meta);
+  const latestEl = document.getElementById('prog-chart-latest');
+  if(latestEl){
+    if(points.length){
+      const lastPt = points[points.length - 1];
+      latestEl.textContent = `Último (${lastPt.date.slice(5)}): ${lastPt.val} kg`;
+    } else {
+      latestEl.textContent = 'Sin datos';
+    }
+  }
+
+  flat.sort((a,b) => b.date.localeCompare(a.date));
+  const cntEl = document.getElementById('prog-hist-count');
+  if(cntEl) cntEl.textContent = flat.length ? `${flat.length} registros` : '';
+
+  const box = document.getElementById('global-history');
+  if(!flat.length){
+    box.innerHTML = `<div style="color:var(--muted);font-size:.82rem">Sin entrenamientos registrados en ${meta.label}.</div>`;
+    return;
+  }
+  box.innerHTML = flat.slice(0,25).map(item => `
+    <div class="hist-item">
+      <div class="hist-top">
+        <span style="font-weight:800;color:#fff">${item.name}</span>
+        <span style="color:var(--muted);font-size:.75rem">${item.date}</span>
+      </div>
+      <div style="color:#60a5fa;font-weight:700;font-size:.8rem">${item.sets.map(s=>`${s.w}kg×${s.r}`).join(' · ')}</div>
+    </div>
+  `).join('');
+}
+
+/* TEMPORIZADOR */
+function fmtTime(sec){
+  const m = String(Math.floor(sec/60)).padStart(2,'0');
+  const s = String(sec%60).padStart(2,'0');
+  return `${m}:${s}`;
+}
+function beep(){
+  try{
+    const ctx = new (window.AudioContext||window.webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    osc.type='triangle'; osc.frequency.value=880;
+    osc.connect(ctx.destination); osc.start();
+    setTimeout(()=>{osc.stop();ctx.close();},320);
+  }catch(e){}
+  if(navigator.vibrate) navigator.vibrate([250,100,250,100,250]);
+}
+function setDefaultRest(sec){
+  cfg.rest = sec;
+  localStorage.setItem(CFG_KEY, JSON.stringify(cfg));
+  stopTimer();
+  showToast(`Descanso fijado en ${sec}s`);
+}
+function startTimer(sec){
+  timeLeft = sec;
+  [60,90,120].forEach(v=>{
+    const el = document.getElementById('p-'+v);
+    if(el) el.classList.toggle('sel', v===sec);
+  });
+  clearInterval(timerInt);
+  const bar = document.getElementById('timer-bar');
+  const disp = document.getElementById('timer-display');
+  bar.classList.add('running');
+  disp.textContent = fmtTime(timeLeft);
+  timerInt = setInterval(()=>{
+    timeLeft--;
+    disp.textContent = fmtTime(Math.max(0,timeLeft));
+    if(timeLeft<=0){
+      clearInterval(timerInt);
+      bar.classList.remove('running');
+      beep();
+      showToast('¡Tiempo de descanso terminado!');
+    }
+  },1000);
+}
+function stopTimer(){
+  clearInterval(timerInt);
+  document.getElementById('timer-bar').classList.remove('running');
+  document.getElementById('timer-display').textContent = fmtTime(cfg.rest);
+}
+
+/* BACKUP COMPLETO */
+async function exportBackup(){
+  const media = await getAllCustomMedia();
+  const payload = { version: 3, logs, exercises, media };
+  const blob = new Blob([JSON.stringify(payload)],{type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `GymTony_Completo_${todayStr()}.json`;
+  a.click();
+}
+function importBackup(ev){
+  const file = ev.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = async e=>{
+    try{
+      const data = JSON.parse(e.target.result);
+      if(data.logs){
+        logs = data.logs;
+        localStorage.setItem(DB_KEY, JSON.stringify(logs));
+      } else {
+        logs = data;
+        localStorage.setItem(DB_KEY, JSON.stringify(logs));
+      }
+      if(data.exercises){
+        exercises = data.exercises;
+        saveExercises();
+      }
+      if(data.media){
+        for(const [k,v] of Object.entries(data.media)){
+          await saveCustomMedia(k, v);
+        }
+      }
+      updateBadges();
+      showToast('Copia restaurada ✓');
+    }catch(err){ showToast('Archivo JSON inválido'); }
+  };
+  reader.readAsText(file);
+}
+
+
+
+/* SINCRONIZACION GITHUB REST API */
+function utf8ToBase64(str){
+  const bytes = new TextEncoder().encode(str);
+  let bin = '';
+  for(let i=0;i<bytes.length;i++) bin += String.fromCharCode(bytes[i]);
+  return btoa(bin);
+}
+function base64ToUtf8(b64){
+  const bin = atob(b64.replace(/\s/g,''));
+  const bytes = new Uint8Array(bin.length);
+  for(let i=0;i<bin.length;i++) bytes[i] = bin.charCodeAt(i);
+  return new TextDecoder().decode(bytes);
+}
+
+function setSyncStatus(state, text){
+  const pill = document.getElementById('sync-pill');
+  const badge = document.getElementById('gh-status-badge');
+  const lastEl = document.getElementById('gh-last-sync');
+  if(pill){
+    pill.style.display = ghCfg.token ? 'inline-block' : 'none';
+    pill.textContent = state==='syncing' ? '☁ ...' : (state==='ok' ? '☁ OK' : (state==='err' ? '☁ !' : '☁'));
+    pill.style.color = state==='ok' ? '#4ade80' : (state==='err' ? '#fca5a5' : '#60a5fa');
+    pill.style.borderColor = state==='ok' ? '#22c55e' : (state==='err' ? '#ef4444' : 'var(--border)');
+  }
+  if(badge){
+    badge.textContent = text || (ghCfg.token ? 'Conectado' : 'Sin configurar');
+    badge.style.color = state==='ok' ? '#4ade80' : (state==='err' ? '#fca5a5' : '#60a5fa');
+  }
+  if(lastEl && state==='ok'){
+    lastEl.textContent = 'Última sincronización: ' + new Date().toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  }
+}
+
+function loadGhForm(){
+  document.getElementById('gh-owner').value = ghCfg.owner || 'jstony2000';
+  document.getElementById('gh-repo').value = ghCfg.repo || 'GYMTONY';
+  document.getElementById('gh-branch').value = ghCfg.branch || 'main';
+  document.getElementById('gh-token').value = ghCfg.token || '';
+  document.getElementById('gh-auto').checked = ghCfg.auto !== false;
+  const gbox = document.getElementById('gh-guide-box');
+  if(gbox && ghCfg.token) gbox.classList.add('hidden');
+  setSyncStatus(ghCfg.token ? 'ok' : 'idle', ghCfg.token ? 'Configurado' : 'Sin configurar');
+}
+
+function toggleTokenGuide(){
+  const box = document.getElementById('gh-guide-box');
+  if(box) box.classList.toggle('hidden');
+}
+
+function toggleTokenVisibility(){
+  const inp = document.getElementById('gh-token');
+  inp.type = inp.type === 'password' ? 'text' : 'password';
+}
+
+function saveGhConfig(testConn){
+  ghCfg = {
+    owner: document.getElementById('gh-owner').value.trim() || 'jstony2000',
+    repo: document.getElementById('gh-repo').value.trim() || 'GYMTONY',
+    branch: document.getElementById('gh-branch').value.trim() || 'main',
+    token: document.getElementById('gh-token').value.trim(),
+    auto: document.getElementById('gh-auto').checked
+  };
+  localStorage.setItem(GH_KEY, JSON.stringify(ghCfg));
+  setSyncStatus(ghCfg.token ? 'ok' : 'idle', ghCfg.token ? 'Guardado' : 'Sin configurar');
+  if(testConn && ghCfg.token){
+    testGitHubConnection();
+  } else {
+    showToast('Configuración GitHub guardada ✓');
+    if(ghCfg.token && ghCfg.auto) autoSyncOnBoot();
+  }
+}
+
+async function pasteAndTestToken(){
+  try{
+    if(navigator.clipboard && navigator.clipboard.readText){
+      const clip = (await navigator.clipboard.readText()).trim();
+      if(clip && (clip.startsWith('github_pat_') || clip.startsWith('ghp_'))){
+        document.getElementById('gh-token').value = clip;
+      }
+    }
+  }catch(e){}
+  const tok = document.getElementById('gh-token').value.trim();
+  if(!tok){
+    showToast('Pega primero el token en la casilla');
+    document.getElementById('gh-token').focus();
+    return;
+  }
+  saveGhConfig(true);
+}
+
+async function testGitHubConnection(){
+  setSyncStatus('syncing', 'Probando...');
+  try{
+    const url = `https://api.github.com/repos/${ghCfg.owner}/${ghCfg.repo}`;
+    const res = await fetch(url, { headers: ghHeaders(), cache: 'no-store' });
+    if(!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    const canPush = data.permissions && data.permissions.push;
+    if(canPush === false){
+      setSyncStatus('err', 'Solo lectura');
+      showToast('Token sin permiso de escritura (Contents: Read & write)');
+      return;
+    }
+    setSyncStatus('ok', 'Conectado ✓');
+    showToast('Conexión con ' + ghCfg.repo + ' correcta ✓');
+    if(ghCfg.auto) autoSyncOnBoot();
+  }catch(err){
+    setSyncStatus('err', 'Token inválido');
+    showToast('No se pudo conectar: revisa token o nombre de repo');
+  }
+}
+
+function ghHeaders(){
+  const h = { 'Accept': 'application/vnd.github+json' };
+  if(ghCfg.token) h['Authorization'] = 'Bearer ' + ghCfg.token;
+  return h;
+}
+
+async function ghGetFile(path){
+  const url = `https://api.github.com/repos/${ghCfg.owner}/${ghCfg.repo}/contents/${path}?ref=${encodeURIComponent(ghCfg.branch)}&t=${Date.now()}`;
+  const res = await fetch(url, { headers: ghHeaders(), cache: 'no-store' });
+  if(res.status === 404) return null;
+  if(!res.ok) throw new Error('HTTP ' + res.status);
+  return await res.json();
+}
+
+async function ghPutFile(path, base64Content, message){
+  const existing = await ghGetFile(path);
+  const url = `https://api.github.com/repos/${ghCfg.owner}/${ghCfg.repo}/contents/${path}`;
+  const body = { message, content: base64Content, branch: ghCfg.branch };
+  if(existing && existing.sha) body.sha = existing.sha;
+  const res = await fetch(url, {
+    method: 'PUT',
+    headers: { ...ghHeaders(), 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  });
+  if(!res.ok){
+    const errTxt = await res.text().catch(()=>res.status);
+    throw new Error('Error ' + res.status + ': ' + String(errTxt).slice(0,80));
+  }
+  return await res.json();
+}
+
+function touchLocalAndSync(){
+  localUpdatedAt = Date.now();
+  localStorage.setItem(TS_KEY, String(localUpdatedAt));
+  if(ghCfg.token && ghCfg.auto){
+    pushToGitHub(false);
+  }
+}
+
+async function pushToGitHub(manual){
+  if(!ghCfg.token){
+    if(manual) showToast('Configura tu Token de GitHub primero');
+    return;
+  }
+  if(isSyncing) return;
+  isSyncing = true;
+  setSyncStatus('syncing', 'Subiendo...');
+  try{
+    // 1. Subir GIFs/fotos personalizados nuevos a ejercicios/
+    for(const ex of exercises){
+      if(ex.dirtyMedia && ex.customMedia){
+        const dataUrl = await getCustomMedia(ex.id);
+        if(dataUrl && dataUrl.includes('base64,')){
+          const mimeMatch = dataUrl.match(/^data:image\/([a-zA-Z0-9+]+);base64,/);
+          let ext = mimeMatch ? mimeMatch[1].toLowerCase() : 'gif';
+          if(ext === 'jpeg') ext = 'jpg';
+          const rawB64 = dataUrl.split('base64,')[1];
+          const fname = `custom_${ex.id}.${ext}`;
+          await ghPutFile('ejercicios/' + fname, rawB64, 'GymTony media: ' + ex.name);
+          ex.file = fname;
+          ex.dirtyMedia = false;
+          saveExercises();
+        }
+      }
+    }
+    // 2. Subir gymtony_data.json
+    if(!localUpdatedAt){
+      localUpdatedAt = Date.now();
+      localStorage.setItem(TS_KEY, String(localUpdatedAt));
+    }
+    const payload = { version: APP_VERSION, updatedAt: localUpdatedAt, logs, exercises, cfg, groupRoutines, cardioLogs, mediaPrefs };
+    await ghPutFile('gymtony_data.json', utf8ToBase64(JSON.stringify(payload)), 'GymTony sync ' + todayStr());
+    setSyncStatus('ok', 'Sincronizado');
+    if(manual) showToast('Subido a GitHub ✓');
+  }catch(err){
+    console.error(err);
+    setSyncStatus('err', 'Error sync');
+    if(manual) showToast('Error al subir: ' + err.message);
+  }finally{
+    isSyncing = false;
+  }
+}
+
+async function pullFromGitHub(manual){
+  if(!ghCfg.owner || !ghCfg.repo) return;
+  if(isSyncing) return;
+  isSyncing = true;
+  setSyncStatus('syncing', 'Bajando...');
+  try{
+    const file = await ghGetFile('gymtony_data.json');
+    if(!file || !file.content){
+      setSyncStatus('ok', 'Sin datos nube');
+      if(manual) showToast('No hay archivo en GitHub aún. Pulsa Subir primero.');
+      return;
+    }
+    const remote = JSON.parse(base64ToUtf8(file.content));
+    const remoteTs = remote.updatedAt || 0;
+    if(manual || remoteTs > localUpdatedAt){
+      if(remote.logs){ logs = remote.logs; localStorage.setItem(DB_KEY, JSON.stringify(logs)); }
+      if(remote.exercises){ exercises = remote.exercises; saveExercises(); }
+      if(remote.cfg){ cfg = remote.cfg; localStorage.setItem(CFG_KEY, JSON.stringify(cfg)); }
+      if(remote.groupRoutines && remote.groupRoutines.groups){ groupRoutines = remote.groupRoutines; localStorage.setItem(PLAN_KEY, JSON.stringify(groupRoutines)); renderTodayPlanCard(); }
+      if(Array.isArray(remote.cardioLogs)){ cardioLogs = remote.cardioLogs; localStorage.setItem(CARDIO_KEY, JSON.stringify(cardioLogs)); }
+      if(remote.mediaPrefs && typeof remote.mediaPrefs === 'object'){ mediaPrefs = remote.mediaPrefs; localStorage.setItem(MEDIA_PREFS_KEY, JSON.stringify(mediaPrefs)); }
+      localUpdatedAt = remoteTs || Date.now();
+      localStorage.setItem(TS_KEY, String(localUpdatedAt));
+      updateBadges();
+      if(!document.getElementById('view-list').classList.contains('hidden')) renderExList();
+      if(!document.getElementById('view-progress').classList.contains('hidden')) renderGlobalProgress();
+      setSyncStatus('ok', 'Sincronizado');
+      showToast('Datos descargados de GitHub ✓');
+    } else if(localUpdatedAt > remoteTs && ghCfg.token && ghCfg.auto){
+      isSyncing = false;
+      await pushToGitHub(false);
+      return;
+    } else {
+      setSyncStatus('ok', 'Al día');
+    }
+  }catch(err){
+    console.error(err);
+    setSyncStatus('err', 'Error sync');
+    if(manual) showToast('Error al bajar: ' + err.message);
+  }finally{
+    isSyncing = false;
+  }
+}
+
+async function autoSyncOnBoot(){
+  if(!ghCfg.token || !ghCfg.auto) return;
+  await pullFromGitHub(false);
+}
+
+function manualQuickSync(){
+  if(!ghCfg.token) return switchTab('settings');
+  pullFromGitHub(true);
+}
+
+async function forceAppUpdate(){
+  showToast('Actualizando...');
+  try{
+    if('serviceWorker' in navigator){
+      const regs = await navigator.serviceWorker.getRegistrations();
+      for(const r of regs) await r.unregister();
+    }
+    if('caches' in window){
+      const keys = await caches.keys();
+      for(const k of keys) await caches.delete(k);
+    }
+  }catch(e){}
+  window.location.href = window.location.pathname + '?v=' + Date.now();
+}
+
+window.addEventListener('popstate', async (e) => {
+  const st = e.state;
+  if(!st || !st.gymView || st.gymView === 'home' || st.hIdx === 0){
+    hIdx = 0;
+    renderTabDirect('home');
+    return;
+  }
+  hIdx = typeof st.hIdx === 'number' ? st.hIdx : Math.max(0, hIdx - 1);
+  if(st.gymView === 'today' || st.gymView === 'cardio' || st.gymView === 'videos' || st.gymView === 'progress' || st.gymView === 'settings'){
+    renderTabDirect(st.gymView);
+  } else if(st.gymView === 'list'){
+    if(st.sub) currentSub = st.sub;
+    renderCategoryDirect(st.cat || currentCat, true);
+  } else if(st.gymView === 'detail'){
+    if(st.cat) currentCat = st.cat;
+    if(st.sub) currentSub = st.sub;
+    await openExercise(st.exId, true);
+  } else if(st.gymView === 'modal'){
+    await openExModal(st.exId, true);
+  } else if(st.gymView === 'fsmedia'){
+    openFullscreenMedia(true);
+  } else if(st.gymView === 'planmodal'){
+    openPlanModal(true);
+  }
+});
+
+(async function boot(){
+  hIdx = 0;
+  history.replaceState({gymView:'home', hIdx:0}, '');
+  document.getElementById('today-label').textContent = new Date().toLocaleDateString('es-ES',{weekday:'short',day:'numeric',month:'short'}).toUpperCase();
+  await initMediaDB();
+  await hydrateMediaCache();
+  stopTimer();
+  updateBadges();
+  setSyncStatus(ghCfg.token ? 'ok' : 'idle', ghCfg.token ? 'Conectado' : 'Sin configurar');
+  if(ghCfg.token && ghCfg.auto) autoSyncOnBoot();
+  const vb = document.getElementById('app-version-badge');
+  if(vb) vb.textContent = APP_VERSION;
+  if('serviceWorker' in navigator){
+    navigator.serviceWorker.register('./sw.js').then(reg => {
+      reg.update().catch(()=>{});
+    }).catch(()=>{});
+    let refreshing = false;
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      if(!refreshing){ refreshing = true; window.location.reload(); }
+    });
+  }
+})();
+</script>
+</body>
+</html>
