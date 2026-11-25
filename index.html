@@ -641,8 +641,13 @@ body{padding:calc(10px + env(safe-area-inset-top)) 14px calc(135px + env(safe-ar
   </div>
 
   <div id="vid-picker-banner" class="lib-picker-bar hidden">
-    <div style="font-size:.78rem;font-weight:900;color:#bbf7d0" id="vid-picker-text">Añadiendo a grupo</div>
-    <button type="button" class="t-btn sel" style="padding:6px 10px;font-size:.74rem;font-weight:900" onclick="finishLibraryPicker()">✓ Listo</button>
+    <div style="min-width:0;flex:1">
+      <div style="font-size:.78rem;font-weight:900;color:#bbf7d0" id="vid-picker-text">Añadiendo a grupo</div>
+    </div>
+    <div style="display:flex;gap:6px;align-items:center;flex-shrink:0">
+      <button type="button" id="vid-only-group-btn" class="t-btn" style="padding:6px 9px;font-size:.72rem;font-weight:800" onclick="togglePickerOnlyAssigned()">En grupo</button>
+      <button type="button" class="t-btn sel" style="padding:6px 10px;font-size:.74rem;font-weight:900" onclick="finishLibraryPicker()">✓ Listo</button>
+    </div>
   </div>
 
   <div class="vid-hero-banner">
@@ -916,7 +921,7 @@ body{padding:calc(10px + env(safe-area-inset-top)) 14px calc(135px + env(safe-ar
 </nav>
 
 <script>
-const APP_VERSION = 'v3.5.7';
+const APP_VERSION = 'v3.5.8';
 const DB_KEY = 'gymtony_pro_v2';
 const EX_KEY = 'gymtony_exercises_v3';
 const CFG_KEY = 'gymtony_cfg_v2';
@@ -1281,10 +1286,16 @@ function renderVideosLibrary(){
     bannerSub.textContent = 'Añade cualquier vídeo a Pecho+Tríceps, Pierna+Hombro, Espalda+Bíceps o Cardio';
   }
 
+  const onlyBtn = document.getElementById('vid-only-group-btn');
+  if(onlyBtn){
+    onlyBtn.classList.toggle('sel', pickerOnlyAssigned);
+    onlyBtn.textContent = pickerOnlyAssigned ? 'En grupo ✓' : 'En grupo';
+  }
   const q = (document.getElementById('vid-search-inp')?.value || '').trim().toLowerCase();
   const filtered = allEntries.filter(item =>
     (activeVideoSub === 'Todos' || item.sub === activeVideoSub) &&
-    (!q || item.name.toLowerCase().includes(q) || item.fn.toLowerCase().includes(q))
+    (!q || item.name.toLowerCase().includes(q) || item.fn.toLowerCase().includes(q)) &&
+    (!libraryPickerTargetCat || !pickerOnlyAssigned || isMediaAssignedToGroup(item.relPath, libraryPickerTargetCat))
   ).slice(0, 120);
 
   if(!filtered.length){
@@ -1316,18 +1327,26 @@ function renderVideosLibrary(){
 }
 
 let libraryPickerTargetCat = null;
+let pickerOnlyAssigned = false;
 let openedDetailFromLibrary = false;
 
 function openLibraryForGroup(cat){
   libraryPickerTargetCat = cat;
+  pickerOnlyAssigned = false;
   const defaultSubMap = { pecho: 'pecho', pierna: 'piernas', espalda: 'espalda', cardio: 'Todos' };
   activeVideoSub = defaultSubMap[cat] || 'Todos';
   switchTab('videos');
 }
 
+function togglePickerOnlyAssigned(){
+  pickerOnlyAssigned = !pickerOnlyAssigned;
+  renderVideosLibrary();
+}
+
 function finishLibraryPicker(){
   const target = libraryPickerTargetCat;
   libraryPickerTargetCat = null;
+  pickerOnlyAssigned = false;
   if(target === 'cardio'){
     switchTab('cardio');
   } else if(target){
