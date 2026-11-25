@@ -413,6 +413,40 @@ body{padding:calc(10px + env(safe-area-inset-top)) 14px calc(135px + env(safe-ar
   background:rgba(220,38,38,.28);border-color:#ef4444;color:#fecaca;
 }
 
+/* ASIGNACIÓN DIRECTA A GRUPOS DE INICIO Y BOTÓN QUITAR DE LISTA */
+.det-groups-bar{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:14px;
+  padding:9px 10px;
+  margin-bottom:10px;
+}
+.det-groups-lbl{
+  font-size:.71rem;font-weight:900;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px;
+}
+.det-groups-btns{
+  display:grid;grid-template-columns:repeat(2,1fr);gap:6px;
+}
+.det-grp-chip{
+  border-radius:10px;padding:7px 8px;font-size:.74rem;font-weight:900;
+  border:1px solid var(--border);background:#090d16;color:#e2e8f0;cursor:pointer;text-align:center;
+}
+.det-grp-chip.active{
+  background:rgba(34,197,94,.2);border-color:#22c55e;color:#bbf7d0;
+}
+.ex-remove-btn{
+  border-radius:8px;padding:4px 7px;font-size:.66rem;font-weight:800;
+  border:1px solid rgba(239,68,68,.35);background:rgba(239,68,68,.12);color:#fca5a5;cursor:pointer;margin-top:4px;
+}
+.lib-picker-bar{
+  background:linear-gradient(135deg, rgba(34,197,94,.22), rgba(15,23,42,.95));
+  border:1px solid #22c55e;
+  border-radius:14px;
+  padding:9px 12px;
+  margin-bottom:10px;
+  display:flex;align-items:center;justify-content:space-between;gap:8px;
+}
+
 </style>
 </head>
 <body>
@@ -458,7 +492,10 @@ body{padding:calc(10px + env(safe-area-inset-top)) 14px calc(135px + env(safe-ar
   <div class="nav-head">
     <button class="back-btn" onclick="switchTab('home')">← Inicio</button>
     <div class="head-title" id="cat-header"></div>
-    <button class="add-ex-btn" onclick="openExModal(null)">+ Nuevo</button>
+    <div style="display:flex;gap:6px;align-items:center">
+      <button class="t-btn sel" style="padding:7px 10px;font-size:.74rem;font-weight:900" onclick="openLibraryForGroup(currentCat)">+ Biblioteca</button>
+      <button class="add-ex-btn" onclick="openExModal(null)">+ Nuevo</button>
+    </div>
   </div>
   <input type="search" id="search-inp" class="search-box" placeholder="Buscar ejercicio..." oninput="renderExList()">
   <div class="tabs" id="sub-tabs"></div>
@@ -483,6 +520,11 @@ body{padding:calc(10px + env(safe-area-inset-top)) 14px calc(135px + env(safe-ar
     <video id="det-video" class="hidden" style="width:100%;max-height:240px;object-fit:contain;border-radius:14px;background:#090d16" autoplay loop muted playsinline></video>
     <span class="media-zoom-pill">🔍 Toca para ampliar</span>
     <button class="media-change-pill" onclick="event.stopPropagation();openExModal(currentEx.id)">Cambiar GIF / Mover</button>
+  </div>
+
+  <div class="det-groups-bar" id="det-groups-bar">
+    <div class="det-groups-lbl">Carpetas de Inicio (añadir o quitar de cada grupo):</div>
+    <div class="det-groups-btns" id="det-groups-btns"></div>
   </div>
 
   <div class="stats-strip" id="det-strength-stats">
@@ -577,7 +619,10 @@ body{padding:calc(10px + env(safe-area-inset-top)) 14px calc(135px + env(safe-ar
 <div id="view-cardio" class="hidden">
   <div class="nav-head">
     <div class="head-title" style="color:#fbbf24">Cardio y Calentamiento</div>
-    <button class="add-ex-btn" style="background:linear-gradient(180deg,#f59e0b,#d97706);color:#0f172a;font-weight:900" onclick="openNewCardioExercise()">+ Nuevo</button>
+    <div style="display:flex;gap:6px;align-items:center">
+      <button class="t-btn sel" style="padding:7px 10px;font-size:.74rem;font-weight:900" onclick="openLibraryForGroup('cardio')">+ Biblioteca</button>
+      <button class="add-ex-btn" style="background:linear-gradient(180deg,#f59e0b,#d97706);color:#0f172a;font-weight:900" onclick="openNewCardioExercise()">+ Nuevo</button>
+    </div>
   </div>
 
   <div class="list-tools-row">
@@ -591,8 +636,13 @@ body{padding:calc(10px + env(safe-area-inset-top)) 14px calc(135px + env(safe-ar
 <!-- VISTA: EJERCICIOS (BIBLIOTECA DE VÍDEOS POR SUBCARPETA) -->
 <div id="view-videos" class="hidden">
   <div class="nav-head">
-    <div class="head-title" style="color:#60a5fa">Ejercicios · Vídeos</div>
+    <div class="head-title" style="color:#60a5fa">Ejercicios · Biblioteca</div>
     <span class="top-pill" id="vid-total-badge">0 vídeos</span>
+  </div>
+
+  <div id="vid-picker-banner" class="lib-picker-bar hidden">
+    <div style="font-size:.78rem;font-weight:900;color:#bbf7d0" id="vid-picker-text">Añadiendo a grupo</div>
+    <button type="button" class="t-btn sel" style="padding:6px 10px;font-size:.74rem;font-weight:900" onclick="finishLibraryPicker()">✓ Listo</button>
   </div>
 
   <div class="vid-hero-banner">
@@ -866,7 +916,7 @@ body{padding:calc(10px + env(safe-area-inset-top)) 14px calc(135px + env(safe-ar
 </nav>
 
 <script>
-const APP_VERSION = 'v3.5.6';
+const APP_VERSION = 'v3.5.7';
 const DB_KEY = 'gymtony_pro_v2';
 const EX_KEY = 'gymtony_exercises_v3';
 const CFG_KEY = 'gymtony_cfg_v2';
@@ -1201,6 +1251,16 @@ function renderVideosLibrary(){
   });
 
   if(totalBadge) totalBadge.textContent = `${allEntries.length} vídeos`;
+  const pickerBanner = document.getElementById('vid-picker-banner');
+  const pickerText = document.getElementById('vid-picker-text');
+  if(pickerBanner){
+    if(libraryPickerTargetCat){
+      pickerBanner.classList.remove('hidden');
+      if(pickerText) pickerText.textContent = `Seleccionando ejercicios para: ${GROUP_LABELS[libraryPickerTargetCat] || libraryPickerTargetCat}`;
+    } else {
+      pickerBanner.classList.add('hidden');
+    }
+  }
 
   tabsBox.innerHTML = subs.map(s => {
     const cnt = s === 'Todos' ? allEntries.length : (VIDEOS_CATALOG[s] || []).length;
@@ -1233,11 +1293,10 @@ function renderVideosLibrary(){
   }
 
   listBox.innerHTML = filtered.map(item => {
-    const existingEx = exercises.find(e => e.file === item.relPath);
-    const inPecho = existingEx ? getGroupPlanIds('pecho').includes(existingEx.id) : false;
-    const inPierna = existingEx ? getGroupPlanIds('pierna').includes(existingEx.id) : false;
-    const inEspalda = existingEx ? getGroupPlanIds('espalda').includes(existingEx.id) : false;
-    const inCardio = existingEx ? getGroupPlanIds('cardio').includes(existingEx.id) : false;
+    const inPecho = isMediaAssignedToGroup(item.relPath, 'pecho');
+    const inPierna = isMediaAssignedToGroup(item.relPath, 'pierna');
+    const inEspalda = isMediaAssignedToGroup(item.relPath, 'espalda');
+    const inCardio = isMediaAssignedToGroup(item.relPath, 'cardio');
     const vidUrl = `./${item.relPath.split('/').map(p=>encodeURIComponent(p)).join('/')}`;
 
     return `<div class="ex-card" style="align-items:flex-start" onclick="openVideoPreview('${item.relPath.replace(/'/g, "\'")}', '${item.name.replace(/'/g, "\'")}', '${item.sub.replace(/'/g, "\'")}')">
@@ -1256,51 +1315,148 @@ function renderVideosLibrary(){
   }).join('');
 }
 
+let libraryPickerTargetCat = null;
+let openedDetailFromLibrary = false;
+
+function openLibraryForGroup(cat){
+  libraryPickerTargetCat = cat;
+  const defaultSubMap = { pecho: 'pecho', pierna: 'piernas', espalda: 'espalda', cardio: 'Todos' };
+  activeVideoSub = defaultSubMap[cat] || 'Todos';
+  switchTab('videos');
+}
+
+function finishLibraryPicker(){
+  const target = libraryPickerTargetCat;
+  libraryPickerTargetCat = null;
+  if(target === 'cardio'){
+    switchTab('cardio');
+  } else if(target){
+    openCategory(target);
+  } else {
+    switchTab('home');
+  }
+}
+
+function removeExFromGroupList(exId){
+  const ex = exercises.find(e => e.id === exId);
+  if(!ex) return;
+  const grp = ex.cat;
+  ex.cat = '';
+  saveExercises();
+  const ids = getGroupPlanIds(grp);
+  const idx = ids.indexOf(exId);
+  if(idx >= 0){
+    ids.splice(idx, 1);
+    saveGroupRoutines();
+  }
+  touchLocalAndSync();
+  updateBadges();
+  renderExList();
+  showToast('Quitado de la lista (sigue en Ejercicios) ✓');
+}
+
+function isMediaAssignedToGroup(relPath, targetGrp){
+  return exercises.some(e => e.file === relPath && e.cat === targetGrp);
+}
+
 function assignVideoToGroup(relPath, name, subFolder, targetGrp){
   const meta = VIDEO_SUBFOLDER_META[subFolder] || { cat: targetGrp === 'cardio' ? 'cardio' : targetGrp, sub: GROUP_LABELS[targetGrp] || 'General' };
   const resolvedCat = targetGrp === 'cardio' ? 'cardio' : targetGrp;
   const resolvedSub = targetGrp === 'cardio' ? 'Aeróbico' : (meta.cat === targetGrp ? meta.sub : (SUB_MAP[targetGrp]?.[0] || 'General'));
-  let ex = exercises.find(e => e.file === relPath);
-  if(!ex){
-    ex = {
-      id: 'vid_' + Date.now() + '_' + Math.random().toString(36).slice(2,6),
-      cat: resolvedCat,
-      sub: resolvedSub,
-      name: name,
-      file: relPath,
-      customMedia: false,
-      dirtyMedia: false
-    };
-    exercises.unshift(ex);
-    saveExercises();
-  } else if(ex.cat !== resolvedCat){
-    ex.cat = resolvedCat;
-    ex.sub = resolvedSub;
-    saveExercises();
-  }
+  let ex = exercises.find(e => e.file === relPath && e.cat === resolvedCat);
+  const ids = getGroupPlanIds(resolvedCat);
 
-  groupRoutines.activeGroup = targetGrp;
-  const ids = getGroupPlanIds(targetGrp);
-  const idx = ids.indexOf(ex.id);
-  if(idx >= 0){
-    ids.splice(idx, 1);
-    showToast(`Quitado de ${GROUP_LABELS[targetGrp]}`);
+  if(ex){
+    ex.cat = '';
+    saveExercises();
+    const pidx = ids.indexOf(ex.id);
+    if(pidx >= 0){
+      ids.splice(pidx, 1);
+      saveGroupRoutines();
+    }
+    showToast(`Quitado de ${GROUP_LABELS[resolvedCat]}`);
   } else {
-    ids.push(ex.id);
-    showToast(`Añadido a ${GROUP_LABELS[targetGrp]} (Inicio y Hoy) ✓`);
+    let reusable = exercises.find(e => e.file === relPath && !e.cat);
+    if(reusable){
+      reusable.cat = resolvedCat;
+      reusable.sub = resolvedSub;
+      ex = reusable;
+    } else {
+      ex = {
+        id: 'vid_' + Date.now() + '_' + Math.random().toString(36).slice(2,6),
+        cat: resolvedCat,
+        sub: resolvedSub,
+        name: name,
+        file: relPath,
+        customMedia: false,
+        dirtyMedia: false
+      };
+      exercises.unshift(ex);
+    }
+    saveExercises();
+    groupRoutines.activeGroup = resolvedCat;
+    if(!ids.includes(ex.id)){
+      ids.push(ex.id);
+      saveGroupRoutines();
+    }
+    showToast(`Añadido a ${GROUP_LABELS[resolvedCat]} ✓`);
   }
-  saveGroupRoutines();
+  touchLocalAndSync();
   updateBadges();
   renderVideosLibrary();
+  if(currentEx && currentEx.file === relPath){
+    renderDetailGroupChips();
+    updateDetailPlanBtn();
+  }
+}
+
+function renderDetailGroupChips(){
+  const box = document.getElementById('det-groups-btns');
+  if(!box || !currentEx) return;
+  const relPath = currentEx.file || '';
+  const groups = ['pecho', 'pierna', 'espalda', 'cardio'];
+  box.innerHTML = groups.map(g => {
+    const active = relPath
+      ? exercises.some(e => e.file === relPath && e.cat === g)
+      : (currentEx.cat === g);
+    return `<button type="button" class="det-grp-chip ${active?'active':''}" onclick="toggleDetailExerciseInGroup('${g}')">${active ? GROUP_LABELS[g] + ' ✓' : '+ ' + GROUP_LABELS[g]}</button>`;
+  }).join('');
+}
+
+function toggleDetailExerciseInGroup(targetGrp){
+  if(!currentEx) return;
+  if(currentEx.file && currentEx.file.startsWith('VIDEOS/')){
+    const parts = currentEx.file.split('/');
+    const subFolder = parts[1] || '';
+    assignVideoToGroup(currentEx.file, currentEx.name, subFolder, targetGrp);
+    const updated = exercises.find(e => e.file === currentEx.file && e.cat === targetGrp) || exercises.find(e => e.file === currentEx.file) || currentEx;
+    currentEx = updated;
+    renderDetailGroupChips();
+    updateDetailPlanBtn();
+  } else {
+    if(currentEx.cat === targetGrp){
+      currentEx.cat = '';
+      showToast(`Quitado de ${GROUP_LABELS[targetGrp]}`);
+    } else {
+      currentEx.cat = targetGrp;
+      currentEx.sub = targetGrp === 'cardio' ? 'Aeróbico' : (SUB_MAP[targetGrp]?.[0] || currentEx.sub || 'General');
+      showToast(`Añadido a ${GROUP_LABELS[targetGrp]} ✓`);
+    }
+    saveExercises();
+    touchLocalAndSync();
+    updateBadges();
+    renderDetailGroupChips();
+    updateDetailPlanBtn();
+  }
 }
 
 function openVideoPreview(relPath, name, subFolder){
-  let ex = exercises.find(e => e.file === relPath);
+  let ex = exercises.find(e => e.file === relPath && e.cat) || exercises.find(e => e.file === relPath);
   if(!ex){
-    const meta = VIDEO_SUBFOLDER_META[subFolder] || { cat: 'pecho', sub: 'General' };
+    const meta = VIDEO_SUBFOLDER_META[subFolder] || { cat: '', sub: 'General' };
     ex = {
       id: 'vid_' + Date.now() + '_' + Math.random().toString(36).slice(2,6),
-      cat: meta.cat,
+      cat: '',
       sub: meta.sub,
       name: name,
       file: relPath,
@@ -1309,8 +1465,8 @@ function openVideoPreview(relPath, name, subFolder){
     };
     exercises.unshift(ex);
     saveExercises();
-    touchLocalAndSync();
   }
+  openedDetailFromLibrary = true;
   openExercise(ex.id);
 }
 
@@ -1452,6 +1608,7 @@ function renderCategoryDirect(cat, keepSub){
 }
 
 function openCategory(cat, fromPop){
+  openedDetailFromLibrary = false;
   if(!fromPop){
     setNavState({gymView:'list', cat:cat, sub:'Todos'}, 1);
   }
@@ -1631,8 +1788,11 @@ function renderExList(){
     const inPlan = planIds.includes(ex.id);
     const pr = hist.reduce((m,h)=>Math.max(m,...h.sets.map(s=>Number(s.w)||0)),0);
     const lastTxt = last ? `${last.date.slice(5)} · ${last.sets.map(s=>`${s.w}kg×${s.r}`).join(' | ')}` : 'Sin registros previos';
+    const thumbHtml = isVideoFile(ex.file)
+      ? `<video class="ex-thumb" src="${getExImgSrc(ex)}" muted loop playsinline preload="metadata" style="object-fit:cover;background:#090d16"></video>`
+      : `<img class="ex-thumb" src="${getExImgSrc(ex)}" onerror="imgFallback(this,'${ex.file?encodeURIComponent(ex.file):''}')" loading="lazy" alt="">`;
     return `<div class="ex-card ${doneToday?'done-today':''} ${inPlan?'in-today-plan':''}" data-exid="${ex.id}" onclick="openExercise('${ex.id}')">
-      <img class="ex-thumb" src="${getExImgSrc(ex)}" onerror="imgFallback(this,'${ex.file?encodeURIComponent(ex.file):''}')" loading="lazy" alt="">
+      ${thumbHtml}
       <div class="ex-meta">
         <div class="ex-name">${ex.name}</div>
         <div class="ex-last">${lastTxt}</div>
@@ -1645,6 +1805,7 @@ function renderExList(){
       </div>
       <div class="ex-card-side" onclick="event.stopPropagation()">
         <button class="ex-today-btn ${inPlan?'in-plan':''}" onclick="toggleExInTodayPlan('${ex.id}')">${inPlan?'En hoy ✓':'+ Hoy'}</button>
+        <button class="ex-remove-btn" onclick="removeExFromGroupList('${ex.id}')">Quitar</button>
       </div>
     </div>`;
   }).join('');
@@ -1668,6 +1829,7 @@ async function openExercise(id, fromPop){
   document.getElementById('view-detail').classList.remove('hidden');
   document.getElementById('det-title').textContent = currentEx.name;
   updateDetailPlanBtn();
+  renderDetailGroupChips();
   const detImg = document.getElementById('det-img');
   const detVid = document.getElementById('det-video');
   setMediaElement(detImg, detVid, getExImgSrc(currentEx), currentEx.file || '');
@@ -1708,6 +1870,11 @@ function backToList(fromPop){
     return;
   }
   document.getElementById('ex-modal').classList.add('hidden');
+  if(openedDetailFromLibrary){
+    openedDetailFromLibrary = false;
+    renderTabDirect('videos');
+    return;
+  }
   hideAllViews();
   if(currentEx && currentEx.cat === 'cardio'){
     document.getElementById('view-cardio').classList.remove('hidden');
