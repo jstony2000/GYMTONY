@@ -447,6 +447,24 @@ body{padding:calc(10px + env(safe-area-inset-top)) 14px calc(135px + env(safe-ar
   display:flex;align-items:center;justify-content:space-between;gap:8px;
 }
 
+/* MEJORAS v3.6.0: BOTÓN GRANDE BIBLIOTECA, CARGAR MÁS Y COMPARATIVA */
+.vid-single-btn{
+  width:100%;margin-top:6px;padding:9px 12px;border-radius:10px;
+  font-size:.82rem;font-weight:900;border:1px solid var(--border);
+  background:#0f172a;color:#e2e8f0;cursor:pointer;text-align:center;
+}
+.vid-single-btn.added{
+  background:rgba(34,197,94,.22);border-color:#22c55e;color:#bbf7d0;
+}
+.vid-load-more-btn{
+  width:100%;margin:10px 0 18px;padding:12px;border-radius:12px;
+  font-size:.84rem;font-weight:900;border:1px solid #3b82f6;
+  background:rgba(59,130,246,.16);color:#93c5fd;cursor:pointer;
+}
+.delta-up{color:#4ade80;font-weight:900;font-size:.74rem}
+.delta-down{color:#f87171;font-weight:900;font-size:.74rem}
+.delta-eq{color:var(--muted);font-weight:800;font-size:.74rem}
+
 </style>
 </head>
 <body>
@@ -709,6 +727,7 @@ body{padding:calc(10px + env(safe-area-inset-top)) 14px calc(135px + env(safe-ar
     <p>Si subes cambios a GitHub y no aparecen, pulsa este botón. Tus entrenamientos, pesos y GIFs NO se borran.</p>
     <div class="cfg-btns">
       <button class="btn-full btn-add" onclick="forceAppUpdate()">Forzar actualización (Limpiar caché)</button>
+      <button class="btn-full" style="background:rgba(59,130,246,.16);border:1px solid #3b82f6;color:#93c5fd" onclick="clearMediaCache()">Vaciar caché de vídeos (sin borrar datos)</button>
     </div>
   </div>
   <div class="cfg-card">
@@ -921,7 +940,7 @@ body{padding:calc(10px + env(safe-area-inset-top)) 14px calc(135px + env(safe-ar
 </nav>
 
 <script>
-const APP_VERSION = 'v3.5.9';
+const APP_VERSION = 'v3.6.0';
 const DB_KEY = 'gymtony_pro_v2';
 const EX_KEY = 'gymtony_exercises_v3';
 const CFG_KEY = 'gymtony_cfg_v2';
@@ -1161,7 +1180,26 @@ function getAllCustomMedia(){
 
 
 /* CATÁLOGO DE VÍDEOS MP4 POR SUBCARPETA (DE smartworkout_videos -> VIDEOS/<subcarpeta>/<archivo>.mp4) */
-const VIDEOS_CATALOG = {"abdominales":["abdominal-oblicuo-de-pie-con-elevacion-de-rodilla.mp4","abdominales-alternos-sentado.mp4","abdominales-circulares-inversos-sentados.mp4","abdominales-completos-con-press-de-disco-sobre-la-cabeza.mp4","abdominales-completos-en-banco-declinado.mp4","abdominales-con-peso.mp4","abdominales-crunch.mp4","abdominales-en-banco-declinado.mp4","abdominales-en-bicicleta.mp4","abdominales-en-ghd.mp4","abdominales-inclinados-con-giro.mp4","abdominales-invertidos.mp4","abdominales-janda.mp4","abdominales.mp4","balanceo-en-posicion-hueca.mp4","bandera-del-dragon.mp4","bicho-muerto-con-balon.mp4","bicho-muerto.mp4","bicicleta-de-aire-de-pie.mp4","bicicleta-de-aire.mp4","caminata-con-saco-de-arena-abrazado-al-pecho.mp4","carrera-en-el-sitio-con-rodillas-altas.mp4","cien-de-pilates-en-v.mp4","circulos-de-rodillas-colgantes.mp4","codo-a-rodilla-del-lado-opuesto.mp4","corte-de-lena-con-banda-de-alta-a-baja.mp4","corte-en-medio-arrodillado-con-banda.mp4","crunch-abdominal-con-banda-de-rodillas.mp4","crunch-abdominal-con-cable-de-rodillas.mp4","crunch-abdominal-de-pie-con-cable.mp4","crunch-abdominal-en-maquina.mp4","crunch-abdominal-sentado-en-polea.mp4","crunch-con-balon-de-estabilidad.mp4","crunch-con-brazo-recto-y-peso.mp4","crunch-con-flexion-de-rodillas.mp4","crunch-con-giro.mp4","crunch-de-rana.mp4","crunch-declinado-con-peso.mp4","crunch-en-maquina-acostado.mp4","crunch-en-v.mp4","crunch-giratorio-de-rodillas-con-banda.mp4","crunch-lateral-de-rodillas-con-cable.mp4","crunch-lateral.mp4","crunches-de-bicicleta-con-banda.mp4","crunches-de-pie-con-banda.mp4","crunches-de-pie-con-giro-con-banda.mp4","dead-bug-con-peso.mp4","dedos-a-la-barra.mp4","descensos-de-cadera-en-plancha.mp4","desplazamiento-con-barra---de-rodillas.mp4","elevacion-colgante-de-garhammer.mp4","elevacion-de-cadera-en-anillas.mp4","elevacion-de-cadera-en-plancha-lateral.mp4","elevacion-de-piernas-acostado-en-banco-plano.mp4","elevacion-de-piernas-colgando-a-la-barra.mp4","elevacion-de-piernas-colgando-con-peso.mp4","elevacion-de-piernas-rectas-acostado.mp4","elevacion-de-piernas-rectas-colgado.mp4","elevacion-de-piernas-rectas-en-barras-paralelas.mp4","elevacion-de-piernas-sentado.mp4","elevacion-de-rodillas-al-pecho-en-suspension.mp4","elevacion-de-rodillas-en-ab-coaster.mp4","elevacion-de-rodillas-oblicuas-colgado.mp4","elevacion-en-v.mp4","elevaciones-de-piernas-en-banco-inclinado.mp4","elevaciones-de-piernas-rectas-en-silla-romana.mp4","elevaciones-de-rodillas-colgado.mp4","elevaciones-de-rodillas-en-silla-del-capitan.mp4","encogimiento-abdominal-con-toque-de-los-dedos-de-los-pies.mp4","escalador-de-montana.mp4","estiramiento-de-flexores-de-cadera-de-rodillas.mp4","extension-y-flexion-de-piernas.mp4","flexion-abdominal-con-rodillas-al-pecho.mp4","flexion-lateral-del-tronco-a-45-grados.mp4","gateo-de-oso.mp4","gato-vaca.mp4","giro-con-banda-(horizontal).mp4","giro-con-barra-en-tierra.mp4","giro-con-cable-(arriba-abajo).mp4","giro-con-cable-(horizontal).mp4","giro-de-pie-con-barra.mp4","giro-ruso-con-balon-medicinal.mp4","giro-ruso-con-barra.mp4","giro-ruso-con-mancuerna.mp4","giro-ruso-con-peso.mp4","giro-ruso-de-pie.mp4","giro-sentado.mp4","giros-de-limpiaparabrisas-en-decubito-supino.mp4","inclinacion-lateral-de-pie-con-banda.mp4","inclinacion-lateral-de-pie-con-mancuerna.mp4","l-sitio.mp4","lanzamiento-rotacional-con-balon-medicinal.mp4","molino-de-viento-colgado-a-la-mitad.mp4","molino-de-viento-con-peso-corporal.mp4","patada-de-aleteo-sentado.mp4","patadas-de-tijera-colgado.mp4","perro-hacia-arriba.mp4","plancha-alta.mp4","plancha-con-apertura-y-cierre-de-piernas.mp4","plancha-con-apoyo-de-rodillas.mp4","plancha-con-balon-suizo.mp4","plancha-con-elevacion-alterna-de-piernas.mp4","plancha-con-peso.mp4","plancha-con-transicion-de-antebrazos-a-manos.mp4","plancha-de-oso.mp4","plancha-lateral.mp4","plancha-serrucho.mp4","plancha.mp4","postura-de-la-vela.mp4","postura-del-cangrejo.mp4","prensa-pallof-horizontal-con-cable.mp4","prensa-pallof-horizontal-en-polea-baja.mp4","press-pallof-con-banda.mp4","puente-lateral-con-mancuernas.mp4","rodamiento-con-rueda-abdominal.mp4","rodillas-a-codos-colgando.mp4","rotacion-de-tronco-con-cable-en-posicion-de-rodillas.mp4","rotacion-de-tronco-en-maquina-sentado.mp4","rotacion-de-tronco-en-maquina.mp4","rotacion-de-tronco-sentado-con-banda.mp4","sosten-de-piernas-elevadas-en-banco.mp4","squat-thrust.mp4","sujecion-de-cuerpo-hueco-con-peso.mp4","sujecion-de-cuerpo-hueco.mp4","sujecion-isometrica-del-press-pallof-contra-la-pared.mp4","tijeras-horizontales.mp4","tijeras.mp4","toques-de-dedos.mp4","toques-de-tobillo.mp4","torsion-espinal-supina.mp4","traslado-de-mancuerna-en-plancha.mp4","trx-perro-de-caza-a-una-pierna.mp4","v-ups-en-suspension.mp4","vacio-abdominal.mp4"],"antebrazos":["aparato-de-agarre-manual.mp4","caminata-con-marco-de-madera.mp4","caminata-del-granjero-unilateral.mp4","caminata-del-granjero.mp4","colgado-muerto.mp4","curl-de-antebrazos-con-barra-en-agarre-inverso.mp4","curl-de-biceps-con-barra-ez-agarre-inverso.mp4","curl-de-muneca-con-barra-de-pie.mp4","curl-de-muneca-con-barra.mp4","curl-de-muneca-con-mancuerna-a-una-mano.mp4","curl-de-muneca-de-pie-con-barra.mp4","curl-de-muneca-de-pie-con-mancuerna.mp4","curl-de-muneca-en-polea-sentado.mp4","curl-de-muneca-en-polea.mp4","curl-de-muneca-inversa-sentado-con-barra-ez.mp4","curl-de-muneca-inverso-con-barra.mp4","curl-de-muneca-inverso-de-pie-con-mancuernas.mp4","curl-de-muneca-neutral-con-mancuerna-a-un-brazo.mp4","curl-de-muneca-sentado-con-barra-ez.mp4","curl-en-banco-scott-con-barra-ez-y-agarre-prono.mp4","curl-en-polea-con-agarre-inverso.mp4","curl-inverso-de-biceps-con-mancuernas.mp4","curl-inverso-de-muneca-con-mancuerna-a-un-brazo.mp4","curl-invertido-de-arana-con-barra-ez.mp4","dominada-scapular.mp4","enrollamiento-de-muneca-de-pie-con-cable.mp4","flexion-de-muneca.mp4","maquina-de-flexion-de-muneca.mp4","paseo-del-granjero-con-mancuernas.mp4","paseo-del-granjero-unilateral.mp4","pronacion-acostada-con-mancuernas.mp4","rodillo-de-muneca.mp4","sentadilla-con-disco-en-agarre-de-pinza.mp4","supinacion-con-mancuernas-en-decubito.mp4"],"bíceps":["cuerdas-de-batalla.mp4","curl-alterno-con-mancuernas-en-supinacion.mp4","curl-alterno-supinado-con-mancuernas-en-banco-inclinado.mp4","curl-bayesiano-en-cable-sentado.mp4","curl-con-mancuerna-individual.mp4","curl-con-mancuernas-en-supinacion.mp4","curl-de-arana-con-barra-ez.mp4","curl-de-arana-con-mancuernas.mp4","curl-de-arrastre-con-barra.mp4","curl-de-arrastre-con-mancuerna.mp4","curl-de-biceps-con-agarre-cerrado.mp4","curl-de-biceps-con-banda-elastica.mp4","curl-de-biceps-con-barra-de-pie-con-agarre-ancho.mp4","curl-de-biceps-con-barra-en-la-pared.mp4","curl-de-biceps-con-barra-en-polea.mp4","curl-de-biceps-con-barra-ez-agarre-cerrado.mp4","curl-de-biceps-con-barra-ez.mp4","curl-de-biceps-con-barra.mp4","curl-de-biceps-con-cable-a-un-brazo.mp4","curl-de-biceps-con-kettlebell.mp4","curl-de-biceps-con-mancuerna-y-soporte-para-brazos.mp4","curl-de-biceps-con-mancuernas-sentado.mp4","curl-de-biceps-con-mancuernas.mp4","curl-de-biceps-con-trx.mp4","curl-de-biceps-en-banco-inclinado-con-barra.mp4","curl-de-biceps-en-banco-scott-con-barra-ez.mp4","curl-de-biceps-en-banco-scott-con-barra.mp4","curl-de-biceps-en-maquina.mp4","curl-de-biceps-en-polea-(de-espaldas).mp4","curl-de-biceps-en-polea-acostado.mp4","curl-de-biceps-en-polea-bayesian.mp4","curl-de-biceps-en-polea-de-rodillas.mp4","curl-de-biceps-inclinado-sentado.mp4","curl-de-concentracion-con-mancuerna.mp4","curl-de-hercules.mp4","curl-de-martillo-con-banda.mp4","curl-de-martillo-con-cable-a-un-brazo.mp4","curl-de-martillo-con-mancuernas.mp4","curl-de-martillo-en-banco-scott-con-un-brazo.mp4","curl-de-martillo-sentado.mp4","curl-de-predicador-con-mancuerna-a-un-brazo.mp4","curl-de-predicador-en-maquina-con-un-brazo.mp4","curl-de-predicador-supinado-con-mancuerna.mp4","curl-en-cable-inclinado.mp4","curl-en-predicador-con-cable.mp4","curl-martillo-alterno-con-mancuernas.mp4","curl-martillo-alterno-sentado-con-mancuernas.mp4","curl-martillo-con-cuerda-en-polea.mp4","curl-martillo-cruzado-con-mancuerna.mp4","curl-martillo-en-banco-scott.mp4","curl-martillo-inclinado-con-mancuerna.mp4","curl-predicador-con-mancuernas.mp4","curl-predicador-en-maquina.mp4","curl-zottman.mp4","dominada-con-un-brazo.mp4","dominada-supina-asistida-con-banda-elastica.mp4","dominadas-con-peso.mp4","estiramiento-de-biceps-de-pie.mp4","muscle-up-en-anillas.mp4","spider-hammer-curl_-curl-martillo-en-arana.mp4","subida-por-cuerda.mp4"],"espalda":["angel-de-nieve-inverso.mp4","bandera.mp4","dominada-arquero.mp4","dominada-en-l.mp4","dominada-en-palanca-frontal.mp4","dominada-negativa.mp4","dominada-supina-asistida.mp4","dominadas-asistidas-con-banda.mp4","dominadas-asistidas.mp4","dominadas-australianas-con-agarre-estrecho-en-anillas.mp4","dominadas-con-agarre-ancho-hacia-atras.mp4","dominadas-con-agarre-ancho.mp4","dominadas-con-agarre-estrecho.mp4","dominadas-con-agarre-neutro-y-peso-adicional.mp4","dominadas-con-agarre-neutro.mp4","dominadas-con-lastre.mp4","dominadas-en-anillas.mp4","dominadas-supinas.mp4","dominadas.mp4","elevacion-en-w-en-decubito-prono.mp4","elevaciones-laterales-inclinadas-con-apoyo-en-el-pecho-con-mancuernas.mp4","encogimiento-con-barra-detras-de-la-espalda.mp4","encogimiento-con-cable.mp4","encogimiento-de-hombros-con-barra.mp4","encogimiento-de-hombros-en-maquina-smith.mp4","encogimiento-invertido.mp4","encogimientos-con-barra-hexagonal.mp4","encogimientos-de-hombros-con-mancuernas-sentado.mp4","encogimientos-de-hombros-con-mancuernas.mp4","encogimientos-de-hombros-kelso-con-mancuernas.mp4","encogimientos-en-fondos.mp4","encogimientos-en-maquina.mp4","ergometro-de-esqui.mp4","estiramiento-de-los-musculos-dorsales-en-posicion-de-rodillas.mp4","estiramiento-del-manguito-rotador-en-decubito-lateral.mp4","estiramiento-lateral-de-pie.mp4","estiramiento-lateral-del-cuello.mp4","extension-cervical-con-arnes-para-la-cabeza.mp4","extension-cervical-en-decubito-prono-con-carga.mp4","extension-de-espalda-en-maquina.mp4","flexion-de-cuello.mp4","front-lever_-palanca-frontal.mp4","jalon-al-pecho-con-agarre-cerrado-en-polea.mp4","jalon-al-pecho-con-cable-a-una-mano-en-posicion-de-medio-arrodillado.mp4","jalon-al-pecho-con-un-brazo.mp4","jalon-con-banda-detras-del-cuello.mp4","jalon-de-dorsales-con-banda-a-un-brazo.mp4","jalon-de-dorsales-con-brazos-rectos.mp4","jalon-de-dorsales-con-cable-a-un-brazo-y-brazo-recto.mp4","jalon-de-dorsales-con-cable-a-una-mano-en-medio-arrodillado.mp4","jalon-de-dorsales-con-cuerda-y-brazos-rectos.mp4","jalon-de-dorsales-en-polea.mp4","jalon-de-espalda-con-banda-inclinado.mp4","jalon-de-espalda-en-polea-con-agarre-neutral-ancho.mp4","jalon-de-espalda-en-polea-de-rodillas.mp4","jalon-dorsal-en-posicion-prona.mp4","jalon-en-polea-con-agarre-ancho-detras-de-la-nuca.mp4","jalon-en-polea-con-agarre-invertido.mp4","jalon-en-polea-con-agarre-neutro.mp4","jalon-lateral-con-agarre-amplio-en-polea-alta.mp4","maquina-de-jalon-de-espalda.mp4","maquina-de-remo.mp4","nadador-en-posicion-prona.mp4","palanca-frontal-con-piernas-flexionadas.mp4","palanca-inversa.mp4","pullover-con-mancuerna-y-piernas-elevadas.mp4","pullover-en-maquina.mp4","pulover-con-mancuerna.mp4","remo-alto-con-palanca-a-un-brazo.mp4","remo-alto-en-palanca.mp4","remo-alto-unilateral-en-polea.mp4","remo-amplio-con-banda-anclada-en-alto.mp4","remo-ancho-con-mancuernas-en-banco-inclinado.mp4","remo-bajo-en-maquina.mp4","remo-bajo-en-polea-sentado-con-agarre-neutro.mp4","remo-bajo-unilateral-en-polea.mp4","remo-con-apoyo-en-el-pecho-y-agarre-amplio.mp4","remo-con-barra-en-banco-inclinado-con-agarre-ancho.mp4","remo-con-barra-en-t-a-una-mano-inclinado.mp4","remo-con-barra-en-t-inclinado.mp4","remo-con-barra-inclinado.mp4","remo-con-barra-para-deltoides-posteriores.mp4","remo-con-barra-t-en-agarre-cerrado.mp4","remo-con-kettlebell-inclinado.mp4","remo-con-mancuerna-a-una-mano-inclinado-con-enfoque-en-la-escapula.mp4","remo-con-mancuerna-en-banco-con-una-pierna-extendida.mp4","remo-con-mancuernas-en-banco-plano.mp4","remo-de-cable-a-una-mano.mp4","remo-de-gorila.mp4","remo-de-kayak-en-polea.mp4","remo-en-banco-prono.mp4","remo-en-barra-en-t-con-apoyo-para-pecho.mp4","remo-en-maquina-con-soporte-para-el-pecho.mp4","remo-en-maquina-con-soporte-para-pecho-a-un-brazo.mp4","remo-en-polea-sentado.mp4","remo-en-suspension.mp4","remo-gorila-con-pesas-rusas.mp4","remo-inclinado-con-banda-elastica.mp4","remo-inclinado-con-barra-desde-pin.mp4","remo-inclinado-con-barra-en-banco.mp4","remo-inclinado-con-barra-y-agarre-invertido.mp4","remo-inclinado-con-mancuernas-2.mp4","remo-inclinado-con-mancuernas-agarre-neutro.mp4","remo-inclinado-con-mancuernas.mp4","remo-inclinado-en-multipower.mp4","remo-invertido-(australiano).mp4","remo-invertido-bajo-una-mesa.mp4","remo-invertido-con-agarre-supino.mp4","remo-invertido-en-suspension.mp4","remo-pendlay.mp4","remo-renegado-alterno.mp4","remo-renegado-con-kettlebell.mp4","remo-sentado-a-una-mano.mp4","remo-sentado-con-agarre-supino-en-polea.mp4","remo-sentado-con-cable-agarre-neutro.mp4","remo-sentado-con-cable-y-agarre-ancho.mp4","remo-sentado-con-flexion-en-polea.mp4","remo-sentado-en-polea-baja-a-una-mano.mp4","remo-yates.mp4","rotacion-externa-de-hombro-de-pie-con-banda-elastica.mp4","rotacion-externa-de-hombro-en-polea.mp4","traccion-de-trineo-con-cuerda.mp4"],"glúteos":["abduccion-de-cadera-con-banda-sentado.mp4","abduccion-de-cadera-con-banda.mp4","abduccion-de-cadera-con-cable.mp4","abduccion-de-cadera-de-pie.mp4","abduccion-de-cadera-en-cuadrupedia-con-extension-de-rodilla.mp4","abduccion-de-cadera-en-decubito-lateral.mp4","abduccion-de-cadera-sentado.mp4","bisagra-de-cadera.mp4","buenos-dias-con-barra.mp4","buenos-dias-en-multipower.mp4","buenos-dias-sentado.mp4","cambio-de-cadera-90-a-90-con-apoyo-de-manos.mp4","cambio-de-cadera-90-a-90.mp4","caminata-lateral-con-banda.mp4","concha-en-decubito-lateral.mp4","concha-lateral-con-banda-elastica-acostado.mp4","desplazamiento-lateral-rapido.mp4","elevacion-de-cadera-con-banda-elastica-mini.mp4","elevacion-de-cadera-con-barra.mp4","elevacion-de-cadera-con-mancuernas.mp4","elevacion-de-cadera-estilo-rana.mp4","elevacion-de-cadera.mp4","empuje-de-cadera-en-maquina-smith.mp4","empuje-de-cadera-en-maquina.mp4","empuje-de-cadera-en-posicion-de-rodillas.mp4","empuje-de-cadera-unilateral-con-mancuerna.mp4","empuje-de-cadera-unilateral.mp4","estiramiento-de-figura-4-en-silla.mp4","estiramiento-de-figura-4-sentado.mp4","estiramiento-de-rodilla-al-pecho-acostado.mp4","estiramiento-en-decubito-supino-con-la-pierna-en-posicion-de-figura-cuatro.mp4","extension-de-cadera-de-pie-en-polea.mp4","extension-de-espalda-con-mancuerna.mp4","extension-de-espalda-con-peso.mp4","extension-de-espalda.mp4","extension-diagonal-de-cadera-en-polea-baja.mp4","glute-bridge-single-leg_-puente-de-gluteos-a-una-pierna.mp4","hiperextension-inversa-a-45-grados.mp4","hiperextension-inversa-con-banda.mp4","hiperextension-inversa-en-banco.mp4","hiperextension-inversa-en-maquina.mp4","nadadores-superman.mp4","patada-de-burro.mp4","patada-de-gluteo-con-banda-de-resistencia-en-equilibrio-de-pie.mp4","patada-de-gluteos-con-banda.mp4","patada-de-gluteos-en-maquina.mp4","patada-de-gluteos-en-polea.mp4","perro-de-caza.mp4","peso-muerto-con-banda-elastica.mp4","peso-muerto-con-una-mancuerna-al-lado.mp4","peso-muerto-desde-bloques.mp4","peso-muerto-rumano-a-una-pierna.mp4","peso-muerto-rumano-con-barra-landmine.mp4","peso-muerto-rumano-en-maquina-smith.mp4","peso-muerto-rumano-en-posicion-sumo.mp4","peso-muerto-rumano.mp4","peso-muerto-sumo-con-mancuernas.mp4","peso-muerto-sumo-con-tiron-corto.mp4","peso-muerto-sumo.mp4","plancha-lateral-con-abduccion-de-cadera.mp4","postura-de-la-paloma.mp4","postura-del-nino.mp4","puente-de-gluteos-con-banda-elastica-mini.mp4","puente-de-gluteos-con-barra.mp4","puente-de-gluteos-con-marcha.mp4","puente-de-gluteos-con-peso-a-una-pierna.mp4","puente-de-gluteos-con-peso.mp4","puente-de-gluteos-en-banco.mp4","puente-de-gluteos.mp4","rodillo-para-gluteos.mp4","rotacion-espinal-sentado.mp4","rotacion-externa-de-cadera-sentado.mp4","rotacion-interna-de-cadera-sentado.mp4","saltos-de-patinador.mp4","sentadilla-bulgara.mp4","sentadilla-con-cinturon-en-maquina.mp4","sentadilla-con-kettlebell-en-copa.mp4","sentadilla-dividida-con-pie-delantero-elevado.mp4","sentadilla-sumo-con-mancuernas.mp4","tiron-con-cable.mp4","volteo-de-neumatico.mp4","zancada-cruzada-posterior-con-mancuernas.mp4","zancada-cruzada-posterior.mp4","zancada-inversa-con-mancuernas-desde-escalon.mp4","zancada-trasera-con-barra-en-escalon.mp4","zancada-trasera-con-mancuerna.mp4"],"hombros":["angel-en-la-pared.mp4","apertura-inclinada-con-mancuernas-alterna.mp4","apertura-inversa-en-polea-para-deltoides-posterior.mp4","apertura-posterior-de-deltoides-con-un-brazo.mp4","apertura-posterior-de-deltoides-en-polea-con-un-brazo.mp4","aperturas-posteriores-con-mancuernas-acostado.mp4","arrancada-con-mancuerna.mp4","cable-leaning-lateral-raise_-elevacion-lateral-inclinada-con-cable.mp4","caminata-con-mancuerna-sobre-la-cabeza-a-un-brazo.mp4","caminata-en-posicion-de-parada-de-manos.mp4","caminata-por-la-pared.mp4","cargada-y-envion-con-kettlebell.mp4","cargada-y-press-con-mancuernas.mp4","cargada-y-press-con-tronco.mp4","circulo-de-brazo.mp4","circulos-de-hombros.mp4","conductor-de-disco.mp4","conductor-de-pie-con-mancuerna.mp4","corte-de-lenador-con-peso.mp4","elevacion-de-powell.mp4","elevacion-en-t-con-mancuernas-en-banco-inclinado.mp4","elevacion-en-t-en-decubito-prono.mp4","elevacion-en-y-con-cable-en-inclinacion-con-soporte-de-espalda.mp4","elevacion-en-y-con-cable.mp4","elevacion-en-y-en-decubito-prono.mp4","elevacion-en-y-para-trapecio.mp4","elevacion-frontal-alternada-con-mancuernas-en-martillo.mp4","elevacion-frontal-alternada-con-mancuernas.mp4","elevacion-frontal-con-barra.mp4","elevacion-frontal-con-cable-a-un-brazo.mp4","elevacion-frontal-con-cable.mp4","elevacion-frontal-con-disco-y-rotacion.mp4","elevacion-frontal-con-disco.mp4","elevacion-frontal-con-mancuerna.mp4","elevacion-lateral-a-frontal.mp4","elevacion-lateral-con-banda.mp4","elevacion-lateral-con-barra-t-en-suelo.mp4","elevacion-lateral-con-cable-a-un-brazo.mp4","elevacion-lateral-con-cable.mp4","elevacion-lateral-con-mancuerna-a-un-brazo-inclinado-con-apoyo.mp4","elevacion-lateral-con-mancuerna-a-un-brazo.mp4","elevacion-lateral-con-mancuerna-e-inclinacion-lateral-del-tronco.mp4","elevacion-lateral-con-mancuernas-inclinado-sentado.mp4","elevacion-lateral-con-mancuernas-inclinado.mp4","elevacion-lateral-con-mancuernas-sentado.mp4","elevacion-lateral-con-mancuernas.mp4","elevacion-lateral-de-un-brazo-en-polea.mp4","elevacion-lateral-en-maquina.mp4","elevacion-lateral-en-t-con-soporte-para-pecho.mp4","elevacion-lateral-inclinada-con-mancuerna-a-un-brazo.mp4","elevacion-lateral-inclinado-con-cable-a-un-brazo.mp4","elevacion-lateral-poliquin-con-mancuernas.mp4","elevacion-lateral-posterior-en-t-con-mancuernas-en-banco-inclinado.mp4","elevacion-lateral-posterior-sentado-con-cable.mp4","elevacion-posterior-del-deltoides-con-barra.mp4","elevacion-powell-en-inclinacion.mp4","elevaciones-laterales-con-mancuernas.mp4","envion-de-potencia.mp4","estiramiento-del-deltoides-posterior.mp4","flexion-de-brazos-en-parada-de-manos.mp4","flexion-pica-entre-sillas.mp4","flexion-pica.mp4","flexion-pike-en-banco.mp4","flexion-pike-entre-bancos.mp4","jalon-al-rostro-sentado.mp4","jalon-de-cara-con-cable-acostado.mp4","jalon-de-cara-con-cable-en-supinacion.mp4","jalon-de-cara-con-cable.mp4","jalon-facial-con-anillas.mp4","jalon-facial-con-banda.mp4","jalon-facial-en-suspension.mp4","lanzamiento-de-balon-medicinal.mp4","levantamiento-turco.mp4","lever-seated-hammer-grip-shoulder-press_-press-de-hombros-con-agarre-martillo-en-maquina-sentado.mp4","molino-con-kettlebell.mp4","natacion-estilo-crol.mp4","parada-de-cabeza-asistida-sirsasana.mp4","parada-de-manos-libre.mp4","paso-de-banda-a-traves-de-los-hombros.mp4","plancha-abierta.mp4","plancha-completa.mp4","plancha-de-perro-de-caza.mp4","plancha-frontal-estatica.mp4","press-bradford-con-barra.mp4","press-cubano-de-pie.mp4","press-cubano-sentado.mp4","press-de-arnold-con-mancuernas-sentado.mp4","press-de-barra-en-t.mp4","press-de-empuje-con-pesa-rusa-a-un-brazo.mp4","press-de-hombro-a-un-brazo-con-mancuerna.mp4","press-de-hombro-con-kettlebell-a-una-mano.mp4","press-de-hombro-con-mancuerna-en-medio-arrodillado.mp4","press-de-hombro-de-pie-con-barra-en-tierra-a-un-brazo.mp4","press-de-hombro-en-medio-arrodillado-con-landmine-a-un-brazo.mp4","press-de-hombros-alterno-de-pie-con-mancuernas.mp4","press-de-hombros-con-banda-elastica.mp4","press-de-hombros-con-barra-sentado.mp4","press-de-hombros-con-mancuerna-en-medio-arrodillado.mp4","press-de-hombros-con-mancuernas-de-pie.mp4","press-de-hombros-con-mancuernas-sentado.mp4","press-de-hombros-de-pie-en-poleas.mp4","press-de-hombros-en-maquina-con-discos.mp4","press-de-hombros-en-maquina.mp4","press-de-hombros-sentado-con-agarre-neutro.mp4","press-de-hombros-sentado-en-maquina-smith.mp4","press-de-hombros-tsunami.mp4","press-landmine-a-dos-manos.mp4","press-militar-con-barra.mp4","press-militar-tras-nuca-con-barra.mp4","press-tras-nuca-en-multipower-sentado.mp4","press-vikingo-con-barra-landmine.mp4","press-z-con-barra.mp4","press-z-con-mancuernas.mp4","push-press-con-barra.mp4","push-press-con-mancuernas.mp4","remo-al-menton-en-maquina-smith.mp4","remo-alto-inclinado-sentado-con-mancuernas.mp4","remo-con-mancuernas-de-pie.mp4","remo-posterior-para-deltoides-con-mancuernas.mp4","remo-vertical-con-banda.mp4","remo-vertical-con-barra-de-agarre-estrecho.mp4","remo-vertical-con-barra-y-agarre-ancho.mp4","remo-vertical-con-barra-y-agarre-de-hombros.mp4","remo-vertical-con-polea.mp4","rotacion-con-kettlebell-alrededor-de-la-cabeza.mp4","rotacion-cubana-con-mancuernas.mp4","rotacion-externa-de-hombro-sentado.mp4","rotacion-externa-en-decubito-lateral.mp4","rotaciones-controladas-de-hombros-en-decubito-prono.mp4","sosten-en-parada-de-manos.mp4","tiron-alto-con-barra-desde-posicion-colgante.mp4"],"pecho":["almeja-de-pecho-sentada.mp4","apertura-baja-con-mancuerna-unilateral.mp4","apertura-con-cable-acostado.mp4","apertura-con-mancuernas-de-abajo-hacia-arriba.mp4","apertura-de-cable-unilateral-de-abajo-hacia-arriba.mp4","apertura-de-pecho-con-banda.mp4","apertura-de-pecho-con-mancuernas-en-banco-inclinado.mp4","apertura-de-pecho-con-mancuernas-en-el-suelo.mp4","apertura-de-pecho-con-mancuernas.mp4","apertura-de-pecho-de-pie.mp4","apertura-de-pecho-en-suspension.mp4","apertura-en-polea-de-alto-a-bajo-con-un-brazo.mp4","apertura-polea-unilateral.mp4","aperturas-con-mancuernas-en-banco-declinado.mp4","aperturas-en-contractora-de-pecho.mp4","aperturas-inclinadas-con-mancuernas.mp4","around-the-world-con-mancuernas-en-banco-plano.mp4","boxeo-con-saco-de-boxeo.mp4","cruce-de-polea-medio.mp4","cruce-de-poleas-alto-de-rodillas.mp4","cruce-de-poleas-alto.mp4","cruce-de-poleas-bajo.mp4","cruce-de-poleas-en-banco-inclinado.mp4","cruce-de-poleas-medio-en-banco.mp4","estiramiento-de-pecho-con-brazo-flexionado.mp4","estiramiento-de-pecho-con-codos-abiertos.mp4","estiramiento-de-pecho-en-el-marco-de-la-puerta.mp4","estiramiento-de-rotacion-de-espalda-arrodillado.mp4","estiramiento-de-rotacion-toracica-en-decubito-lateral.mp4","estiramiento-dinamico-de-hombros-con-banda-elastica.mp4","estiramiento-global.mp4","flexion-a-un-brazo.mp4","flexion-abiertas.mp4","flexion-ancha-de-rodillas.mp4","flexion-completa-de-muneca.mp4","flexion-con-banda-de-resistencia.mp4","flexion-con-palmada.mp4","flexion-de-arquero.mp4","flexion-de-brazos-con-protraccion-escapular.mp4","flexion-de-brazos-con-transicion-a-plancha-lateral.mp4","flexion-de-dedos.mp4","flexion-de-escapulas.mp4","flexion-de-nudillos.mp4","flexion-de-superman.mp4","flexion-en-anillas.mp4","flexion-jack.mp4","flexion-negativa.mp4","flexion-pliometrica.mp4","flexion-profunda-con-mancuernas.mp4","flexion-profunda-en-barras-paralelas.mp4","flexiones-con-asas.mp4","flexiones-con-despegue-de-manos.mp4","flexiones-con-peso.mp4","flexiones-contra-la-pared.mp4","flexiones-de-rodillas.mp4","flexiones-declinadas.mp4","flexiones-inclinadas.mp4","flexiones.mp4","fondos-coreanos.mp4","fondos-de-pecho.mp4","fondos-en-paralelas.mp4","fondos-en-plancha.mp4","golpes-alternos-con-los-punos.mp4","inchworm-con-flexion.mp4","laterales-poliquin.mp4","pec-deck_-contractora-de-pecho.mp4","perro-boca-abajo-de-pie.mp4","plancha-inclinada.mp4","press-circular-de-pie.mp4","press-con-macuernas-cerrado.mp4","press-de-banca-con-banda-de-resistencia.mp4","press-de-banca-con-barra-hasta-el-cuello.mp4","press-de-banca-con-barra-y-agarre-amplio.mp4","press-de-banca-con-barra-y-agarre-supino.mp4","press-de-banca-con-barra-y-cadenas.mp4","press-de-banca-con-pausa.mp4","press-de-banca-con-tope.mp4","press-de-banca-en-el-suelo.mp4","press-de-banca-en-maquina.mp4","press-de-banca.mp4","press-de-fuerza-unilateral-cruzado.mp4","press-de-larsen-con-barra.mp4","press-de-mancuernas-en-el-suelo.mp4","press-de-pecho-bajo-en-polea-de-pie.mp4","press-de-pecho-con-banda-en-banco.mp4","press-de-pecho-convergente.mp4","press-de-pecho-de-pie-con-banda-elastica.mp4","press-de-pecho-de-pie-con-cable.mp4","press-de-pecho-en-maquina-con-agarre-neutro.mp4","press-de-pecho-en-maquina-sentado.mp4","press-de-pecho-en-polea-declinado.mp4","press-de-pecho-en-suspension.mp4","press-de-piso-con-kettlebell-a-un-brazo.mp4","press-declinado-con-barra.mp4","press-declinado-con-mancuernas.mp4","press-declinado-convergente.mp4","press-declinado-en-multipower.mp4","press-inclinado-con-barra.mp4","press-inclinado-con-mancuernas-agarre-neutro.mp4","press-inclinado-con-mancuernas.mp4","press-inclinado-con-poleas-en-banco.mp4","press-inclinado-convergente.mp4","press-inclinado-en-multipower.mp4","press-inlinado-con-mancuernas-unilateral.mp4","press-larsen-con-mancuernas.mp4","press-plano-con-mancuernas-agarre-neutro.mp4","press-plano-con-mancuernas-unilateral.mp4","press-plano-con-mancuernas.mp4","press-plano-con-poleas.mp4","press-plano-en-maquina.mp4","press-plano-en-multipower.mp4","press-poliquin-con-mancuernas.mp4","press-svend.mp4","pullover-con-barra.mp4","toque-de-hombro.mp4"],"piernas":["aduccion-de-cadera-con-banda-de-resistencia.mp4","aduccion-de-cadera-en-decubito-lateral.mp4","aduccion-de-cadera-en-polea.mp4","aduccion-de-cadera-sentado.mp4","aduccion-de-copenhague.mp4","arrancada-con-kettlebell.mp4","arrancada-de-potencia.mp4","arrancada-en-suspension.mp4","arrancada-y-envion.mp4","arrancada.mp4","arranque-de-potencia.mp4","arrastre-de-trineo.mp4","balance-de-arrancada.mp4","balanceo-americano-con-pesa-rusa.mp4","balanceo-con-kettlebell.mp4","balanceo-con-mancuerna.mp4","balanceo-de-kettlebell-con-un-brazo.mp4","balanceos-de-piernas.mp4","balanceos-laterales-de-pierna.mp4","bicicleta-de-aire-de-asalto.mp4","bicicleta-estatica-reclinada.mp4","bicicleta-estatica.mp4","buenos-dias-con-banda-elastica.mp4","burpee.mp4","caminata-en-cinta-de-correr.mp4","caminata-monstruo-hacia-adelante-con-banda.mp4","cardio-caminando.mp4","carga-de-piedra-atlas-a-la-plataforma.mp4","cargada-con-mancuernas.mp4","cargada-en-suspension.mp4","cargada-muscular-desde-el-suelo.mp4","carrera-de-velocidad.mp4","carrera-en-cinta.mp4","ciclismo.mp4","circulos-de-cadera.mp4","clean-con-kettlebell.mp4","correr.mp4","curl-de-isquiotibiales-unilateral-en-decubito.mp4","curl-de-jefferson.mp4","curl-de-pierna-de-pie-con-banda-anclada-al-rack.mp4","curl-de-pierna-de-pie-con-banda-bajo-el-pie.mp4","curl-de-pierna-de-pie.mp4","curl-de-pierna-en-cable-a-una-pierna.mp4","curl-de-pierna-sentado-con-banda.mp4","curl-de-pierna-unilateral-sentado.mp4","curl-de-piernas-acostado-con-banda.mp4","curl-de-piernas-acostado-con-mancuernas.mp4","curl-de-piernas-con-balon-suizo.mp4","curl-de-piernas-deslizante.mp4","curl-de-piernas-en-anillas.mp4","curl-de-piernas-en-decubito-prono.mp4","curl-de-piernas-en-suspension.mp4","curl-de-piernas-sentado.mp4","curl-nordico-de-isquiotibiales.mp4","devil-press-con-mancuernas.mp4","doble-paso-de-cuerda.mp4","elevacion-de-cadera-en-multipower-de-rodillas.mp4","elevacion-de-gluteos-e-isquiotibiales-1-2.mp4","elevacion-de-pantorrilla-en-maquina-sentado-a-una-pierna.mp4","elevacion-de-pantorrillas-en-maquina-rotatoria.mp4","elevacion-de-poliquin.mp4","elevacion-de-talon-a-una-pierna.mp4","elevacion-de-talon-sentado-con-mancuerna-a-una-pierna.mp4","elevacion-de-talones-con-barra.mp4","elevacion-de-talones-de-pie.mp4","elevacion-de-talones-en-maquina-con-el-torso-inclinado.mp4","elevacion-de-talones-en-maquina-de-sentadilla-hack.mp4","elevacion-de-talones-en-maquina-smith-a-una-pierna.mp4","elevacion-de-talones-sentado-con-peso.mp4","elevacion-de-talones-sentado-en-maquina-smith.mp4","elevacion-de-talones-sentado.mp4","elevacion-de-tibial-anterior-de-pie.mp4","elevaciones-de-gemelos-en-maquina-smith.mp4","elevaciones-de-gemelos-en-maquina.mp4","elevaciones-de-gemelos-en-smith.mp4","elevaciones-de-pierna-con-mancuerna.mp4","elevaciones-de-talones-de-pie-con-mancuernas.mp4","entrenador-eliptico.mp4","envion-en-tijera.mp4","escalada-en-cinta-de-correr.mp4","escaladora.mp4","estiramiento-90-a-90.mp4","estiramiento-de-cuadriceps-acostado-de-lado.mp4","estiramiento-de-cuadriceps-acostado.mp4","estiramiento-de-cuadriceps-con-pie-trasero-en-banco.mp4","estiramiento-de-cuadriceps-de-pie.mp4","estiramiento-de-cuadriceps-en-medio-arrodillado.mp4","estiramiento-de-isquiotibiales-con-una-pierna-sentado.mp4","estiramiento-de-isquiotibiales-de-pie.mp4","estiramiento-de-isquiotibiales-de-rodillas.mp4","estiramiento-de-mariposa-inclinada-hacia-adelante.mp4","estiramiento-de-mariposa.mp4","estiramiento-de-media-rana-balanceante.mp4","estiramiento-de-pantorrilla-en-la-pared.mp4","estiramiento-de-rodilla-al-pecho.mp4","estiramiento-de-zancada.mp4","extension-de-pierna-unilateral.mp4","extension-de-piernas-en-maquina-sentado.mp4","extension-de-rodilla-sentado-con-mancuerna.mp4","extension-terminal-de-rodilla-en-polea.mp4","extension-terminal-de-rodilla.mp4","flexion-adelante-de-pie.mp4","flexion-hacia-adelante-sentado.mp4","flexiones-de-rodilla-con-talones-hacia-los-gluteos.mp4","hang-power-clean.mp4","kickboxing.mp4","lanzamiento-de-balon-medicinal-contra-la-pared.mp4","levantarse-de-la-silla.mp4","marcha-con-mochila-lastrada.mp4","media-sentadilla.mp4","paso-adelante-con-cable.mp4","paso-al-frente-con-barra.mp4","patada-de-gluteos-en-maquina-smith.mp4","perro-boca-abajo.mp4","peso-muerto-a-una-pierna.mp4","peso-muerto-con-agarre-de-arrancada.mp4","peso-muerto-con-barra-hexagonal.mp4","peso-muerto-con-deficit.mp4","peso-muerto-con-kettlebell.mp4","peso-muerto-con-mancuerna-a-una-pierna.mp4","peso-muerto-con-mancuernas-piernas-rectas.mp4","peso-muerto-con-mancuernas-y-piernas-rectas.mp4","peso-muerto-con-mancuernas.mp4","peso-muerto-con-piernas-rectas-con-barra.mp4","peso-muerto-de-cargada.mp4","peso-muerto-rumano-a-una-pierna-con-peso-corporal.mp4","peso-muerto-rumano-con-banda-elastica.mp4","peso-muerto-rumano-con-dos-pesas-rusas.mp4","peso-muerto-rumano-con-mancuernas.mp4","peso-muerto-rumano-en-cable.mp4","peso-muerto-rumano-en-posicion-b.mp4","peso-muerto.mp4","plancha-invertida.mp4","postura-de-mariposa-acostada.mp4","postura-del-bebe-feliz.mp4","postura-del-lagarto.mp4","postura-del-loto.mp4","prensa-de-pierna-unilateral.mp4","prensa-de-piernas-a-45-grados-con-postura-estrecha.mp4","prensa-de-piernas-con-postura-amplia.mp4","prensa-de-piernas-horizontal-en-maquina.mp4","prensa-de-piernas-para-pantorrillas.mp4","prensa-de-piernas-vertical-en-maquina-smith.mp4","prensa-de-piernas-vertical.mp4","prensa-de-piernas.mp4","puente-de-gluteos-con-pasos-hacia-delante.mp4","rana-balanceante.mp4","remo-parcial-con-barra-en-rack.mp4","rodar-el-pie.mp4","rodar-gemelos.mp4","saltar-la-cuerda.mp4","salto-con-apertura-de-brazos-y-piernas.mp4","salto-con-contramovimiento.mp4","salto-con-mancuernas.mp4","salto-con-rodillas-al-pecho.mp4","salto-de-longitud.mp4","salto-de-rana.mp4","salto-en-caja-a-una-pierna.mp4","salto-en-profundidad.mp4","saltos-de-tijera.mp4","saltos-en-caja.mp4","saltos-laterales.mp4","saltos-pogo.mp4","saludo-al-sol-a.mp4","sentadilla-a-una-pierna-sujetando-el-pie-trasero.mp4","sentadilla-al-aire.mp4","sentadilla-anderson.mp4","sentadilla-bulgara-con-barra-2.mp4","sentadilla-bulgara-con-barra.mp4","sentadilla-bulgara-con-mancuernas.mp4","sentadilla-bulgara-con-pie-delantero-elevado.mp4","sentadilla-bulgara-con-salto.mp4","sentadilla-bulgara-en-maquina-smith.mp4","sentadilla-bulgara-en-smith.mp4","sentadilla-bulgara.mp4","sentadilla-con-banda.mp4","sentadilla-con-barra-alta.mp4","sentadilla-con-barra-baja.mp4","sentadilla-con-barra-de-seguridad.mp4","sentadilla-con-barra-en-tierra.mp4","sentadilla-con-barra-y-pausa.mp4","sentadilla-con-barra.mp4","sentadilla-con-mancuerna-en-copa.mp4","sentadilla-con-mancuerna-tipo-copa.mp4","sentadilla-con-mancuernas-sobre-la-cabeza.mp4","sentadilla-con-mancuernas.mp4","sentadilla-con-salto-con-barra-hexagonal.mp4","sentadilla-con-salto-y-apertura-de-piernas.mp4","sentadilla-con-sistema-de-suspension.mp4","sentadilla-contra-la-pared-con-balon-de-estabilidad.mp4","sentadilla-cossack-con-barra.mp4","sentadilla-cossack-con-mancuernas.mp4","sentadilla-cossack-con-peso.mp4","sentadilla-cossack.mp4","sentadilla-de-arranque.mp4","sentadilla-de-barra-por-encima-de-la-cabeza.mp4","sentadilla-de-ciclista.mp4","sentadilla-de-patinador.mp4","sentadilla-de-rodillas-con-barra.mp4","sentadilla-dividida-con-barra-por-encima-de-la-cabeza.mp4","sentadilla-dividida-con-mancuerna.mp4","sentadilla-en-caja.mp4","sentadilla-en-la-pared.mp4","sentadilla-en-maquina-con-cinturon.mp4","sentadilla-en-maquina-smith-a-banco.mp4","sentadilla-en-maquina-smith.mp4","sentadilla-en-polea.mp4","sentadilla-en-rack.mp4","sentadilla-en-silla-con-maquina-smith.mp4","sentadilla-frontal-con-dos-pesas-rusas.mp4","sentadilla-frontal-con-mancuernas.mp4","sentadilla-frontal-con-pin.mp4","sentadilla-frontal-en-banco.mp4","sentadilla-frontal-en-maquina-smith.mp4","sentadilla-frontal.mp4","sentadilla-hack-con-barra.mp4","sentadilla-hack-en-maquina-smith.mp4","sentadilla-hack-en-maquina.mp4","sentadilla-hack-inversa-en-maquina.mp4","sentadilla-pendular.mp4","sentadilla-pistol-asistida.mp4","sentadilla-pistol-con-peso.mp4","sentadilla-pistol-en-caja.mp4","sentadilla-pistol.mp4","sentadilla-profunda-a-flexion-amplia-con-sujecion-del-pie.mp4","sentadilla-sissy-con-peso-adicional.mp4","sentadilla-sissy-con-peso-en-posicion-de-rodillas.mp4","sentadilla-sissy-de-rodillas.mp4","sentadilla-sissy.mp4","sentadilla-sumo-con-barra.mp4","sentadilla-sumo-con-multipower.mp4","sentadilla-sumo-desde-stepbox.mp4","sentadilla-sumo.mp4","sentadilla-zercher-en-maquina-smith.mp4","sentadilla-zercher-isometrica.mp4","sentadilla-zercher.mp4","sentadilla.mp4","step-de-patrick.mp4","subida-al-banco-con-mancuernas.mp4","subida-al-cajon.mp4","superman.mp4","thruster-con-barra.mp4","thruster-con-dos-pesas-rusas.mp4","thruster-con-mancuernas.mp4","tiron-de-arranque.mp4","tiron-de-cargada-desde-el-suelo.mp4","toque-de-rodilla-alta-saltando.mp4","trineo-prowler.mp4","trote-en-el-sitio.mp4","zancada-con-mancuernas-por-encima-de-la-cabeza.mp4","zancada-con-salto.mp4","zancada-hacia-adelante-con-barra.mp4","zancada-inversa.mp4","zancada-lateral-pliometrica.mp4","zancada-trasera-con-kettlebell.mp4","zancada-trasera-en-multipower.mp4","zancadas-caminando-con-barra.mp4","zancadas-caminando-con-mancuernas.mp4","zancadas-caminando-con-saco-bulgaro.mp4","zancadas-caminando.mp4","zancadas-con-mancuernas.mp4","zancadas-hacia-delante-con-saco-de-arena.mp4","zancadas-inversas-con-barra.mp4","zancadas-laterales-con-mancuernas.mp4","zancadas-laterales.mp4","zancadas.mp4"],"tríceps":["dominada-con-impulso.mp4","empuje-de-triceps-en-maquina.mp4","equilibrio-sobre-los-codos.mp4","estiramiento-de-triceps-por-encima-de-la-cabeza.mp4","extension-de-triceps-con-banda.mp4","extension-de-triceps-con-barra-en-banco-inclinado.mp4","extension-de-triceps-con-barra-en-decubito-supino.mp4","extension-de-triceps-con-barra-ez-en-decubito-supino.mp4","extension-de-triceps-con-barra-ez.mp4","extension-de-triceps-con-barra-por-encima-de-la-cabeza-de-pie.mp4","extension-de-triceps-con-cable-a-dos-brazos.mp4","extension-de-triceps-con-cable-por-encima-de-la-cabeza-(barra).mp4","extension-de-triceps-con-cuerda.mp4","extension-de-triceps-con-katana.mp4","extension-de-triceps-con-mancuernas-acostado.mp4","extension-de-triceps-con-mancuernas-en-banco-inclinado.mp4","extension-de-triceps-con-mancuernas-sentado.mp4","extension-de-triceps-en-anillas.mp4","extension-de-triceps-en-cable-con-agarre-invertido-a-una-mano.mp4","extension-de-triceps-en-cruce-con-cable.mp4","extension-de-triceps-en-maquina.mp4","extension-de-triceps-en-polea-acostado.mp4","extension-de-triceps-en-polea-alta-por-encima-de-la-cabeza.mp4","extension-de-triceps-en-polea-alta.mp4","extension-de-triceps-en-polea-con-agarre-inverso.mp4","extension-de-triceps-en-polea-con-barra-en-v.mp4","extension-de-triceps-en-polea-con-un-brazo.mp4","extension-de-triceps-en-polea-inclinada.mp4","extension-de-triceps-en-polea-una-mano.mp4","extension-de-triceps-en-pronacion.mp4","extension-de-triceps-en-suspension.mp4","extension-de-triceps-horizontal-de-pie-con-cable-a-un-brazo.mp4","extension-de-triceps-por-encima-de-la-cabeza-con-banda.mp4","extension-de-triceps-por-encima-de-la-cabeza-con-cable.mp4","extension-de-triceps-por-encima-de-la-cabeza-con-katana-a-una-mano.mp4","extension-de-triceps-por-encima-de-la-cabeza-con-un-brazo.mp4","extension-de-triceps-sentado-con-barra-ez.mp4","extension-de-triceps-sentado-con-mancuerna-a-un-brazo.mp4","extension-de-triceps-sentado-con-mancuernas.mp4","flexion-cobra.mp4","flexion-de-brazo-con-extension-de-pierna-y-brazo-opuesto.mp4","flexion-de-brazos-con-agarre-cerrado-y-rodillas-en-el-suelo.mp4","flexion-de-brazos-con-agarre-invertido.mp4","flexion-de-brazos-con-rodillas-en-diamante.mp4","flexion-de-brazos-cruzados.mp4","flexion-de-brazos-en-inclinacion-con-agarre-cerrado.mp4","flexion-de-brazos-en-plancha-completa.mp4","flexion-de-triceps.mp4","flexion-en-diamante-declinado.mp4","flexiones-cerradas-(triceps).mp4","flexiones-diamante.mp4","flexiones-en-pseudo-plancha.mp4","fondo-de-triceps-en-banco-sentado.mp4","fondos-asistidos-con-banda-elastica.mp4","fondos-asistidos-en-maquina.mp4","fondos-en-anillas.mp4","fondos-en-banco-con-los-pies-elevados.mp4","fondos-en-banco-con-peso.mp4","fondos-en-silla.mp4","fondos-lastrados.mp4","fondos.mp4","muscle-up-asistido-con-banda-elastica.mp4","muscle-up-con-peso.mp4","patada-de-triceps-con-cable.mp4","plancha-de-rana.mp4","plancha-en-anillas-con-rodillas-flexionadas.mp4","press-de-banca-con-agarre-cerrado.mp4","press-de-banca-inclinado-con-mancuernas-y-agarre-cerrado.mp4","press-de-california.mp4","press-de-smith-jm.mp4","press-frances-con-barra-en-banco-declinado.mp4","press-frances-de-pie-con-una-mancuerna.mp4","press-frances-horizontal-en-polea-sentado.mp4","press-jm-en-maquina-smith.mp4","press-jm.mp4","press-tate.mp4","pullover-para-triceps-con-barra.mp4","sosten-en-apoyo-sobre-anillas.mp4"]};
+let VIDEOS_CATALOG = {};
+let videosCatalogLoaded = false;
+
+async function loadVideosCatalog(){
+  if(videosCatalogLoaded) return VIDEOS_CATALOG;
+  try{
+    const res = await fetch('./videos_catalog.json', { cache: 'default' });
+    if(res.ok){
+      VIDEOS_CATALOG = await res.json();
+      videosCatalogLoaded = true;
+      localStorage.setItem('gymtony_vid_catalog_v1', JSON.stringify(VIDEOS_CATALOG));
+    }
+  }catch(e){
+    try{
+      const cached = localStorage.getItem('gymtony_vid_catalog_v1');
+      if(cached){ VIDEOS_CATALOG = JSON.parse(cached); videosCatalogLoaded = true; }
+    }catch(_){}
+  }
+  return VIDEOS_CATALOG;
+}
 
 const VIDEO_SUBFOLDER_META = {
   'pecho':       { label: 'Pecho',       cat: 'pecho',   sub: 'Pecho',   logo: './logos/PECHO.png' },
@@ -1233,12 +1271,42 @@ function formatVideoTitle(filename){
   return base.charAt(0).toUpperCase() + base.slice(1);
 }
 
+let vidPageLimit = 20;
+let vidObserver = null;
+
+function observeLazyVideos(){
+  if(vidObserver) vidObserver.disconnect();
+  const vids = document.querySelectorAll('#vid-list-container video.lazy-vid');
+  if(!('IntersectionObserver' in window)){
+    vids.forEach(v => { if(v.dataset.src && !v.src){ v.src = v.dataset.src; } });
+    return;
+  }
+  vidObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      const v = entry.target;
+      if(entry.isIntersecting){
+        if(v.dataset.src && !v.src){ v.src = v.dataset.src; }
+        v.play().catch(()=>{});
+      } else {
+        v.pause();
+      }
+    });
+  }, { rootMargin: '120px 0px' });
+  vids.forEach(v => vidObserver.observe(v));
+}
+
+function loadMoreVideos(){
+  vidPageLimit += 20;
+  renderVideosLibrary(true);
+}
+
 function selectVideoSubfolder(sub){
   activeVideoSub = sub;
+  vidPageLimit = 20;
   renderVideosLibrary();
 }
 
-function renderVideosLibrary(){
+async function renderVideosLibrary(keepLimit){
   const tabsBox = document.getElementById('vid-sub-tabs');
   const listBox = document.getElementById('vid-list-container');
   const totalBadge = document.getElementById('vid-total-badge');
@@ -1246,6 +1314,12 @@ function renderVideosLibrary(){
   const bannerSub = document.getElementById('vid-banner-sub');
   const bannerLogo = document.getElementById('vid-group-logo');
   if(!tabsBox || !listBox) return;
+
+  if(!videosCatalogLoaded){
+    listBox.innerHTML = '<div style="color:var(--muted);font-size:.82rem;padding:12px">Cargando biblioteca de vídeos...</div>';
+    await loadVideosCatalog();
+  }
+  if(!keepLimit) vidPageLimit = 20;
 
   const subs = ['Todos', ...Object.keys(VIDEOS_CATALOG)];
   const allEntries = [];
@@ -1261,7 +1335,7 @@ function renderVideosLibrary(){
   if(pickerBanner){
     if(libraryPickerTargetCat){
       pickerBanner.classList.remove('hidden');
-      if(pickerText) pickerText.textContent = `Seleccionando ejercicios para: ${GROUP_LABELS[libraryPickerTargetCat] || libraryPickerTargetCat}`;
+      if(pickerText) pickerText.textContent = `Seleccionando para: ${GROUP_LABELS[libraryPickerTargetCat] || libraryPickerTargetCat}`;
     } else {
       pickerBanner.classList.add('hidden');
     }
@@ -1280,10 +1354,12 @@ function renderVideosLibrary(){
   if(bannerTitle){
     bannerTitle.textContent = activeVideoSub === 'Todos'
       ? 'Catálogo de Vídeos (9 subcarpetas)'
-      : `${meta ? meta.label : activeVideoSub} · ${ (VIDEOS_CATALOG[activeVideoSub]||[]).length } vídeos`;
+      : `${meta ? meta.label : activeVideoSub} · ${(VIDEOS_CATALOG[activeVideoSub]||[]).length} vídeos`;
   }
   if(bannerSub){
-    bannerSub.textContent = 'Añade cualquier vídeo a Pecho+Tríceps, Pierna+Hombro, Espalda+Bíceps o Cardio';
+    bannerSub.textContent = libraryPickerTargetCat
+      ? `Pulsa el botón grande para añadir o quitar de ${GROUP_LABELS[libraryPickerTargetCat]}`
+      : 'Añade cualquier vídeo a Pecho+Tríceps, Pierna+Hombro, Espalda+Bíceps o Cardio';
   }
 
   const onlyBtn = document.getElementById('vid-only-group-btn');
@@ -1291,39 +1367,65 @@ function renderVideosLibrary(){
     onlyBtn.classList.toggle('sel', pickerOnlyAssigned);
     onlyBtn.textContent = pickerOnlyAssigned ? 'En grupo ✓' : 'En grupo';
   }
+
   const q = (document.getElementById('vid-search-inp')?.value || '').trim().toLowerCase();
-  const filtered = allEntries.filter(item =>
+  const filteredAll = allEntries.filter(item =>
     (activeVideoSub === 'Todos' || item.sub === activeVideoSub) &&
     (!q || item.name.toLowerCase().includes(q) || item.fn.toLowerCase().includes(q)) &&
     (!libraryPickerTargetCat || !pickerOnlyAssigned || isMediaAssignedToGroup(item.relPath, libraryPickerTargetCat))
-  ).slice(0, 120);
+  );
 
-  if(!filtered.length){
+  if(!filteredAll.length){
     listBox.innerHTML = '<div style="color:var(--muted);font-size:.82rem;padding:12px">No hay vídeos que coincidan con el filtro.</div>';
     return;
   }
 
-  listBox.innerHTML = filtered.map(item => {
-    const inPecho = isMediaAssignedToGroup(item.relPath, 'pecho');
-    const inPierna = isMediaAssignedToGroup(item.relPath, 'pierna');
-    const inEspalda = isMediaAssignedToGroup(item.relPath, 'espalda');
-    const inCardio = isMediaAssignedToGroup(item.relPath, 'cardio');
+  const visibleSlice = filteredAll.slice(0, vidPageLimit);
+  let cardsHtml = visibleSlice.map(item => {
     const vidUrl = `./${item.relPath.split('/').map(p=>encodeURIComponent(p)).join('/')}`;
+    const safeRel = item.relPath.replace(/'/g, "\'");
+    const safeName = item.name.replace(/'/g, "\'");
+    const safeSub = item.sub.replace(/'/g, "\'");
 
-    return `<div class="ex-card" style="align-items:flex-start" onclick="openVideoPreview('${item.relPath.replace(/'/g, "\'")}', '${item.name.replace(/'/g, "\'")}', '${item.sub.replace(/'/g, "\'")}')">
-      <video class="ex-thumb" src="${vidUrl}" muted loop playsinline preload="metadata" style="object-fit:cover;background:#090d16"></video>
+    let controlsHtml = '';
+    if(libraryPickerTargetCat){
+      const inTarget = isMediaAssignedToGroup(item.relPath, libraryPickerTargetCat);
+      const grpLbl = GROUP_LABELS[libraryPickerTargetCat] || libraryPickerTargetCat;
+      controlsHtml = `<div onclick="event.stopPropagation()">
+        <button type="button" class="vid-single-btn ${inTarget?'added':''}" onclick="assignVideoToGroup('${safeRel}','${safeName}','${safeSub}','${libraryPickerTargetCat}')">
+          ${inTarget ? `En ${grpLbl} ✓ (Quitar)` : `+ Añadir a ${grpLbl}`}
+        </button>
+      </div>`;
+    } else {
+      const inPecho = isMediaAssignedToGroup(item.relPath, 'pecho');
+      const inPierna = isMediaAssignedToGroup(item.relPath, 'pierna');
+      const inEspalda = isMediaAssignedToGroup(item.relPath, 'espalda');
+      const inCardio = isMediaAssignedToGroup(item.relPath, 'cardio');
+      controlsHtml = `<div class="vid-assign-row" onclick="event.stopPropagation()">
+        <button type="button" class="vid-grp-btn ${inPecho?'added':''}" onclick="assignVideoToGroup('${safeRel}','${safeName}','${safeSub}','pecho')">${inPecho?'Pecho ✓':'+ Pecho'}</button>
+        <button type="button" class="vid-grp-btn ${inPierna?'added':''}" onclick="assignVideoToGroup('${safeRel}','${safeName}','${safeSub}','pierna')">${inPierna?'Pierna ✓':'+ Pierna'}</button>
+        <button type="button" class="vid-grp-btn ${inEspalda?'added':''}" onclick="assignVideoToGroup('${safeRel}','${safeName}','${safeSub}','espalda')">${inEspalda?'Espalda ✓':'+ Espalda'}</button>
+        <button type="button" class="vid-grp-btn ${inCardio?'added':''}" onclick="assignVideoToGroup('${safeRel}','${safeName}','${safeSub}','cardio')">${inCardio?'Cardio ✓':'+ Cardio'}</button>
+      </div>`;
+    }
+
+    return `<div class="ex-card" style="align-items:flex-start" onclick="openVideoPreview('${safeRel}', '${safeName}', '${safeSub}')">
+      <video class="ex-thumb lazy-vid" data-src="${vidUrl}" muted loop playsinline preload="none" style="object-fit:cover;background:#090d16"></video>
       <div class="ex-meta">
         <div class="ex-name">${item.name}</div>
         <div class="ex-last">Subcarpeta: ${item.sub}</div>
-        <div class="vid-assign-row" onclick="event.stopPropagation()">
-          <button type="button" class="vid-grp-btn ${inPecho?'added':''}" onclick="assignVideoToGroup('${item.relPath.replace(/'/g, "\'")}','${item.name.replace(/'/g, "\'")}','${item.sub.replace(/'/g, "\'")}','pecho')">${inPecho?'Pecho ✓':'+ Pecho'}</button>
-          <button type="button" class="vid-grp-btn ${inPierna?'added':''}" onclick="assignVideoToGroup('${item.relPath.replace(/'/g, "\'")}','${item.name.replace(/'/g, "\'")}','${item.sub.replace(/'/g, "\'")}','pierna')">${inPierna?'Pierna ✓':'+ Pierna'}</button>
-          <button type="button" class="vid-grp-btn ${inEspalda?'added':''}" onclick="assignVideoToGroup('${item.relPath.replace(/'/g, "\'")}','${item.name.replace(/'/g, "\'")}','${item.sub.replace(/'/g, "\'")}','espalda')">${inEspalda?'Espalda ✓':'+ Espalda'}</button>
-          <button type="button" class="vid-grp-btn ${inCardio?'added':''}" onclick="assignVideoToGroup('${item.relPath.replace(/'/g, "\'")}','${item.name.replace(/'/g, "\'")}','${item.sub.replace(/'/g, "\'")}','cardio')">${inCardio?'Cardio ✓':'+ Cardio'}</button>
-        </div>
+        ${controlsHtml}
       </div>
     </div>`;
   }).join('');
+
+  if(filteredAll.length > vidPageLimit){
+    const rem = filteredAll.length - vidPageLimit;
+    cardsHtml += `<button type="button" class="vid-load-more-btn" onclick="loadMoreVideos()">Cargar más vídeos (+20 · quedan ${rem})</button>`;
+  }
+
+  listBox.innerHTML = cardsHtml;
+  observeLazyVideos();
 }
 
 let libraryPickerTargetCat = null;
@@ -1368,6 +1470,7 @@ function removeExFromGroupList(exId){
   if(!ex) return;
   const grp = ex.cat;
   ex.cat = '';
+  purgeOrphanExercises();
   saveExercises();
   const ids = getGroupPlanIds(grp);
   const idx = ids.indexOf(exId);
@@ -1511,6 +1614,21 @@ function imgFallback(el, encodedFile){
 async function hydrateMediaCache(){
   for(const ex of exercises.filter(e=>e.customMedia)){
     await getCustomMedia(ex.id);
+  }
+}
+
+function purgeOrphanExercises(){
+  const before = exercises.length;
+  exercises = exercises.filter(e => e.cat || (logs[e.id] && logs[e.id].length > 0));
+  if(exercises.length !== before) saveExercises();
+}
+
+async function clearMediaCache(){
+  try{
+    const deleted = await caches.delete('gymtony-media-v1');
+    showToast(deleted ? 'Caché de vídeos vaciada ✓' : 'No había vídeos en caché');
+  }catch(e){
+    showToast('Error al limpiar caché de vídeos');
   }
 }
 
@@ -1879,6 +1997,13 @@ async function openExercise(id, fromPop){
   } else {
     const pr = hist.reduce((m,h)=>Math.max(m,...(h.sets||[]).map(s=>Number(s.w)||0)),0);
     document.getElementById('det-last').textContent = prevEntry ? prevEntry.date.slice(5) : 'Nuevo';
+    if(hist.length >= 2){
+      const max0 = Math.max(0, ...(hist[0].sets||[]).map(s=>Number(s.w)||0));
+      const max1 = Math.max(0, ...(hist[1].sets||[]).map(s=>Number(s.w)||0));
+      const diff = +(max0 - max1).toFixed(1);
+      const badge = diff > 0 ? `<span class="delta-up"> ▲ +${diff}kg</span>` : (diff < 0 ? `<span class="delta-down"> ▼ ${diff}kg</span>` : `<span class="delta-eq"> =</span>`);
+      document.getElementById('det-last').innerHTML = document.getElementById('det-last').textContent + badge;
+    }
     document.getElementById('det-pr').textContent = pr + ' kg';
     const cont = document.getElementById('sets-container');
     cont.innerHTML = '';
@@ -2231,7 +2356,8 @@ function saveWorkout(){
 
   localStorage.setItem(DB_KEY, JSON.stringify(logs));
   touchLocalAndSync();
-  showToast('Sesión guardada ✓');
+  startTimer(cfg.rest || 90);
+  showToast(`Sesión guardada · Descanso ${cfg.rest || 90}s ✓`);
   openExercise(currentEx.id, true);
 }
 
@@ -2818,10 +2944,10 @@ function setSyncStatus(state, text){
   const badge = document.getElementById('gh-status-badge');
   const lastEl = document.getElementById('gh-last-sync');
   if(pill){
-    pill.style.display = ghCfg.token ? 'inline-block' : 'none';
-    pill.textContent = state==='syncing' ? '☁ ...' : (state==='ok' ? '☁ OK' : (state==='err' ? '☁ !' : '☁'));
-    pill.style.color = state==='ok' ? '#4ade80' : (state==='err' ? '#fca5a5' : '#60a5fa');
-    pill.style.borderColor = state==='ok' ? '#22c55e' : (state==='err' ? '#ef4444' : 'var(--border)');
+    pill.style.display = (ghCfg.token || state==='pending') ? 'inline-block' : 'none';
+    pill.textContent = state==='syncing' ? '☁ ...' : (state==='ok' ? '☁ OK' : (state==='pending' ? '☁ Pend.' : (state==='err' ? '☁ !' : '☁')));
+    pill.style.color = state==='ok' ? '#4ade80' : (state==='pending' ? '#fbbf24' : (state==='err' ? '#fca5a5' : '#60a5fa'));
+    pill.style.borderColor = state==='ok' ? '#22c55e' : (state==='pending' ? '#f59e0b' : (state==='err' ? '#ef4444' : 'var(--border)'));
   }
   if(badge){
     badge.textContent = text || (ghCfg.token ? 'Conectado' : 'Sin configurar');
@@ -2947,6 +3073,8 @@ function touchLocalAndSync(){
   localStorage.setItem(TS_KEY, String(localUpdatedAt));
   if(ghCfg.token && ghCfg.auto){
     pushToGitHub(false);
+  } else {
+    setSyncStatus('pending', 'Pendiente de subir');
   }
 }
 
