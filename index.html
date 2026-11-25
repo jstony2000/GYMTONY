@@ -921,7 +921,7 @@ body{padding:calc(10px + env(safe-area-inset-top)) 14px calc(135px + env(safe-ar
 </nav>
 
 <script>
-const APP_VERSION = 'v3.5.8';
+const APP_VERSION = 'v3.5.9';
 const DB_KEY = 'gymtony_pro_v2';
 const EX_KEY = 'gymtony_exercises_v3';
 const CFG_KEY = 'gymtony_cfg_v2';
@@ -1332,14 +1332,21 @@ let openedDetailFromLibrary = false;
 
 function openLibraryForGroup(cat){
   libraryPickerTargetCat = cat;
-  pickerOnlyAssigned = false;
+  const hasAssigned = exercises.some(e => e.cat === cat);
+  pickerOnlyAssigned = hasAssigned;
   const defaultSubMap = { pecho: 'pecho', pierna: 'piernas', espalda: 'espalda', cardio: 'Todos' };
-  activeVideoSub = defaultSubMap[cat] || 'Todos';
+  activeVideoSub = hasAssigned ? 'Todos' : (defaultSubMap[cat] || 'Todos');
   switchTab('videos');
 }
 
 function togglePickerOnlyAssigned(){
   pickerOnlyAssigned = !pickerOnlyAssigned;
+  if(!pickerOnlyAssigned && libraryPickerTargetCat && activeVideoSub === 'Todos'){
+    const defaultSubMap = { pecho: 'pecho', pierna: 'piernas', espalda: 'espalda', cardio: 'Todos' };
+    activeVideoSub = defaultSubMap[libraryPickerTargetCat] || 'Todos';
+  } else if(pickerOnlyAssigned){
+    activeVideoSub = 'Todos';
+  }
   renderVideosLibrary();
 }
 
